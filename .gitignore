@@ -1,0 +1,10 @@
+/target/
+*.log
+.env
+.env.*
+!.env.example
+/standalone.xml
+/standalone-*.xml
+/standalone_xml_history/
+/data/
+/tmp/
