@@ -1,0 +1,60 @@
+<%@ page pageEncoding="UTF-8" %>
+<%@ taglib prefix="c" uri="jakarta.tags.core" %>
+<section class="card form-history-card" aria-labelledby="form-history-title">
+    <div class="form-history-heading">
+        <div>
+            <span class="page-eyebrow">Traçabilité</span>
+            <h2 id="form-history-title">Historique des actions</h2>
+        </div>
+        <span class="history-total"><c:out value="${historyTotalActions}"/> action<c:if test="${historyTotalActions ne 1}">s</c:if></span>
+    </div>
+    <c:choose>
+        <c:when test="${empty historyActions}">
+            <p class="form-history-empty">Aucune action enregistrée pour cet écran.</p>
+        </c:when>
+        <c:otherwise>
+            <div class="table-wrap">
+                <table class="form-history-table">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Libellé</th>
+                            <th>Action</th>
+                            <th>Effectuée par</th>
+                            <th>Écran</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <c:forEach var="action" items="${historyActions}">
+                            <tr>
+                                <td class="history-date"><c:out value="${action.date}"/></td>
+                                <td class="primary-cell"><c:out value="${action.label}"/></td>
+                                <td><span class="history-action"><c:out value="${action.action}"/></span></td>
+                                <td><c:out value="${action.user}"/></td>
+                                <td><c:out value="${action.screen}"/></td>
+                            </tr>
+                        </c:forEach>
+                    </tbody>
+                </table>
+            </div>
+            <c:if test="${historyTotalPages gt 1}">
+                <nav class="form-history-pagination" aria-label="Pagination de l’historique">
+                    <span>Page <c:out value="${historyPage}"/> sur <c:out value="${historyTotalPages}"/></span>
+                    <div class="history-page-links">
+                        <c:if test="${historyPage gt 1}">
+                            <a class="page-link" href="${pageContext.request.contextPath}/admin/${type}?vue=form&amp;id=${element.id}&amp;page=${historyPage - 1}" aria-label="Page précédente">Précédent</a>
+                        </c:if>
+                        <c:forEach var="pageNumber" begin="${historyFirstPage}" end="${historyLastPage}">
+                            <a class="page-link ${pageNumber eq historyPage ? 'current' : ''}"
+                               href="${pageContext.request.contextPath}/admin/${type}?vue=form&amp;id=${element.id}&amp;page=${pageNumber}"
+                               aria-label="Page ${pageNumber}" ${pageNumber eq historyPage ? 'aria-current="page"' : ''}><c:out value="${pageNumber}"/></a>
+                        </c:forEach>
+                        <c:if test="${historyPage lt historyTotalPages}">
+                            <a class="page-link" href="${pageContext.request.contextPath}/admin/${type}?vue=form&amp;id=${element.id}&amp;page=${historyPage + 1}" aria-label="Page suivante">Suivant</a>
+                        </c:if>
+                    </div>
+                </nav>
+            </c:if>
+        </c:otherwise>
+    </c:choose>
+</section>

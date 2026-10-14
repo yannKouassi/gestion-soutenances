@@ -25,7 +25,7 @@ public class Filiere extends BaseEntity {
     @JoinColumn(name = "departement_id", nullable = false)
     private Departement departement;
 
-    protected Filiere() {
+    public Filiere() {
     }
 
     public String getCode() {

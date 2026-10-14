@@ -18,7 +18,7 @@ public class Grade extends BaseEntity {
     @Column(nullable = false, length = 120)
     private String libelle;
 
-    protected Grade() {
+    public Grade() {
     }
 
     public String getCode() {

@@ -18,7 +18,7 @@ public class Departement extends BaseEntity {
     @Column(nullable = false, length = 120)
     private String nom;
 
-    protected Departement() {
+    public Departement() {
     }
 
     public String getCode() {

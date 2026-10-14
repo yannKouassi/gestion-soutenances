@@ -37,6 +37,37 @@ Java 17, Jakarta EE, JPA/Hibernate, MySQL et WildFly.
 La persistance JPA est configurée dans `src/main/resources/META-INF/persistence.xml`.
 Hibernate met à jour le schéma (`hibernate.hbm2ddl.auto=update`) au déploiement.
 
+## Module administrateur A — Paramètres & Référentiels
+
+Les routes `/admin/grades`, `/admin/departements`, `/admin/filieres` et
+`/admin/salles` proposent les opérations de liste, ajout, modification et
+suppression. Les JSP correspondantes (`grade-list.jsp`, `grade-form.jsp`,
+`departement-list.jsp`, `departement-form.jsp`, `filiere-list.jsp`,
+`filiere-form.jsp`, `salle-list.jsp`, `salle-form.jsp`) se trouvent sous
+`src/main/webapp/WEB-INF/views/admin`.
+
+Ces routes sont réservées à une session contenant un `SessionUser` de rôle
+`ADMIN` dans l’attribut `utilisateurConnecte`. Le filtre refuse les requêtes
+non authentifiées et vérifie un jeton CSRF sur les formulaires POST.
+Chaque formulaire affiche l’historique persistant des créations, modifications
+et suppressions de son écran. Cet historique indique la date, le libellé,
+l’action, l’utilisateur et l’écran, avec quatre entrées par page ; il n’apparaît
+pas sur les listes.
+
+## Connexion
+
+1. Ouvrir `/login`.
+2. Lors de la première utilisation, ouvrir le lien de création du premier
+   administrateur depuis cette page. Cette configuration initiale ne répond
+   qu'aux requêtes locales et se désactive dès qu'un administrateur est créé.
+3. Créer le compte avec un mot de passe d'au moins 8 caractères, puis se
+   connecter. Les mots de passe sont stockés hachés avec PBKDF2-HMAC-SHA256.
+4. L'administrateur est redirigé vers `/admin/departements`. La déconnexion se
+   fait par le bouton de session.
+
+Les autres rôles peuvent se connecter, mais leurs écrans ne sont pas encore
+implémentés ; ils verront une page temporaire qui l'indique.
+
 ## Lancer le projet
 
 Publier le projet sur WildFly depuis Eclipse, puis ouvrir :

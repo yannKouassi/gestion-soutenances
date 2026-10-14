@@ -27,7 +27,7 @@ public class HistoriqueAction extends BaseEntity {
     @JoinColumn(name = "utilisateur_id", nullable = false)
     private Utilisateur utilisateur;
 
-    protected HistoriqueAction() {
+    public HistoriqueAction() {
     }
 
     public String getTypeAction() {
