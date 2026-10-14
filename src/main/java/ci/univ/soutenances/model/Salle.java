@@ -22,7 +22,7 @@ public class Salle extends BaseEntity {
     @JoinColumn(name = "departement_id", nullable = false)
     private Departement departement;
 
-    protected Salle() {
+    public Salle() {
     }
 
     public String getNomSalle() {

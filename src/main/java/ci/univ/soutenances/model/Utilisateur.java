@@ -24,7 +24,7 @@ public class Utilisateur extends BaseEntity {
     @Column(nullable = false, length = 20)
     private RoleUtilisateur role;
 
-    protected Utilisateur() {
+    public Utilisateur() {
     }
 
     public String getLogin() {

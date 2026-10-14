@@ -4,12 +4,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Gestion des soutenances</title>
+    <title>Gestion des soutenances | PGS-PFE</title>
 </head>
 <body>
     <main>
         <h1>Gestion des soutenances</h1>
-        <p>La plateforme PGS-PFE est déployée. La page de connexion sera disponible après sa mise en place.</p>
+        <p>Plateforme de gestion des soutenances de projets de fin d’études.</p>
+        <p><a href="${pageContext.request.contextPath}/login">Se connecter</a></p>
     </main>
 </body>
 </html>
