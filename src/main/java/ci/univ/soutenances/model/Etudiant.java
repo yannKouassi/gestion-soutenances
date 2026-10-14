@@ -19,7 +19,7 @@ import jakarta.persistence.UniqueConstraint;
 })
 @AttributeOverride(name = "id", column = @Column(name = "id_etudiant", nullable = false, updatable = false))
 public class Etudiant extends BaseEntity {
-    @Column(nullable = false, length = 40)
+    @Column(nullable = false, length = 40,unique=true)
     private String matricule;
 
     @Column(nullable = false, length = 100)
