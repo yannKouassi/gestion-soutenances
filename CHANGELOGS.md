@@ -1,18 +1,38 @@
+# Journal des modifications
+
+Une section par feature, de la plus récente à la plus ancienne. Une branche
+`feat/...` (ou `feature/...`) est une feature : tous ses commits propres à la
+branche de base forment la feature.
+
+Chaque section commence par un bloc `frontmatter` — `feature`, `branche`, `base`,
+`date`, `auteurs`, `commits` — suivi du titre, de la partie « Détail » rédigée et
+de la table des commits. Le `frontmatter` et la table sont posés par
+`scripts/nouvelle-changelog.ps1`, qui lit le `git log` de la branche ; la
+commande opencode `/nouvelle-changelog` rédige ensuite la partie « Détail » à
+partir du diff, des corps de commit et de l'intention de la feature.
+
 ---
-utilisateur: xxvByMe
-branche: main
-description: 'État de main après fusion — lots « journal d''audit », « Acteurs & comptes » et « hiérarchie du menu d''administration », documents de référence'
+feature: Journal d'audit, Acteurs & comptes et hiérarchie du menu d'administration
+branche: feature/admin-historique → feature/admin-menu-audit-hierarchy
+base: main
+date: 2026-10-15
+auteurs:
+  - xxvByMe
+  - Yannick Kouassi
+commits: 10
 ---
 
-# Changelog — `main` après fusion
+## Journal d'audit, Acteurs & comptes et hiérarchie du menu d'administration
 
-État de la branche `main` au commit `c2d8a74` (fusion de la Pull Request #1,
-branche `feature/admin-menu-audit-hierarchy`). Ce document décrit les trois
-lots livrés — le journal d'audit `/admin/historique`, le module « Acteurs &
-Comptes » et la hiérarchie du menu d'administration — ainsi que les documents
-de référence du dépôt.
+### Détail
 
-## Documents de référence
+Cette section décrit l'état de `main` au commit `c2d8a74` (fusion de la Pull
+Request #1, branche `feature/admin-menu-audit-hierarchy`) : les trois lots
+livrés — le journal d'audit `/admin/historique`, le module « Acteurs & comptes »
+et la hiérarchie du menu d'administration — ainsi que les documents de référence
+du dépôt.
+
+#### Documents de référence
 
 - Export au format Markdown des documents de référence du dépôt : charte
   graphique, découpage/MLD et sujet complet (`9f07fa5`).
@@ -24,9 +44,9 @@ de référence du dépôt.
 
 Ces exports complètent les sources PDF/XLSX, qui restent inchangées.
 
-## Lot « journal d'audit »
+#### Lot « journal d'audit »
 
-### Modèle et persistance
+##### Modèle et persistance
 
 - `Historique_Action` reçoit deux colonnes nullable, `ecran` et `action`, plus
   trois index (`ecran`, `action`, `date_action`). Le schéma est mis à jour par
@@ -40,16 +60,16 @@ Ces exports complètent les sources PDF/XLSX, qui restent inchangées.
   `HistoriqueJournalEntry` (ligne affichée), avec les méthodes correspondantes
   dans `HistoriqueActionRepository` et `HistoriqueActionService`.
 
-### Écran `/admin/historique`
+##### Écran `/admin/historique`
 
 - `HistoriqueServlet` répond en GET à `/admin/historique` et forward vers
   `historique-list.jsp`, rédigée en EL et JSTL uniquement. Le servlet ne
-  redoit aucun contrôle de session ni de rôle : le filtrage `/admin/*` est
+  refait aucun contrôle de session ni de rôle : le filtrage `/admin/*` est
   assuré par `AdminAuthorizationFilter`.
 - Entrée de navigation « Journal d'audit » ajoutée dans `admin-layout.jspf`,
   sous l'en-tête « Pilotage & audit ».
 
-### Consultation, filtres et pagination
+##### Consultation, filtres et pagination
 
 - Le journal est global : il agrège les actions des quatre écrans référentiels
   (grades, départements, filières, salles) et les présente par date
@@ -64,7 +84,7 @@ Ces exports complètent les sources PDF/XLSX, qui restent inchangées.
   sur la requête de page pour éviter toute `LazyInitializationException` à
   l'affichage du nom et du rôle de l'auteur.
 
-### Corrections
+##### Corrections
 
 `1091367` — cinq défauts relevés en revue :
 
@@ -89,16 +109,16 @@ Ces exports complètent les sources PDF/XLSX, qui restent inchangées.
 2. Le bandeau affichait « Paramètres généraux » sur un écran de pilotage &
    audit ; il affiche « Pilotage & audit » sur le journal.
 
-### Non-régression
+##### Non-régression
 
 Les huit JSP des quatre écrans référentiels (listes et formulaires grades,
 départements, filières, salles) sont inchangées à l'octet près : leur diff est
 vide entre le point de départ de la branche et `0e417e4`. Seuls le fragment de
 navigation, le bandeau et la feuille de style partagée ont été modifiés.
 
-## Lot « Acteurs & Comptes »
+#### Lot « Acteurs & Comptes »
 
-### Modèle et persistance
+##### Modèle et persistance
 
 - `AccountEntry` est une classe porteuse immuable servant de projection JPQL
   pour la liste des comptes ; ce n'est pas une entité JPA.
@@ -108,7 +128,7 @@ navigation, le bandeau et la feuille de style partagée ont été modifiés.
 - `Encadreur` et `Etudiant` ne gagnent aucune colonne ; seul leur constructeur
   devient public.
 
-### Repositories
+##### Repositories
 
 - Nouveaux `EncadreurRepository` et `EtudiantRepository` : lecture, recherche
   par identifiant, contrôle d'unicité de l'e-mail, `matriculeExists` côté
@@ -118,7 +138,7 @@ navigation, le bandeau et la feuille de style partagée ont été modifiés.
 - `UtilisateurRepository` gagne `findAllAccounts`, `findEmailById` et
   `countActiveAdministrators`.
 
-### Services
+##### Services
 
 - `CompteService` : création de compte lié à un acteur, mise à jour du login,
   activation/désactivation, réinitialisation de mot de passe. Le mot de passe
@@ -136,7 +156,7 @@ navigation, le bandeau et la feuille de style partagée ont été modifiés.
   mettent le login à jour quand l'e-mail change.
 - `AuthServiceImpl` refuse l'authentification d'un compte inactif.
 
-### Contrôleur
+##### Contrôleur
 
 - `ActeursServlet` sert `/admin/encadreurs`, `/admin/etudiants`,
   `/admin/utilisateurs` et leurs sous-chemins, en s'appuyant sur
@@ -147,7 +167,7 @@ navigation, le bandeau et la feuille de style partagée ont été modifiés.
   les écrans `ENCADREUR`, `ETUDIANT`, `UTILISATEUR`. Les formulaires affichent
   les dernières actions via `admin-history.jspf`.
 
-### Vues
+##### Vues
 
 - Nouvelles `encadreur-list.jsp` (filtres grade et département),
   `encadreur-form.jsp`, `etudiant-list.jsp` (filtre filière),
@@ -160,7 +180,7 @@ navigation, le bandeau et la feuille de style partagée ont été modifiés.
   d'action et de badge d'état de compte.
 - `HistoriqueActionService` accepte les trois nouveaux écrans.
 
-## Lot « hiérarchie du menu d'administration »
+#### Lot « hiérarchie du menu d'administration »
 
 - Le groupe « Pilotage & audit » plat de `admin-layout.jspf` devient deux
   groupes repliables : « Tableau de Bord & Statistiques » avec une entrée
@@ -171,7 +191,7 @@ navigation, le bandeau et la feuille de style partagée ont été modifiés.
   nouvelle valeur.
 - `README.md` gagne une section décrivant cette hiérarchie.
 
-## Commits
+### Commits
 
 | Commit | Sujet |
 |---|---|

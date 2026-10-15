@@ -13,17 +13,18 @@ Ce document décrit l'état réel du dépôt et les règles à respecter. Ce qui
 - Unité de persistance JPA `GestionSoutenancesPU`, `transaction-type="JTA"`, datasource JNDI `java:jboss/datasources/GestionSoutenancesDS`, `hibernate.hbm2ddl.auto=update`, `show_sql=false`, `format_sql=true` — fichier `src/main/resources/META-INF/persistence.xml`.
 - `src/main/resources/db/create-database.sql` ne crée que le schéma MySQL `gestion_soutenances` (utf8mb4 / utf8mb4_unicode_ci). Les tables sont générées par Hibernate (`hbm2ddl.auto=update`), **pas** par un script DDL. N'ajoutez pas de DDL de tables et ne supposez pas qu'un tel script existe.
 - Build : `target/` est du output de build, jamais committé (voir `.gitignore`).
-- Git : deux commits sur `main`. Workflow attendu : une branche par fonctionnalité, PR vers `main`, commit uniquement du code et de la config non secrète.
+- Git : workflow attendu : une branche par fonctionnalité, PR vers `main`, commit uniquement du code et de la config non secrète. Format des messages et journal : voir « Commits et changelog » plus bas.
 
-## État actuel du code
+## Commits et changelog
 
-Seule la couche modèle JPA existe. Dans `src/main/java/ci/univ/soutenances/model/` :
+Les règles d'écriture des commits (branches, format des messages, corps en
+puces, gabarit) et le fonctionnement du changelog sont dans [[references/changelog-rules.md]].
 
-- `BaseEntity` : `@MappedSuperclass` abstrait, `@Id` `UUID` généré par `GenerationType.UUID`, `nullable = false, updatable = false`, avec un simple `getId()`.
-- Les 11 entités : `Utilisateur`, `Departement`, `Grade`, `Filiere`, `Salle`, `Encadreur`, `Memoire`, `Etudiant`, `Soutenance`, `Evaluation`, `HistoriqueAction`.
-- Les enums `RoleUtilisateur` (`ADMIN`, `ENCADREUR`, `ETUDIANT`) et `StatutSoutenance` (`PLANIFIEE`, `EVALUEE`, `ANNULEE`).
-
-**N'existe pas** (ne le décrivez pas comme existant, ne l'inventez pas) : couche DAO/repository, servlets, `web.xml`, authentification, CSS, services. La seule JSP est un placeholder `src/main/webapp/index.jsp`. Tout au-dessus du modèle JPA est à construire.
+En résumé : une branche `feat/...` est une feature, ses commits propres forment
+la feature, chaque commit non cosmétique porte un corps de 2 à 6 puces en
+français, et `CHANGELOGS.md` porte une section par feature dont le squelette est
+posé par `scripts/nouvelle-changelog.ps1`. Avant d'écrire un commit ou une
+section de changelog, lis ce fichier : c'est là que sont les gabarits.
 
 ## Modèle de données
 
@@ -68,32 +69,38 @@ Séparer sous `ci.univ.soutenances` : `model`, `dao`, `service` si nécessaire, 
 Écrans par acteur, avec le mapping JSP / URL déjà convenu en équipe. Créez chaque servlet et sa JSP à l'URL indiquée.
 
 **A. Paramètres & Référentiels (Administrateur)**
+
 - `grade-list.jsp` `/admin/grades`, `grade-form.jsp`
 - `departement-list.jsp` `/admin/departements`, `departement-form.jsp`
 - `filiere-list.jsp` `/admin/filieres`, `filiere-form.jsp`
 - `salle-list.jsp` `/admin/salles`, `salle-form.jsp`
 
 **B. Acteurs & Comptes (Administrateur)**
+
 - `encadreur-list.jsp` `/admin/encadreurs`, `encadreur-form.jsp`
 - `etudiant-list.jsp` `/admin/etudiants`, `etudiant-form.jsp`
 - `utilisateur-list.jsp` `/admin/utilisateurs`
 
 **C. Académique & Soutenances (Administrateur)**
+
 - `memoire-list.jsp` `/admin/memoires`, `memoire-form.jsp`
 - `soutenance-form.jsp` `/admin/planification`, `jury-form.jsp`
 - `soutenance-list.jsp` `/admin/soutenances`
 
 **D. Pilotage & Audit (Administrateur)**
+
 - `dashboard.jsp` `/admin/dashboard`
 - `historique-list.jsp` `/admin/historique`
 
 **Encadreur**
+
 - `dashboard.jsp` `/encadreur/dashboard`
 - `mes-etudiants.jsp` `/encadreur/mes-etudiants`
 - `mes-jurys.jsp` `/encadreur/mes-jurys`, `evaluation-form.jsp`
 - `profil.jsp` `/encadreur/profil`
 
 **Étudiant**
+
 - `ma-soutenance.jsp` `/etudiant/ma-soutenance`
 - `profil.jsp` `/etudiant/profil`
 
@@ -114,5 +121,3 @@ Tokens exacts issus de `documents/Charte_Graphique_Couleurs_UI_App.xlsx`. Utilis
 ## Documents de référence
 
 `documents/` contient le cahier des charges (`CAHIER DE CHARGE.pdf`/`.docx`), le découpage et MLD (`Projet_JavaEE_Soutenances_Decoupage_MLD_V2.pdf`/`.xlsx`, `MLD.md`), la charte graphique (`Charte_Graphique_Couleurs_UI_App.pdf`/`.xlsx`) et le sujet complet (`Projet_Master_JavaEE_Soutenances.pdf`/`.docx`). En cas d'écart entre ce dépôt et les documents, les documents font foi pour les règles métier.
-
-Documents de travail internes : `DAO.md` (conception de la couche `dao/`) et `suggestion.md` (suggestions d'architecture et points à trancher). Ce sont des propositions d'équipe, pas des specs figées.
