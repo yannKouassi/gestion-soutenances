@@ -252,7 +252,7 @@ a:hover {
 }
 
 .admin-form-page {
-    overflow-y: hidden;
+    overflow-y: auto;
 }
 
 .admin-topbar {
@@ -459,6 +459,29 @@ a:hover {
     background: #fff;
 }
 
+.list-filters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.list-filter {
+    min-height: 43px;
+    max-width: 230px;
+    padding: 8px 32px 8px 10px;
+    border: 1px solid #d7e0eb;
+    border-radius: 8px;
+    color: var(--text);
+    background: #fbfdff;
+    font: inherit;
+    font-size: 13px;
+}
+
+.list-filter:focus-visible {
+    border-color: var(--accent);
+    outline: 3px solid #0284c71a;
+}
+
 .search-field {
     position: relative;
     display: flex;
@@ -633,6 +656,122 @@ a:hover {
 .form-history-table td {
     padding: 7px 11px;
     font-size: 11px;
+}
+
+.form-history-table .history-detail-cell {
+    width: 1%;
+    text-align: center;
+    white-space: nowrap;
+}
+
+.history-detail-button,
+.history-modal-close {
+    display: inline-flex;
+    width: 30px;
+    height: 30px;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    border: 1px solid var(--border);
+    border-radius: 7px;
+    background: #fff;
+    color: var(--muted);
+    cursor: pointer;
+}
+
+.history-detail-button:hover,
+.history-modal-close:hover {
+    border-color: var(--primary);
+    color: var(--primary);
+}
+
+.history-detail-button:focus-visible,
+.history-modal-close:focus-visible {
+    outline: 2px solid var(--primary);
+    outline-offset: 2px;
+}
+
+.history-detail-button svg {
+    width: 17px;
+    height: 17px;
+    fill: none;
+    stroke: currentColor;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-width: 1.8;
+}
+
+.history-modal {
+    width: min(480px, calc(100vw - 32px));
+    max-height: min(80vh, 600px);
+    padding: 0;
+    overflow: hidden;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    background: #fff;
+    color: var(--text);
+    box-shadow: 0 20px 60px rgb(15 23 42 / 24%);
+}
+
+.history-modal::backdrop {
+    background: rgb(15 23 42 / 50%);
+    backdrop-filter: blur(2px);
+}
+
+.history-modal-heading {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 14px 18px;
+    border-bottom: 1px solid var(--border);
+}
+
+.history-modal-heading h2 {
+    margin: 0;
+    color: #0f172a;
+    font-size: 16px;
+}
+
+.history-modal-fields {
+    display: grid;
+    gap: 0;
+    margin: 0;
+    padding: 8px 18px 16px;
+}
+
+.history-modal-fields > div {
+    display: grid;
+    grid-template-columns: minmax(110px, 0.35fr) minmax(0, 1fr);
+    gap: 14px;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--border);
+}
+
+.history-modal-fields > div:last-child {
+    border-bottom: 0;
+}
+
+.history-modal-fields dt {
+    color: var(--muted);
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.history-modal-fields dd {
+    margin: 0;
+    overflow-wrap: anywhere;
+    color: var(--text);
+    font-size: 13px;
+    line-height: 1.5;
+    white-space: pre-wrap;
+}
+
+@media (max-width: 480px) {
+    .history-modal-fields > div {
+        grid-template-columns: 1fr;
+        gap: 4px;
+    }
 }
 
 .form-history-pagination {
@@ -1100,6 +1239,27 @@ button:focus-visible,
     display: inline;
 }
 
+.status-badge {
+    display: inline-flex;
+    align-items: center;
+    min-height: 24px;
+    padding: 3px 9px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+.status-active {
+    color: #166534;
+    background: #dcfce7;
+}
+
+.status-inactive {
+    color: #991b1b;
+    background: #fee2e2;
+}
+
 @media (max-width: 760px) {
     .admin-shell {
         grid-template-columns: 1fr;
@@ -1157,6 +1317,15 @@ button:focus-visible,
 
     .search-field {
         width: 100%;
+    }
+
+    .list-filters {
+        width: 100%;
+    }
+
+    .list-filter {
+        width: 100%;
+        max-width: none;
     }
 
     .list-count {

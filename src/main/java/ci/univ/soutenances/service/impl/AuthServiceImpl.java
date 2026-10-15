@@ -30,6 +30,7 @@ public class AuthServiceImpl implements AuthService {
         }
         return utilisateurRepository.findByLogin(login.trim())
                 .filter(utilisateur -> utilisateur.getRole() != null)
+                .filter(Utilisateur::isActif)
                 .filter(utilisateur -> passwordHasher.matches(password, utilisateur.getMotDePasse()));
     }
 

@@ -1,0 +1,19 @@
+package ci.univ.soutenances.repository;
+
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
+
+import ci.univ.soutenances.model.Etudiant;
+
+public interface EtudiantRepository {
+    List<Etudiant> findAll();
+
+    Optional<Etudiant> findById(UUID id);
+
+    boolean emailExists(String email, UUID excludedId);
+
+    boolean matriculeExists(String matricule, UUID excludedId);
+
+    Etudiant save(Etudiant etudiant);
+}

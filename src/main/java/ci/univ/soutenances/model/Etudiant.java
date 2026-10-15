@@ -19,7 +19,7 @@ import jakarta.persistence.UniqueConstraint;
 })
 @AttributeOverride(name = "id", column = @Column(name = "id_etudiant", nullable = false, updatable = false))
 public class Etudiant extends BaseEntity {
-    @Column(nullable = false, length = 40,unique=true)
+    @Column(nullable = false, length = 40, unique = true)
     private String matricule;
 
     @Column(nullable = false, length = 100)
@@ -43,7 +43,7 @@ public class Etudiant extends BaseEntity {
     @JoinColumn(name = "utilisateur_id", nullable = false, unique = true)
     private Utilisateur utilisateur;
 
-    protected Etudiant() {
+    public Etudiant() {
     }
 
     public String getMatricule() {

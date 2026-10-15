@@ -38,7 +38,7 @@ public class Encadreur extends BaseEntity {
     @JoinColumn(name = "utilisateur_id", nullable = false, unique = true)
     private Utilisateur utilisateur;
 
-    protected Encadreur() {
+    public Encadreur() {
     }
 
     public String getNom() {

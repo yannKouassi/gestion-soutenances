@@ -37,6 +37,25 @@ Java 17, Jakarta EE, JPA/Hibernate, MySQL et WildFly.
 La persistance JPA est configurée dans `src/main/resources/META-INF/persistence.xml`.
 Hibernate met à jour le schéma (`hibernate.hbm2ddl.auto=update`) au déploiement.
 
+Pour l’envoi d’e-mails, chaque personne configure son propre serveur SMTP dans
+l’environnement du processus WildFly : `SMTP_HOST`, `SMTP_FROM`,
+`SMTP_USERNAME`, `SMTP_PASSWORD` et éventuellement `SMTP_PORT`, `SMTP_STARTTLS`
+ou `SMTP_SSL`. Par défaut, le port est `587` avec STARTTLS ; pour TLS implicite,
+utiliser le port `465`, `SMTP_SSL=true` et `SMTP_STARTTLS=false`. Les variables
+d’identifiant et de mot de passe doivent être définies ensemble ; pour un relais
+sans authentification, omettre les deux. Ne jamais ajouter ces secrets à GitHub.
+La création d’un compte d’encadreur ou d’étudiant échoue et est annulée si les
+paramètres SMTP manquent ou si le message ne peut pas être envoyé.
+
+Dans Eclipse, chaque développeur peut définir ces variables dans **Run
+Configurations > WildFly > Environment**, puis redémarrer le serveur. Pour un
+lancement direct sous PowerShell, définir `$env:SMTP_HOST`, `$env:SMTP_PORT`,
+`$env:SMTP_FROM`, `$env:SMTP_USERNAME`, `$env:SMTP_PASSWORD` et `$env:SMTP_STARTTLS`
+dans le terminal avant de lancer `standalone.bat`. Chaque personne qui héberge
+sa propre instance peut alors utiliser son propre SMTP. Pour une instance
+partagée en ligne, seul l’administrateur du serveur configure le SMTP utilisé
+par l’application.
+
 ## Module administrateur A — Paramètres & Référentiels
 
 Les routes `/admin/grades`, `/admin/departements`, `/admin/filieres` et
@@ -53,6 +72,21 @@ Chaque formulaire affiche l’historique persistant des créations, modification
 et suppressions de son écran. Cet historique indique la date, le libellé,
 l’action, l’utilisateur et l’écran, avec quatre entrées par page ; il n’apparaît
 pas sur les listes.
+
+## Module administrateur B — Acteurs & Comptes
+
+- `/admin/encadreurs` : recherche et gestion des encadreurs, avec grade et
+  département obligatoires.
+- `/admin/etudiants` : recherche par nom/matricule, filière obligatoire et
+  association facultative à un mémoire existant.
+- `/admin/utilisateurs` : activation/désactivation des comptes et envoi d’un
+  mot de passe temporaire neuf par e-mail.
+
+À la création d’un encadreur ou d’un étudiant, l’adresse e-mail fournie est
+utilisée comme login et un mot de passe temporaire aléatoire de six caractères
+est généré. L’application envoie ces identifiants à cette adresse et ne stocke
+que le mot de passe haché. Modifier l’adresse d’un acteur met également à jour
+son login lié. La connexion est refusée pour les comptes désactivés.
 
 ## Connexion
 

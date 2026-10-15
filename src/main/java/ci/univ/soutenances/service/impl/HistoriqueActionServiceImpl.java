@@ -15,7 +15,8 @@ import jakarta.ejb.Stateless;
 
 @Stateless
 public class HistoriqueActionServiceImpl implements HistoriqueActionService {
-    private static final Set<String> SCREENS = Set.of("GRADE", "DEPARTEMENT", "FILIERE", "SALLE");
+    private static final Set<String> SCREENS = Set.of(
+            "GRADE", "DEPARTEMENT", "FILIERE", "SALLE", "ENCADREUR", "ETUDIANT", "UTILISATEUR");
     private static final Set<String> ACTIONS = Set.of("CREATION", "MODIFICATION", "SUPPRESSION");
 
     @EJB
