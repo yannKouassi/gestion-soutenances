@@ -170,6 +170,23 @@ a:hover {
     font-size: 12px;
 }
 
+.nav-item-disabled {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    padding: 7px 9px;
+    border-radius: 6px;
+    color: #bfdbfeaa;
+    font-size: 12px;
+    cursor: not-allowed;
+}
+
+.nav-item-disabled small {
+    color: #93c5fd;
+    font-size: 10px;
+}
+
 .nav-group summary:hover,
 .nav-submenu a:hover,
 .nav-submenu a.active {
