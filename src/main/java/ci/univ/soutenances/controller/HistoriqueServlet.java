@@ -81,12 +81,13 @@ public class HistoriqueServlet extends HttpServlet {
                                     historique.getUtilisateur().getRole().name(),
                                     screenLabel(historique.getEcran(), historique.getTypeAction())))
                             .toList());
-            request.setAttribute("auteurs", auteursAvecFiltreApplique(auteur));
+            List<String> auteurs = auteursAvecFiltreApplique(auteur);
+            request.setAttribute("auteurs", auteurs);
             request.setAttribute("screens", orderedScreens());
             request.setAttribute("actions", orderedActions());
             request.setAttribute("filtreEcran", ecran == null ? "" : ecran);
             request.setAttribute("filtreAction", action == null ? "" : action);
-            request.setAttribute("filtreAuteur", auteur == null ? "" : auteur);
+            request.setAttribute("filtreAuteur", auteurAffiche(auteur, auteurs));
             request.setAttribute("filtreDu", du == null ? "" : du.toString());
             request.setAttribute("filtreAu", au == null ? "" : au.toString());
             request.setAttribute("taille", pageSize);
@@ -161,11 +162,23 @@ public class HistoriqueServlet extends HttpServlet {
 
     private List<String> auteursAvecFiltreApplique(String auteur) {
         List<String> auteurs = new ArrayList<>(historiqueActionService.findDistinctAuteurs());
-        if (auteur != null && !auteurs.contains(auteur)) {
+        if (auteur != null && auteurs.stream().noneMatch(existant -> existant.equalsIgnoreCase(auteur))) {
             auteurs.add(auteur);
             Collections.sort(auteurs);
         }
         return auteurs;
+    }
+
+    private static String auteurAffiche(String auteur, List<String> auteurs) {
+        if (auteur == null) {
+            return "";
+        }
+        for (String existant : auteurs) {
+            if (existant.equalsIgnoreCase(auteur)) {
+                return existant;
+            }
+        }
+        return auteur;
     }
 
     private static LocalDateTime finExclusiveDe(LocalDate au) {
