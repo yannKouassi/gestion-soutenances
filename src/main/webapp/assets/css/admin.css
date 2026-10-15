@@ -1100,6 +1100,117 @@ button:focus-visible,
     display: inline;
 }
 
+.history-total {
+    display: inline-flex;
+    align-items: center;
+    padding: 6px 10px;
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    background: var(--background);
+    color: var(--muted);
+    font-size: 12px;
+    font-weight: 600;
+    white-space: nowrap;
+    font-variant-numeric: tabular-nums;
+}
+
+.history-date {
+    white-space: nowrap;
+    font-variant-numeric: tabular-nums;
+}
+
+.history-action {
+    display: inline-flex;
+    align-items: center;
+    min-height: 24px;
+    padding: 2px 8px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    background: var(--background);
+    color: var(--text);
+    font-size: 11px;
+    font-weight: 650;
+    white-space: nowrap;
+}
+
+.role-badge {
+    display: inline-flex;
+    align-items: center;
+    min-height: 24px;
+    padding: 2px 8px;
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+.role-ADMIN {
+    color: #6D28D9;
+    background: #EDE9FE;
+}
+
+.role-ENCADREUR {
+    color: #1D4ED8;
+    background: #DBEAFE;
+}
+
+.role-ETUDIANT {
+    color: #0F766E;
+    background: #CCFBF1;
+}
+
+.page-link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 30px;
+    min-height: 30px;
+    padding: 4px 10px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    background: #fff;
+    color: var(--accent);
+    font-size: 12px;
+    font-weight: 650;
+}
+
+.page-link:hover {
+    border-color: var(--accent);
+    text-decoration: none;
+}
+
+.page-link.current {
+    border-color: var(--primary);
+    background: var(--primary);
+    color: #fff;
+}
+
+.history-page-links {
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.filters-card {
+    margin-bottom: 18px;
+}
+
+.filter-grid {
+    display: grid;
+    gap: 12px 14px;
+    grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+}
+
+.filter-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 14px;
+}
+
+.journal-table {
+    min-width: 680px;
+}
+
 @media (max-width: 760px) {
     .admin-shell {
         grid-template-columns: 1fr;
