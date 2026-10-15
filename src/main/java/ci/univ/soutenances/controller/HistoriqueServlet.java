@@ -1,10 +1,15 @@
 package ci.univ.soutenances.controller;
 
 import java.io.IOException;
+import java.time.DateTimeException;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -54,7 +59,7 @@ public class HistoriqueServlet extends HttpServlet {
 
             HistoriqueFiltre filtre = new HistoriqueFiltre(ecran, action, auteur,
                     du == null ? null : du.atStartOfDay(),
-                    au == null ? null : au.plusDays(1).atStartOfDay());
+                    finExclusiveDe(au));
 
             long totalActions = historiqueActionService.count(filtre);
             int totalPages = (int) ((totalActions + pageSize - 1) / pageSize);
@@ -76,7 +81,7 @@ public class HistoriqueServlet extends HttpServlet {
                                     historique.getUtilisateur().getRole().name(),
                                     screenLabel(historique.getEcran(), historique.getTypeAction())))
                             .toList());
-            request.setAttribute("auteurs", historiqueActionService.findDistinctAuteurs());
+            request.setAttribute("auteurs", auteursAvecFiltreApplique(auteur));
             request.setAttribute("screens", orderedScreens());
             request.setAttribute("actions", orderedActions());
             request.setAttribute("filtreEcran", ecran == null ? "" : ecran);
@@ -152,6 +157,26 @@ public class HistoriqueServlet extends HttpServlet {
 
     private static String blankToNull(String value) {
         return value == null || value.isBlank() ? null : value.trim();
+    }
+
+    private List<String> auteursAvecFiltreApplique(String auteur) {
+        List<String> auteurs = new ArrayList<>(historiqueActionService.findDistinctAuteurs());
+        if (auteur != null && !auteurs.contains(auteur)) {
+            auteurs.add(auteur);
+            Collections.sort(auteurs);
+        }
+        return auteurs;
+    }
+
+    private static LocalDateTime finExclusiveDe(LocalDate au) {
+        if (au == null) {
+            return null;
+        }
+        try {
+            return au.plusDays(1).atStartOfDay();
+        } catch (DateTimeException exception) {
+            throw new IllegalArgumentException("Date de période invalide.");
+        }
     }
 
     private static LocalDate parseDate(String value) {

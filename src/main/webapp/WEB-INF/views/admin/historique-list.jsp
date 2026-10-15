@@ -96,7 +96,7 @@
                     </c:forEach></tbody>
                 </table></div>
                 <c:if test="${totalPages gt 1}">
-                    <nav class="form-history-pagination" aria-label="Pagination du journal">
+                    <nav class="history-pagination" aria-label="Pagination du journal">
                         <span>Page <c:out value="${page}"/> sur <c:out value="${totalPages}"/></span>
                         <div class="history-page-links">
                             <c:if test="${page gt 1}">

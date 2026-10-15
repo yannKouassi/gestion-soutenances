@@ -107,11 +107,19 @@ public class HistoriqueActionRepositoryImpl implements HistoriqueActionRepositor
             predicates.add(screenPredicate(builder, action, filtre.getEcran()));
         }
         if (filtre.getAction() != null) {
+            String suffixe = "_" + filtre.getAction();
             predicates.add(builder.or(
                     builder.equal(action.get("action"), filtre.getAction()),
                     builder.and(
                             builder.isNull(action.get("action")),
-                            builder.like(action.get("typeAction"), "%_" + filtre.getAction()))));
+                            builder.greaterThanOrEqualTo(
+                                    builder.length(action.get("typeAction")), suffixe.length()),
+                            builder.equal(
+                                    builder.substring(action.get("typeAction"),
+                                            builder.diff(builder.length(action.get("typeAction")),
+                                                    suffixe.length() - 1),
+                                            builder.literal(suffixe.length())),
+                                    suffixe))));
         }
         if (filtre.getAuteur() != null) {
             predicates.add(builder.equal(action.get("utilisateur").get("login"), filtre.getAuteur()));

@@ -1190,6 +1190,21 @@ button:focus-visible,
     flex-wrap: wrap;
 }
 
+.history-pagination {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 12px 16px;
+    border-top: 1px solid var(--border);
+    color: var(--muted);
+    font-size: 12px;
+}
+
+.history-pagination .history-page-links {
+    gap: 6px;
+}
+
 .filters-card {
     margin-bottom: 18px;
 }
@@ -1209,6 +1224,10 @@ button:focus-visible,
 
 .journal-table {
     min-width: 680px;
+}
+
+.journal-table thead th:last-child {
+    width: auto;
 }
 
 @media (max-width: 760px) {
