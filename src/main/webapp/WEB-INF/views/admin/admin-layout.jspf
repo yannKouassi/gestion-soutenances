@@ -38,6 +38,44 @@
             </div>
         </details>
     </nav>
+    <p class="nav-heading">Acteurs &amp; Comptes</p>
+    <nav class="admin-nav" aria-label="Acteurs et comptes">
+        <details class="nav-group" ${type eq 'encadreurs' ? 'open' : ''}>
+            <summary><span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0M19 8h3m-1.5-1.5v3"/></svg></span>Gestion des Encadreurs</summary>
+            <div class="nav-submenu">
+                <a class="${type eq 'encadreurs' and empty param.vue ? 'active' : ''}" href="${pageContext.request.contextPath}/admin/encadreurs">Liste des Encadreurs</a>
+                <a class="${type eq 'encadreurs' and param.vue eq 'form' ? 'active' : ''}" href="${pageContext.request.contextPath}/admin/encadreurs?vue=form">Ajout / Édition Encadreur</a>
+            </div>
+        </details>
+        <details class="nav-group" ${type eq 'etudiants' ? 'open' : ''}>
+            <summary><span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><circle cx="9" cy="8" r="3"/><path d="M3 20a6 6 0 0 1 12 0m2-9h5m-2.5-2.5v5"/></svg></span>Gestion des Étudiants</summary>
+            <div class="nav-submenu">
+                <a class="${type eq 'etudiants' and empty param.vue ? 'active' : ''}" href="${pageContext.request.contextPath}/admin/etudiants">Liste des Étudiants</a>
+                <a class="${type eq 'etudiants' and param.vue eq 'form' ? 'active' : ''}" href="${pageContext.request.contextPath}/admin/etudiants?vue=form">Ajout / Édition Étudiant</a>
+            </div>
+        </details>
+        <details class="nav-group" ${type eq 'utilisateurs' ? 'open' : ''}>
+            <summary><span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><circle cx="9" cy="8" r="3"/><path d="M3 20a6 6 0 0 1 12 0m3-9 2 2 4-4"/></svg></span>Gestion des Comptes</summary>
+            <div class="nav-submenu">
+                <a class="${type eq 'utilisateurs' ? 'active' : ''}" href="${pageContext.request.contextPath}/admin/utilisateurs">Liste des Comptes</a>
+            </div>
+        </details>
+    </nav>
+    <p class="nav-heading">Pilotage &amp; audit</p>
+    <nav class="admin-nav" aria-label="Pilotage et audit">
+        <details class="nav-group" ${type eq 'dashboard' ? 'open' : ''}>
+            <summary><span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><path d="M4 19V5m0 14h16"/><path d="m7 15 4-4 3 2 5-6"/><circle cx="7" cy="15" r="1"/><circle cx="11" cy="11" r="1"/><circle cx="14" cy="13" r="1"/><circle cx="19" cy="7" r="1"/></svg></span>Tableau de Bord &amp; Statistiques</summary>
+            <div class="nav-submenu">
+                <span class="nav-item-disabled" aria-disabled="true">Indicateurs &amp; Graphiques <small>À venir</small></span>
+            </div>
+        </details>
+        <details class="nav-group" ${type eq 'historique' ? 'open' : ''}>
+            <summary><span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><path d="M4 5h16v15H4z"/><path d="M8 5V3h8v2M8 10h8m-8 4h8m-8 4h5"/></svg></span>Historique &amp; Traçabilité</summary>
+            <div class="nav-submenu">
+                <a class="${type eq 'historique' ? 'active' : ''}" href="${pageContext.request.contextPath}/admin/historique">Journal d'Audit</a>
+            </div>
+        </details>
+    </nav>
     <form class="sidebar-logout" method="post" action="${pageContext.request.contextPath}/logout">
         <input type="hidden" name="csrfToken" value="<c:out value='${csrfToken}'/>">
         <button type="submit"><svg class="logout-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M10 17l5-5-5-5M15 12H3M12 3h6a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-6"/></svg> Se déconnecter</button>

@@ -1,0 +1,187 @@
+---
+utilisateur: xxvByMe
+branche: main
+description: 'État de main après fusion — lots « journal d''audit », « Acteurs & comptes » et « hiérarchie du menu d''administration », documents de référence'
+---
+
+# Changelog — `main` après fusion
+
+État de la branche `main` au commit `c2d8a74` (fusion de la Pull Request #1,
+branche `feature/admin-menu-audit-hierarchy`). Ce document décrit les trois
+lots livrés — le journal d'audit `/admin/historique`, le module « Acteurs &
+Comptes » et la hiérarchie du menu d'administration — ainsi que les documents
+de référence du dépôt.
+
+## Documents de référence
+
+- Export au format Markdown des documents de référence du dépôt : charte
+  graphique, découpage/MLD et sujet complet (`9f07fa5`).
+- Export au format Markdown du cahier des charges (`f5e4312`).
+- Ajout des sources PDF/XLSX/DOCX des documents de référence sous
+  `documents/` (`faabf54`).
+- Ajout de `AGENTS.md` et des plans de conception DAO des modules C et D sous
+  `docs/plans/` (`5b96b2b`).
+
+Ces exports complètent les sources PDF/XLSX, qui restent inchangées.
+
+## Lot « journal d'audit »
+
+### Modèle et persistance
+
+- `Historique_Action` reçoit deux colonnes nullable, `ecran` et `action`, plus
+  trois index (`ecran`, `action`, `date_action`). Le schéma est mis à jour par
+  Hibernate (`hibernate.hbm2ddl.auto=update`) ; aucun script DDL ni backfill
+  SQL n'est produit (`e62629b`).
+- `type_action` continue d'être écrit à chaque enregistrement, en plus des deux
+  nouvelles colonnes. Stratégie retenue : « colonne d'abord, `type_action` en
+  repli ». Les lignes antérieures à la migration, qui n'ont que `type_action`,
+  restent donc lisibles et filtrables sans mise à jour des données existantes.
+- Nouveaux types de la consultation : `HistoriqueFiltre` (critères) et
+  `HistoriqueJournalEntry` (ligne affichée), avec les méthodes correspondantes
+  dans `HistoriqueActionRepository` et `HistoriqueActionService`.
+
+### Écran `/admin/historique`
+
+- `HistoriqueServlet` répond en GET à `/admin/historique` et forward vers
+  `historique-list.jsp`, rédigée en EL et JSTL uniquement. Le servlet ne
+  redoit aucun contrôle de session ni de rôle : le filtrage `/admin/*` est
+  assuré par `AdminAuthorizationFilter`.
+- Entrée de navigation « Journal d'audit » ajoutée dans `admin-layout.jspf`,
+  sous l'en-tête « Pilotage & audit ».
+
+### Consultation, filtres et pagination
+
+- Le journal est global : il agrège les actions des quatre écrans référentiels
+  (grades, départements, filières, salles) et les présente par date
+  décroissante.
+- Filtres facultatifs : écran, action, auteur et période (bornes « du » et
+  « au »). Le filtre auteur accepte une valeur déjà appliquée même si elle ne
+  figure pas dans la liste des auteurs distincts.
+- Pagination avec taille de page ajustable (10, 15, 20 ou 50 lignes, 15 par
+  défaut) et fenêtre de pages de cinq éléments autour de la page courante.
+- Le décompte (`COUNT`) et la page (`SELECT`) partagent le même constructeur de
+  prédicats, donc les mêmes critères. Le `JOIN FETCH utilisateur` est conservé
+  sur la requête de page pour éviter toute `LazyInitializationException` à
+  l'affichage du nom et du rôle de l'auteur.
+
+### Corrections
+
+`1091367` — cinq défauts relevés en revue :
+
+1. Le repli de filtre sur `type_action` utilisait un motif `LIKE` dont le `_`
+   était un générique : remplacé par une égalité exacte sur le suffixe.
+2. Une borne de période dépassant les limites de `LocalDate` produisait une
+   erreur 500 ; `DateTimeException` est désormais rattrapée et transformée en
+   réponse 400.
+3. Le filtre auteur appliqué n'apparaissait pas dans le `<select>` : la valeur
+   est ajoutée à la liste quand elle y manque.
+4. Une règle CSS globale de dernier `th` écrasait la dernière colonne du
+   nouveau tableau ; une règle dédiée au tableau du journal a été ajoutée.
+5. Les règles de pagination étaient inertes à cause d'un conflit de
+   spécificité : classe de pagination du journal distincte de celle des
+   formulaires.
+
+`0e417e4` — deux points restés ouverts :
+
+1. Désaccord de casse entre la collation MySQL, insensible à la casse, et la
+   comparaison EL, sensible à la casse : le filtre auteur conserve désormais sa
+   valeur quelle que soit la casse saisie.
+2. Le bandeau affichait « Paramètres généraux » sur un écran de pilotage &
+   audit ; il affiche « Pilotage & audit » sur le journal.
+
+### Non-régression
+
+Les huit JSP des quatre écrans référentiels (listes et formulaires grades,
+départements, filières, salles) sont inchangées à l'octet près : leur diff est
+vide entre le point de départ de la branche et `0e417e4`. Seuls le fragment de
+navigation, le bandeau et la feuille de style partagée ont été modifiés.
+
+## Lot « Acteurs & Comptes »
+
+### Modèle et persistance
+
+- `AccountEntry` est une classe porteuse immuable servant de projection JPQL
+  pour la liste des comptes ; ce n'est pas une entité JPA.
+- `Utilisateur` gagne une colonne `actif` (`BOOLEAN DEFAULT TRUE`) et la
+  colonne `login` passe de 100 à 180 caractères. Le hash de mot de passe est
+  inchangé : hachage par `PBKDF2WithHmacSHA256` à 310 000 itérations.
+- `Encadreur` et `Etudiant` ne gagnent aucune colonne ; seul leur constructeur
+  devient public.
+
+### Repositories
+
+- Nouveaux `EncadreurRepository` et `EtudiantRepository` : lecture, recherche
+  par identifiant, contrôle d'unicité de l'e-mail, `matriculeExists` côté
+  étudiant, sauvegarde. Ils chargent leurs associations par `JOIN FETCH` pour
+  éviter les `LazyInitializationException` au rendu.
+- `MemoireRepository` ajouté, en lecture seule (`findAll`).
+- `UtilisateurRepository` gagne `findAllAccounts`, `findEmailById` et
+  `countActiveAdministrators`.
+
+### Services
+
+- `CompteService` : création de compte lié à un acteur, mise à jour du login,
+  activation/désactivation, réinitialisation de mot de passe. Le mot de passe
+  temporaire comporte 6 caractères tirés d'un alphabet sans caractères ambigus,
+  générés par `SecureRandom`, haché avant stockage. Les méthodes mutantes sont
+  protégées par un verrou pessimiste en écriture.
+- `CourrielService` envoie les identifiants par SMTP via `jakarta.mail`, avec
+  les paramètres lus dans l'environnement (`SMTP_HOST`, `SMTP_FROM`,
+  `SMTP_USERNAME`, `SMTP_PASSWORD`, `SMTP_PORT`, `SMTP_SSL`, `SMTP_STARTTLS`).
+  SSL et STARTTLS sont mutuellement exclusifs ; l'authentification est interdite
+  sans TLS.
+- `EncadreurService` et `EtudiantService` valident les données (nom, prénom,
+  e-mail normalisé en minuscules, matricule normalisé en majuscules, filière
+  obligatoire, mémoire facultative), créent le compte lié à la création et
+  mettent le login à jour quand l'e-mail change.
+- `AuthServiceImpl` refuse l'authentification d'un compte inactif.
+
+### Contrôleur
+
+- `ActeursServlet` sert `/admin/encadreurs`, `/admin/etudiants`,
+  `/admin/utilisateurs` et leurs sous-chemins, en s'appuyant sur
+  `AdminAuthorizationFilter` pour la session, le rôle ADMIN et le jeton CSRF sur
+  POST ; il ne refait aucun contrôle lui-même.
+- Il n'existe aucune suppression d'acteur ni de compte. Les écritures sont
+  journalisées en `CREATION` et `MODIFICATION`, jamais en `SUPPRESSION`, avec
+  les écrans `ENCADREUR`, `ETUDIANT`, `UTILISATEUR`. Les formulaires affichent
+  les dernières actions via `admin-history.jspf`.
+
+### Vues
+
+- Nouvelles `encadreur-list.jsp` (filtres grade et département),
+  `encadreur-form.jsp`, `etudiant-list.jsp` (filtre filière),
+  `etudiant-form.jsp`, et `utilisateur-list.jsp` refaite en liste de comptes
+  avec actions activer / désactiver / réinitialiser le mot de passe en POST.
+- `admin-layout.jspf` gagne un groupe de navigation « Acteurs & Comptes » à
+  sous-menus repliables.
+- `admin-list-search.js` combine désormais recherche plein texte et filtres.
+- `admin.css` gagne les styles de filtres de liste, de modale de détail
+  d'action et de badge d'état de compte.
+- `HistoriqueActionService` accepte les trois nouveaux écrans.
+
+## Lot « hiérarchie du menu d'administration »
+
+- Le groupe « Pilotage & audit » plat de `admin-layout.jspf` devient deux
+  groupes repliables : « Tableau de Bord & Statistiques » avec une entrée
+  « Indicateurs & Graphiques » marquée « À venir » et non cliquable, et
+  « Historique & Traçabilité » contenant le journal d'audit.
+- `admin.css` ajoute le style d'entrée désactivée.
+- Les 14 JSP admin passent le cache-buster de la feuille de style à une
+  nouvelle valeur.
+- `README.md` gagne une section décrivant cette hiérarchie.
+
+## Commits
+
+| Commit | Sujet |
+|---|---|
+| `6605662` | Aligner les sous-menus audit sur le classeur |
+| `3d12054` | Ajouter le module acteurs et détails d'historique |
+| `0e417e4` | fix: corriger la casse du filtre auteur et le bandeau de /admin/historique |
+| `1091367` | fix: corriger cinq defauts du journal d'audit /admin/historique |
+| `778866c` | feat: ajouter le journal d'audit global /admin/historique |
+| `e62629b` | feat: indexer l'historique par ecran et action avec recherche globale filtree |
+| `f5e4312` | docs: ajouter l'export Markdown du cahier des charges |
+| `9f07fa5` | docs: exporter les documents de référence au format Markdown |
+| `5b96b2b` | docs: documentation projet, plans DAO modules C et D et config Eclipse |
+| `faabf54` | update: ajouts des documents |

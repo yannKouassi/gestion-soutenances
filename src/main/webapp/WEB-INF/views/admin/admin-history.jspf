@@ -18,20 +18,33 @@
                     <thead>
                         <tr>
                             <th>Date</th>
-                            <th>Libellé</th>
                             <th>Action</th>
                             <th>Effectuée par</th>
                             <th>Écran</th>
+                            <th><span class="visually-hidden">Détail</span></th>
                         </tr>
                     </thead>
                     <tbody>
                         <c:forEach var="action" items="${historyActions}">
                             <tr>
                                 <td class="history-date"><c:out value="${action.date}"/></td>
-                                <td class="primary-cell"><c:out value="${action.label}"/></td>
                                 <td><span class="history-action"><c:out value="${action.action}"/></span></td>
                                 <td><c:out value="${action.user}"/></td>
                                 <td><c:out value="${action.screen}"/></td>
+                                <td class="history-detail-cell">
+                                    <button class="history-detail-button" type="button"
+                                            data-history-date="<c:out value='${action.date}'/>"
+                                            data-history-action="<c:out value='${action.action}'/>"
+                                            data-history-user="<c:out value='${action.user}'/>"
+                                            data-history-screen="<c:out value='${action.screen}'/>"
+                                            data-history-detail="<c:out value='${action.label}'/>"
+                                            aria-label="Voir le détail de l’action" title="Voir le détail">
+                                        <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                                            <path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12Z"/>
+                                            <circle cx="12" cy="12" r="3"/>
+                                        </svg>
+                                    </button>
+                                </td>
                             </tr>
                         </c:forEach>
                     </tbody>
@@ -57,4 +70,18 @@
             </c:if>
         </c:otherwise>
     </c:choose>
+    <dialog class="history-modal" aria-labelledby="history-modal-title">
+        <div class="history-modal-heading">
+            <h2 id="history-modal-title">Détail de l’action</h2>
+            <button class="history-modal-close" type="button" data-history-close aria-label="Fermer">&times;</button>
+        </div>
+        <dl class="history-modal-fields">
+            <div><dt>Date</dt><dd data-history-modal-date></dd></div>
+            <div><dt>Action</dt><dd data-history-modal-action></dd></div>
+            <div><dt>Effectuée par</dt><dd data-history-modal-user></dd></div>
+            <div><dt>Écran</dt><dd data-history-modal-screen></dd></div>
+            <div><dt>Détail</dt><dd data-history-modal-content></dd></div>
+        </dl>
+    </dialog>
 </section>
+<script src="${pageContext.request.contextPath}/assets/js/admin-history.js" defer></script>

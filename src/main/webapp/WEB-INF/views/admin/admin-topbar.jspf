@@ -4,7 +4,7 @@
         <span class="topbar-mark" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><path d="M4 6h16M7 12h10m-7 6h4"/><circle cx="8" cy="6" r="2"/><circle cx="15" cy="12" r="2"/><circle cx="12" cy="18" r="2"/></svg></span>
         <div>
             <span class="topbar-eyebrow">Espace administrateur</span>
-            <span class="topbar-section">Paramètres généraux</span>
+            <span class="topbar-section"><c:choose><c:when test="${type eq 'historique'}">Pilotage &amp; audit</c:when><c:otherwise>Paramètres généraux</c:otherwise></c:choose></span>
         </div>
     </div>
     <div class="topbar-account">

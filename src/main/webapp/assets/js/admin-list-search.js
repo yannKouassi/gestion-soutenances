@@ -4,10 +4,11 @@
     const search = document.querySelector("[data-list-search]");
     const body = document.querySelector("[data-list-body]");
 
-    if (!(search instanceof HTMLInputElement) || !(body instanceof HTMLTableSectionElement)) {
+    if (!(body instanceof HTMLTableSectionElement)) {
         return;
     }
 
+    const filters = Array.from(document.querySelectorAll("[data-list-filter]"));
     const rows = Array.from(body.querySelectorAll("[data-list-row]"));
     const count = document.querySelector("[data-list-count]");
     const clear = document.querySelector("[data-search-clear]");
@@ -20,14 +21,19 @@
         .trim();
 
     const update = () => {
-        const term = normalize(search.value);
+        const term = search instanceof HTMLInputElement ? normalize(search.value) : "";
         let visible = 0;
 
         rows.forEach((row) => {
             const text = Array.from(row.querySelectorAll("[data-searchable]"))
                 .map((cell) => cell.textContent)
                 .join(" ");
-            const matches = normalize(text).includes(term);
+            const matchesSearch = normalize(text).includes(term);
+            const matchesFilters = filters.every((filter) => {
+                const key = filter.dataset.listFilter;
+                return filter.value === "" || (key !== undefined && row.dataset[`filter${key[0].toUpperCase()}${key.slice(1)}`] === filter.value);
+            });
+            const matches = matchesSearch && matchesFilters;
             row.hidden = !matches;
             visible += matches ? 1 : 0;
         });
@@ -43,9 +49,12 @@
         }
     };
 
-    search.addEventListener("input", update);
+    search?.addEventListener("input", update);
+    filters.forEach((filter) => filter.addEventListener("change", update));
     clear?.addEventListener("click", () => {
-        search.value = "";
+        if (search instanceof HTMLInputElement) {
+            search.value = "";
+        }
         update();
         search.focus();
     });

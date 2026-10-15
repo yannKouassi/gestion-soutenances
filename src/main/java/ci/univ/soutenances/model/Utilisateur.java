@@ -14,7 +14,7 @@ import jakarta.persistence.UniqueConstraint;
 })
 @AttributeOverride(name = "id", column = @Column(name = "id_utilisateur", nullable = false, updatable = false))
 public class Utilisateur extends BaseEntity {
-    @Column(nullable = false, length = 100)
+    @Column(nullable = false, length = 180)
     private String login;
 
     @Column(name = "mot_de_passe", nullable = false, length = 255)
@@ -23,6 +23,9 @@ public class Utilisateur extends BaseEntity {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)
     private RoleUtilisateur role;
+
+    @Column(nullable = false, columnDefinition = "BOOLEAN DEFAULT TRUE")
+    private boolean actif = true;
 
     public Utilisateur() {
     }
@@ -49,5 +52,13 @@ public class Utilisateur extends BaseEntity {
 
     public void setRole(RoleUtilisateur role) {
         this.role = role;
+    }
+
+    public boolean isActif() {
+        return actif;
+    }
+
+    public void setActif(boolean actif) {
+        this.actif = actif;
     }
 }
