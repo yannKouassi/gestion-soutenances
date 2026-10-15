@@ -6,16 +6,27 @@ import jakarta.persistence.AttributeOverride;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
+import jakarta.persistence.Index;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 
 @Entity
-@Table(name = "Historique_Action")
+@Table(name = "Historique_Action", indexes = {
+        @Index(name = "idx_historique_ecran", columnList = "ecran"),
+        @Index(name = "idx_historique_action", columnList = "action"),
+        @Index(name = "idx_historique_date", columnList = "date_action")
+})
 @AttributeOverride(name = "id", column = @Column(name = "id_historique", nullable = false, updatable = false))
 public class HistoriqueAction extends BaseEntity {
     @Column(name = "type_action", nullable = false, length = 80)
     private String typeAction;
+
+    @Column(name = "ecran", length = 30)
+    private String ecran;
+
+    @Column(name = "action", length = 20)
+    private String action;
 
     @Column(name = "date_action", nullable = false)
     private LocalDateTime dateAction;
@@ -36,6 +47,22 @@ public class HistoriqueAction extends BaseEntity {
 
     public void setTypeAction(String typeAction) {
         this.typeAction = typeAction;
+    }
+
+    public String getEcran() {
+        return ecran;
+    }
+
+    public void setEcran(String ecran) {
+        this.ecran = ecran;
+    }
+
+    public String getAction() {
+        return action;
+    }
+
+    public void setAction(String action) {
+        this.action = action;
     }
 
     public LocalDateTime getDateAction() {
