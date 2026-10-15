@@ -2,7 +2,7 @@
 <%@ taglib prefix="c" uri="jakarta.tags.core" %>
 <!DOCTYPE html>
 <html lang="fr">
-<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Ajout / Édition Étudiant | PGS-PFE</title><link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/admin.css?v=20261015-history-modal-details"></head>
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Ajout / Édition Étudiant | PGS-PFE</title><link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/admin.css?v=20261015-admin-menu"></head>
 <body><div class="admin-shell">
     <%@ include file="admin-layout.jspf" %>
     <main class="admin-main admin-form-page"><%@ include file="admin-topbar.jspf" %>

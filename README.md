@@ -88,6 +88,15 @@ est généré. L’application envoie ces identifiants à cette adresse et ne st
 que le mot de passe haché. Modifier l’adresse d’un acteur met également à jour
 son login lié. La connexion est refusée pour les comptes désactivés.
 
+## Module administrateur D — Pilotage & Audit
+
+Le menu suit la hiérarchie du classeur de découpage :
+
+- **Tableau de Bord & Statistiques** → Indicateurs & Graphiques (à venir).
+- **Historique & Traçabilité** → `/admin/historique` (Journal d’Audit).
+
+Le journal global permet de filtrer et paginer les actions enregistrées.
+
 ## Connexion
 
 1. Ouvrir `/login`.
