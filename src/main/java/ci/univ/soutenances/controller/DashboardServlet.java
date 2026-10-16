@@ -31,6 +31,11 @@ public class DashboardServlet extends HttpServlet {
             return;
         }
 
+        if (utilisateur.role() == RoleUtilisateur.ENCADREUR) {
+            response.sendRedirect(request.getContextPath() + "/encadreur/dashboard");
+            return;
+        }
+
         request.setAttribute("utilisateur", utilisateur);
         String csrfToken = (String) session.getAttribute("logoutCsrfToken");
         if (csrfToken == null) {
