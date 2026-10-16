@@ -14,6 +14,7 @@ import ci.univ.soutenances.config.EncadreurAuthorizationFilter;
 import ci.univ.soutenances.model.ConvocationVue;
 import ci.univ.soutenances.model.Encadreur;
 import ci.univ.soutenances.model.Evaluation;
+import ci.univ.soutenances.model.Etudiant;
 import ci.univ.soutenances.model.JuryVue;
 import ci.univ.soutenances.model.MembreJuryVue;
 import ci.univ.soutenances.model.SessionUser;
@@ -32,15 +33,19 @@ import jakarta.servlet.http.HttpSession;
 
 @WebServlet(urlPatterns = {
         "/encadreur/dashboard",
+        "/encadreur/mes-etudiants",
         "/encadreur/mes-jurys/*",
+        "/encadreur/saisie-evaluation",
         "/encadreur/profil"
 })
 public class EncadreurServlet extends HttpServlet {
     private static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
     private static final Map<String, String> TITLES = Map.of(
-            "dashboard", "Tableau de bord",
-            "mes-jurys", "Mes jurys",
-            "profil", "Mon profil");
+            "dashboard", "Tableau de Bord",
+            "mes-etudiants", "Mes étudiants encadrés",
+            "mes-jurys", "Liste des Jurys",
+            "evaluation", "Saisie d’évaluation",
+            "profil", "Mon Profil");
 
     @EJB
     private EncadreurService encadreurService;
@@ -56,12 +61,20 @@ public class EncadreurServlet extends HttpServlet {
                 showDashboard(request, response);
                 return;
             }
+            if ("/encadreur/mes-etudiants".equals(route)) {
+                showEtudiantsEncadres(request, response);
+                return;
+            }
             if ("/encadreur/mes-jurys".equals(route)) {
                 if ("note".equals(request.getParameter("vue"))) {
                     showNoteForm(request, response);
                 } else {
-                    showJurys(request, response);
+                    showJurys(request, response, "mes-jurys");
                 }
+                return;
+            }
+            if ("/encadreur/saisie-evaluation".equals(route)) {
+                showJurys(request, response, "evaluation");
                 return;
             }
             if ("/encadreur/profil".equals(route)) {
@@ -128,21 +141,36 @@ public class EncadreurServlet extends HttpServlet {
         request.getRequestDispatcher("/WEB-INF/views/encadreur/dashboard.jsp").forward(request, response);
     }
 
-    private void showJurys(HttpServletRequest request, HttpServletResponse response)
+    private void showJurys(HttpServletRequest request, HttpServletResponse response, String section)
             throws ServletException, IOException {
         Encadreur encadreur = resolveEncadreur(request, response);
         if (encadreur == null) {
             return;
         }
         List<Evaluation> convocations = encadreurService.findEvaluationsByEncadreur(encadreur.getId());
-        request.setAttribute("type", "mes-jurys");
-        request.setAttribute("titre", TITLES.get("mes-jurys"));
+        request.setAttribute("type", section);
+        request.setAttribute("titre", TITLES.get(section));
         request.setAttribute("encadreur", encadreur);
         request.setAttribute("lignes", buildLignes(convocations, encadreur.getId()));
         request.setAttribute("message", request.getParameter("message"));
         request.setAttribute("erreur", request.getParameter("erreur"));
         setLogoutToken(request);
         request.getRequestDispatcher("/WEB-INF/views/encadreur/mes-jurys.jsp").forward(request, response);
+    }
+
+    private void showEtudiantsEncadres(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        Encadreur encadreur = resolveEncadreur(request, response);
+        if (encadreur == null) {
+            return;
+        }
+        List<Etudiant> etudiants = encadreurService.findEtudiantsEncadres(encadreur.getId());
+        request.setAttribute("type", "mes-etudiants");
+        request.setAttribute("titre", TITLES.get("mes-etudiants"));
+        request.setAttribute("encadreur", encadreur);
+        request.setAttribute("etudiants", etudiants);
+        setLogoutToken(request);
+        request.getRequestDispatcher("/WEB-INF/views/encadreur/mes-etudiants.jsp").forward(request, response);
     }
 
     private void showNoteForm(HttpServletRequest request, HttpServletResponse response)
@@ -164,8 +192,8 @@ public class EncadreurServlet extends HttpServlet {
                     "Vous n’êtes pas membre du jury de cette soutenance.");
             return;
         }
-        request.setAttribute("type", "mes-jurys");
-        request.setAttribute("titre", TITLES.get("mes-jurys"));
+        request.setAttribute("type", "evaluation");
+        request.setAttribute("titre", TITLES.get("evaluation"));
         request.setAttribute("encadreur", encadreur);
         request.setAttribute("soutenance", soutenance);
         request.setAttribute("maConvocation", maConvocation);
@@ -199,8 +227,8 @@ public class EncadreurServlet extends HttpServlet {
                         "Vous n’êtes pas membre du jury de cette soutenance.");
                 return;
             }
-            request.setAttribute("type", "mes-jurys");
-            request.setAttribute("titre", TITLES.get("mes-jurys"));
+            request.setAttribute("type", "evaluation");
+            request.setAttribute("titre", TITLES.get("evaluation"));
             request.setAttribute("encadreur", encadreur);
             request.setAttribute("soutenance", soutenance);
             request.setAttribute("maConvocation", maConvocation);

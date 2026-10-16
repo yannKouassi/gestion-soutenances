@@ -7,6 +7,7 @@ import java.util.UUID;
 
 import ci.univ.soutenances.model.Encadreur;
 import ci.univ.soutenances.model.Evaluation;
+import ci.univ.soutenances.model.Etudiant;
 import ci.univ.soutenances.model.Soutenance;
 
 public interface EncadreurService {
@@ -17,6 +18,8 @@ public interface EncadreurService {
     Encadreur save(Encadreur encadreur, UUID gradeId, UUID departementId);
 
     Optional<Encadreur> findByUtilisateurId(UUID utilisateurId);
+
+    List<Etudiant> findEtudiantsEncadres(UUID encadreurId);
 
     List<Evaluation> findEvaluationsByEncadreur(UUID encadreurId);
 

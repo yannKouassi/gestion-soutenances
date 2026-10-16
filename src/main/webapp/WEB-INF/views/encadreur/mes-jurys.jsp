@@ -5,7 +5,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Mes jurys | PGS-PFE</title>
+    <title><c:out value="${titre}"/> | PGS-PFE</title>
     <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/admin.css?v=20261015-admin-menu">
 </head>
 <body>
@@ -14,8 +14,8 @@
     <main class="admin-main">
         <%@ include file="encadreur-topbar.jspf" %>
         <header class="page-heading">
-            <div class="page-heading-copy"><span class="page-eyebrow">Espace encadreur / Mes jurys</span>
-                <div><h1>Mes jurys</h1><p>Les soutenances auxquelles tu es convoqué. Un jury comporte au moins deux membres.</p></div>
+            <div class="page-heading-copy"><span class="page-eyebrow">Menu Encadreur / <c:out value="${titre}"/></span>
+                <div><h1><c:out value="${titre}"/></h1><p><c:choose><c:when test="${type eq 'evaluation'}">Choisis un jury pour consulter ou saisir ton évaluation.</c:when><c:otherwise>Les soutenances auxquelles tu es convoqué. Un jury comporte au moins deux membres.</c:otherwise></c:choose></p></div>
             </div>
         </header>
         <c:if test="${not empty message}"><div class="alert alert-success" role="status"><c:out value="${message}"/></div></c:if>

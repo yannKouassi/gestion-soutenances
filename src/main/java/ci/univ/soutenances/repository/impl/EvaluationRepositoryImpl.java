@@ -36,16 +36,27 @@ public class EvaluationRepositoryImpl implements EvaluationRepository {
 
     @Override
     public List<Evaluation> findByEncadreurId(UUID encadreurId) {
-        CriteriaBuilder builder = entityManager.getCriteriaBuilder();
-        CriteriaQuery<Evaluation> query = builder.createQuery(Evaluation.class);
-        Root<Evaluation> evaluation = query.from(Evaluation.class);
-        Join<Evaluation, Soutenance> convocation = evaluation.join("soutenance", JoinType.INNER);
-        convocation.fetch("memoire", JoinType.INNER);
-        convocation.fetch("salle", JoinType.INNER);
-        query.select(evaluation)
-                .where(builder.equal(evaluation.get("encadreur").get("id"), encadreurId))
-                .orderBy(builder.desc(convocation.get("dateHeure")));
-        return entityManager.createQuery(query).getResultList();
+        List<Evaluation> evaluations = entityManager.createQuery(
+                "SELECT e FROM Evaluation e "
+                        + "JOIN FETCH e.soutenance "
+                        + "WHERE e.encadreur.id = :encadreurId "
+                        + "ORDER BY e.soutenance.dateHeure DESC",
+                Evaluation.class)
+                .setParameter("encadreurId", encadreurId)
+                .getResultList();
+        if (!evaluations.isEmpty()) {
+            entityManager.createQuery(
+                    "SELECT s FROM Soutenance s "
+                            + "JOIN FETCH s.memoire "
+                            + "JOIN FETCH s.salle "
+                            + "WHERE s.id IN :ids",
+                    Soutenance.class)
+                    .setParameter("ids", evaluations.stream()
+                            .map(evaluation -> evaluation.getSoutenance().getId())
+                            .toList())
+                    .getResultList();
+        }
+        return evaluations;
     }
 
     @Override

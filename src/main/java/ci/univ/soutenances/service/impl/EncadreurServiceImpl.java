@@ -9,12 +9,14 @@ import java.util.UUID;
 import ci.univ.soutenances.model.Departement;
 import ci.univ.soutenances.model.Encadreur;
 import ci.univ.soutenances.model.Evaluation;
+import ci.univ.soutenances.model.Etudiant;
 import ci.univ.soutenances.model.Grade;
 import ci.univ.soutenances.model.RoleUtilisateur;
 import ci.univ.soutenances.model.Soutenance;
 import ci.univ.soutenances.model.StatutSoutenance;
 import ci.univ.soutenances.repository.DepartementRepository;
 import ci.univ.soutenances.repository.EncadreurRepository;
+import ci.univ.soutenances.repository.EtudiantRepository;
 import ci.univ.soutenances.repository.EvaluationRepository;
 import ci.univ.soutenances.repository.GradeRepository;
 import ci.univ.soutenances.repository.SoutenanceRepository;
@@ -39,6 +41,9 @@ public class EncadreurServiceImpl implements EncadreurService {
 
     @EJB
     private EvaluationRepository evaluationRepository;
+
+    @EJB
+    private EtudiantRepository etudiantRepository;
 
     @EJB
     private SoutenanceRepository soutenanceRepository;
@@ -82,6 +87,11 @@ public class EncadreurServiceImpl implements EncadreurService {
     @Override
     public Optional<Encadreur> findByUtilisateurId(UUID utilisateurId) {
         return encadreurRepository.findByUtilisateurId(requireId(utilisateurId, "utilisateur"));
+    }
+
+    @Override
+    public List<Etudiant> findEtudiantsEncadres(UUID encadreurId) {
+        return etudiantRepository.findByEncadreurId(requireId(encadreurId, "encadreur"));
     }
 
     @Override
