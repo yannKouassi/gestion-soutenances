@@ -9,6 +9,8 @@ import ci.univ.soutenances.model.Etudiant;
 public interface EtudiantRepository {
     List<Etudiant> findAll();
 
+    List<Etudiant> findByEncadreurId(UUID encadreurId);
+
     Optional<Etudiant> findById(UUID id);
 
     boolean emailExists(String email, UUID excludedId);

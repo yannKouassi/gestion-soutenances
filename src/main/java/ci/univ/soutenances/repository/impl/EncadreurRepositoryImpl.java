@@ -45,6 +45,19 @@ public class EncadreurRepositoryImpl implements EncadreurRepository {
     }
 
     @Override
+    public Optional<Encadreur> findByUtilisateurId(UUID utilisateurId) {
+        CriteriaBuilder builder = entityManager.getCriteriaBuilder();
+        CriteriaQuery<Encadreur> query = builder.createQuery(Encadreur.class);
+        Root<Encadreur> encadreur = query.from(Encadreur.class);
+        encadreur.fetch("grade", JoinType.INNER);
+        encadreur.fetch("departement", JoinType.INNER);
+        encadreur.fetch("utilisateur", JoinType.INNER);
+        query.select(encadreur).distinct(true)
+                .where(builder.equal(encadreur.get("utilisateur").get("id"), utilisateurId));
+        return entityManager.createQuery(query).getResultStream().findFirst();
+    }
+
+    @Override
     public boolean emailExists(String email, UUID excludedId) {
         CriteriaBuilder builder = entityManager.getCriteriaBuilder();
         CriteriaQuery<Long> query = builder.createQuery(Long.class);

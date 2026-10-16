@@ -18,7 +18,7 @@ import jakarta.persistence.UniqueConstraint;
 })
 @AttributeOverride(name = "id", column = @Column(name = "id_evaluation", nullable = false, updatable = false))
 public class Evaluation extends BaseEntity {
-    @Column(nullable = false, precision = 4, scale = 2)
+    @Column(precision = 4, scale = 2)
     private BigDecimal note;
 
     @Column(columnDefinition = "TEXT")

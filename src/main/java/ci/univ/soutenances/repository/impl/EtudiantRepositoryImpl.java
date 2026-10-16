@@ -33,6 +33,19 @@ public class EtudiantRepositoryImpl implements EtudiantRepository {
     }
 
     @Override
+    public List<Etudiant> findByEncadreurId(UUID encadreurId) {
+        return entityManager.createQuery(
+                "SELECT e FROM Etudiant e "
+                        + "JOIN FETCH e.memoire "
+                        + "JOIN FETCH e.filiere "
+                        + "WHERE e.memoire.encadreur.id = :encadreurId "
+                        + "ORDER BY e.nom, e.prenom",
+                Etudiant.class)
+                .setParameter("encadreurId", encadreurId)
+                .getResultList();
+    }
+
+    @Override
     public Optional<Etudiant> findById(UUID id) {
         CriteriaBuilder builder = entityManager.getCriteriaBuilder();
         CriteriaQuery<Etudiant> query = builder.createQuery(Etudiant.class);
