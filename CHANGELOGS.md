@@ -13,21 +13,22 @@ partir du diff, des corps de commit et de l'intention de la feature.
 
 ---
 feature: Espace encadreur
-branche: feature/encadreur-espace
-base: main
+branche: feat/encadreur-espace
+base: origin/main
 date: 2026-10-16
 auteurs:
   - xxvByMe
-commits: 2
+commits: 7
 ---
 
 ## Espace encadreur
 
 ### Détail
 
-Cette section décrit la branche `feature/encadreur-espace` au commit
-`c1b16a0`, non fusionnée dans `main` : les deux lots livrés — la couche de
-données de l'espace encadreur (`ddae22d`) et ses écrans (`c1b16a0`).
+Cette section décrit l'espace encadreur intégré dans `feat/encadreur-espace`
+depuis `origin/main`. Elle couvre la couche de données, les écrans et leurs
+corrections, ainsi que les commits de documentation et de nettoyage présents
+sur la branche source.
 
 #### Couche de données
 
@@ -60,8 +61,9 @@ données de l'espace encadreur (`ddae22d`) et ses écrans (`c1b16a0`).
   si la soutenance n'est plus `PLANIFIEE`.
 - La moyenne affichée est celle des notes du jury, arrondie à deux décimales, et
   reste absente tant qu'une seule note manque.
-- Les requêtes Criteria déclarent une seule jointure par chemin association : le
-  `fetch` sert aussi au tri, ce qui évite une jointure dupliquée.
+- La liste des convocations charge les soutenances dans la première requête,
+  puis leurs mémoires et salles dans une seconde requête dont la racine est
+  `Soutenance`, compatible avec les règles de fetch de Hibernate 6.
 
 #### Espace web
 
@@ -71,9 +73,14 @@ données de l'espace encadreur (`ddae22d`) et ses écrans (`c1b16a0`).
   d'administration existant : session requise, rôle ENCADREUR exigé, jeton CSRF
   validé sur les POST en comparaison constante.
 - `EncadreurServlet` sert `/encadreur/dashboard`, `/encadreur/mes-jurys` (liste
-  des convocations) avec son formulaire de note, et `/encadreur/profil`. Un
-  identifiant de soutenance en paramètre ne donne accès à rien si l'encadreur
-  n'est pas convoqué.
+  des convocations) avec son formulaire de note, `/encadreur/mes-etudiants` et
+  `/encadreur/profil`. Un identifiant de soutenance en paramètre ne donne accès
+  à rien si l'encadreur n'est pas convoqué.
+- Le menu reprend l'arborescence Excel : Tableau de Bord → Résumé / Alertes ;
+  Mes Étudiants Encadrés → Liste étudiants encadrés ; Mes Jurys & Évaluations
+  → Liste des Jurys et Saisie d'évaluation ; Mon Profil → Édition Profil.
+- La liste `/encadreur/mes-etudiants` n'affiche que les étudiants liés aux
+  mémoires dont l'encadreur connecté est le responsable.
 - `DashboardServlet` renvoie un encadreur connecté vers son tableau de bord au
   lieu de la page d'attente.
 
@@ -98,8 +105,13 @@ données de l'espace encadreur (`ddae22d`) et ses écrans (`c1b16a0`).
 
 | Commit | Sujet |
 |---|---|
+| `a642fd1` | feat(encadreur) : aligner sur le decoupage Excel |
+| `be7f0f5` | changelogs |
+| `726dd60` | fix(dao) : corriger les jointures de tri des evaluations |
 | `c1b16a0` | feat(encadreur) : ajouter l'espace encadreur et ses écrans |
 | `ddae22d` | feat(dao) : poser la couche de données de l'espace encadreur |
+| `95fb59d` | changelog-theory supprimé |
+| `0cba872` | metals files need to be removed |
 
 ---
 feature: Journal d'audit, Acteurs & comptes et hiérarchie du menu d'administration
