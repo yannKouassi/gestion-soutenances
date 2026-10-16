@@ -11,6 +11,8 @@ public interface EncadreurRepository {
 
     Optional<Encadreur> findById(UUID id);
 
+    Optional<Encadreur> findByUtilisateurId(UUID utilisateurId);
+
     boolean emailExists(String email, UUID excludedId);
 
     Encadreur save(Encadreur encadreur);

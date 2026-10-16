@@ -60,7 +60,7 @@ Ces règles sont évaluées à l'oral. Toute contribution les enfreignant doit �
 - **Persistance** : JPA/Hibernate (parti pris du groupe, au-dessus du JDBC brut) ou `PreparedStatement` pour tout SQL écrit à la main. Toute concaténation de chaînes dans une requête SQL est interdite — explicitement pénalisée à l'oral.
 - **Mots de passe** : jamais stockés en clair. Un hash est requis, au minimum SHA-256.
 - **Session** : `HttpSession`. Chaque page protégée doit vérifier la session **côté contrôleur** et rediriger selon le rôle.
-- **DAO** : une classe DAO/repository dédiée, distincte des servlets, exigée au moins pour la relation N-N `Soutenance`/`Encadreur`.
+- **repository** : une classe repository dédiée, distincte des servlets, exigée au moins pour la relation N-N `Soutenance`/`Encadreur`.
 
 ## Architecture cible (à construire, pas encore existante)
 

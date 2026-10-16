@@ -12,6 +12,108 @@ commande opencode `/nouvelle-changelog` rédige ensuite la partie « Détail » 
 partir du diff, des corps de commit et de l'intention de la feature.
 
 ---
+feature: Espace encadreur
+branche: feat/encadreur-espace
+base: origin/main
+date: 2026-10-16
+auteurs:
+  - xxvByMe
+commits: 7
+---
+
+## Espace encadreur
+
+### Détail
+
+Cette section décrit l'espace encadreur intégré dans `feat/encadreur-espace`
+depuis `origin/main`. Elle couvre la couche de données, les écrans et leurs
+corrections, ainsi que les commits de documentation et de nettoyage présents
+sur la branche source.
+
+#### Couche de données
+
+##### Repositories
+
+- Nouveau `EvaluationRepository` : porte la relation N-N `Soutenance` ×
+  `Encadreur` portée par l'entité `Evaluation`, point explicitement exigé par
+  le cahier des charges. Il couvre la consultation du jury d'une soutenance, des
+  convocations d'un encadreur, d'une ligne de jury précise, et
+  l'enregistrement.
+- Nouveau `SoutenanceRepository`, en lecture seule : recherche par identifiant
+  avec chargement du mémoire et de la salle.
+- `EncadreurRepository` gagne une résolution par identifiant d'utilisateur,
+  nécessaire parce que la session ne porte que l'identifiant du compte.
+
+##### Service et modèle
+
+- `EncadreurService` gagne la consultation des jurys, la consultation d'une
+  soutenance, le calcul de la moyenne et la saisie d'une note.
+- `Evaluation.note` devient nullable, afin de pouvoir composer un jury avant que
+  ses membres n'aient noté.
+
+##### Règles de notation
+
+- La saisie d'une note rejette : identifiants absents, note absente, note hors
+  de l'intervalle 0-20, encadreur non convoqué au jury, note déjà soumise par
+  ce même membre.
+- La soutenance passe au statut `EVALUEE` depuis `saisirNote` lorsque le jury
+  compte au moins deux membres et que tous ont noté ; la transition est ignorée
+  si la soutenance n'est plus `PLANIFIEE`.
+- La moyenne affichée est celle des notes du jury, arrondie à deux décimales, et
+  reste absente tant qu'une seule note manque.
+- La liste des convocations charge les soutenances dans la première requête,
+  puis leurs mémoires et salles dans une seconde requête dont la racine est
+  `Soutenance`, compatible avec les règles de fetch de Hibernate 6.
+
+#### Espace web
+
+##### Sécurité et contrôleur
+
+- `EncadreurAuthorizationFilter` sur `/encadreur/*`, symétrique du filtre
+  d'administration existant : session requise, rôle ENCADREUR exigé, jeton CSRF
+  validé sur les POST en comparaison constante.
+- `EncadreurServlet` sert `/encadreur/dashboard`, `/encadreur/mes-jurys` (liste
+  des convocations) avec son formulaire de note, `/encadreur/mes-etudiants` et
+  `/encadreur/profil`. Un identifiant de soutenance en paramètre ne donne accès
+  à rien si l'encadreur n'est pas convoqué.
+- Le menu reprend l'arborescence Excel : Tableau de Bord → Résumé / Alertes ;
+  Mes Étudiants Encadrés → Liste étudiants encadrés ; Mes Jurys & Évaluations
+  → Liste des Jurys et Saisie d'évaluation ; Mon Profil → Édition Profil.
+- La liste `/encadreur/mes-etudiants` n'affiche que les étudiants liés aux
+  mémoires dont l'encadreur connecté est le responsable.
+- `DashboardServlet` renvoie un encadreur connecté vers son tableau de bord au
+  lieu de la page d'attente.
+
+##### Modèles de vue
+
+- Les données affichées passent par des modèles de vue dédiés `ConvocationVue`,
+  `JuryVue` et `MembreJuryVue`. Les notes et les avis des autres membres du jury
+  ne sont jamais exposés aux vues : seuls le nom du membre et le fait qu'il ait
+  noté figurent.
+- La moyenne du jury n'est publiée que lorsqu'elle est calculable, c'est-à-dire
+  lorsque l'encadreur a lui-même noté.
+
+##### Vues et styles
+
+- Les JSP de l'espace encadreur sont en EL et JSTL uniquement, sans scriptlet,
+  avec leur propre fragment de navigation ; l'espace d'administration n'est pas
+  modifié.
+- La feuille de style reçoit les badges de statut de soutenance aux valeurs
+  exactes de la charte, les cartes de statistiques et les listes d'information.
+
+### Commits
+
+| Commit | Sujet |
+|---|---|
+| `a642fd1` | feat(encadreur) : aligner sur le decoupage Excel |
+| `be7f0f5` | changelogs |
+| `726dd60` | fix(dao) : corriger les jointures de tri des evaluations |
+| `c1b16a0` | feat(encadreur) : ajouter l'espace encadreur et ses écrans |
+| `ddae22d` | feat(dao) : poser la couche de données de l'espace encadreur |
+| `95fb59d` | changelog-theory supprimé |
+| `0cba872` | metals files need to be removed |
+
+---
 feature: Journal d'audit, Acteurs & comptes et hiérarchie du menu d'administration
 branche: feature/admin-historique → feature/admin-menu-audit-hierarchy
 base: main
