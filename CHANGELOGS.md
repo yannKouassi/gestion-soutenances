@@ -12,6 +12,96 @@ commande opencode `/nouvelle-changelog` rédige ensuite la partie « Détail » 
 partir du diff, des corps de commit et de l'intention de la feature.
 
 ---
+feature: Espace encadreur
+branche: feature/encadreur-espace
+base: main
+date: 2026-10-16
+auteurs:
+  - xxvByMe
+commits: 2
+---
+
+## Espace encadreur
+
+### Détail
+
+Cette section décrit la branche `feature/encadreur-espace` au commit
+`c1b16a0`, non fusionnée dans `main` : les deux lots livrés — la couche de
+données de l'espace encadreur (`ddae22d`) et ses écrans (`c1b16a0`).
+
+#### Couche de données
+
+##### Repositories
+
+- Nouveau `EvaluationRepository` : porte la relation N-N `Soutenance` ×
+  `Encadreur` portée par l'entité `Evaluation`, point explicitement exigé par
+  le cahier des charges. Il couvre la consultation du jury d'une soutenance, des
+  convocations d'un encadreur, d'une ligne de jury précise, et
+  l'enregistrement.
+- Nouveau `SoutenanceRepository`, en lecture seule : recherche par identifiant
+  avec chargement du mémoire et de la salle.
+- `EncadreurRepository` gagne une résolution par identifiant d'utilisateur,
+  nécessaire parce que la session ne porte que l'identifiant du compte.
+
+##### Service et modèle
+
+- `EncadreurService` gagne la consultation des jurys, la consultation d'une
+  soutenance, le calcul de la moyenne et la saisie d'une note.
+- `Evaluation.note` devient nullable, afin de pouvoir composer un jury avant que
+  ses membres n'aient noté.
+
+##### Règles de notation
+
+- La saisie d'une note rejette : identifiants absents, note absente, note hors
+  de l'intervalle 0-20, encadreur non convoqué au jury, note déjà soumise par
+  ce même membre.
+- La soutenance passe au statut `EVALUEE` depuis `saisirNote` lorsque le jury
+  compte au moins deux membres et que tous ont noté ; la transition est ignorée
+  si la soutenance n'est plus `PLANIFIEE`.
+- La moyenne affichée est celle des notes du jury, arrondie à deux décimales, et
+  reste absente tant qu'une seule note manque.
+- Les requêtes Criteria déclarent une seule jointure par chemin association : le
+  `fetch` sert aussi au tri, ce qui évite une jointure dupliquée.
+
+#### Espace web
+
+##### Sécurité et contrôleur
+
+- `EncadreurAuthorizationFilter` sur `/encadreur/*`, symétrique du filtre
+  d'administration existant : session requise, rôle ENCADREUR exigé, jeton CSRF
+  validé sur les POST en comparaison constante.
+- `EncadreurServlet` sert `/encadreur/dashboard`, `/encadreur/mes-jurys` (liste
+  des convocations) avec son formulaire de note, et `/encadreur/profil`. Un
+  identifiant de soutenance en paramètre ne donne accès à rien si l'encadreur
+  n'est pas convoqué.
+- `DashboardServlet` renvoie un encadreur connecté vers son tableau de bord au
+  lieu de la page d'attente.
+
+##### Modèles de vue
+
+- Les données affichées passent par des modèles de vue dédiés `ConvocationVue`,
+  `JuryVue` et `MembreJuryVue`. Les notes et les avis des autres membres du jury
+  ne sont jamais exposés aux vues : seuls le nom du membre et le fait qu'il ait
+  noté figurent.
+- La moyenne du jury n'est publiée que lorsqu'elle est calculable, c'est-à-dire
+  lorsque l'encadreur a lui-même noté.
+
+##### Vues et styles
+
+- Les JSP de l'espace encadreur sont en EL et JSTL uniquement, sans scriptlet,
+  avec leur propre fragment de navigation ; l'espace d'administration n'est pas
+  modifié.
+- La feuille de style reçoit les badges de statut de soutenance aux valeurs
+  exactes de la charte, les cartes de statistiques et les listes d'information.
+
+### Commits
+
+| Commit | Sujet |
+|---|---|
+| `c1b16a0` | feat(encadreur) : ajouter l'espace encadreur et ses écrans |
+| `ddae22d` | feat(dao) : poser la couche de données de l'espace encadreur |
+
+---
 feature: Journal d'audit, Acteurs & comptes et hiérarchie du menu d'administration
 branche: feature/admin-historique → feature/admin-menu-audit-hierarchy
 base: main
