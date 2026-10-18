@@ -61,9 +61,11 @@ public class EtudiantServiceImpl implements EtudiantService {
         if (memoireId == null) {
             etudiant.setMemoire(null);
         } else {
-            Memoire memoire = memoireRepository.findAll().stream()
-                    .filter(item -> item.getId().equals(memoireId))
-                    .findFirst().orElseThrow(() -> new IllegalArgumentException("Mémoire introuvable."));
+            if (etudiantRepository.existsByMemoireId(memoireId, etudiant.getId())) {
+                throw new IllegalArgumentException("Ce mémoire est déjà rattaché à un autre étudiant.");
+            }
+            Memoire memoire = memoireRepository.findById(memoireId)
+                    .orElseThrow(() -> new IllegalArgumentException("Mémoire introuvable."));
             etudiant.setMemoire(memoire);
         }
         if (etudiant.getId() == null) {
