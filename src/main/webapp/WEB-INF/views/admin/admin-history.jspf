@@ -51,19 +51,22 @@
                 </table>
             </div>
             <c:if test="${historyTotalPages gt 1}">
+                <c:if test="${empty historyEditBase}">
+                    <c:set var="historyEditBase" value="${pageContext.request.contextPath}/admin/${type}?vue=form&amp;id=${element.id}"/>
+                </c:if>
                 <nav class="form-history-pagination" aria-label="Pagination de l’historique">
                     <span>Page <c:out value="${historyPage}"/> sur <c:out value="${historyTotalPages}"/></span>
                     <div class="history-page-links">
                         <c:if test="${historyPage gt 1}">
-                            <a class="page-link" href="${pageContext.request.contextPath}/admin/${type}?vue=form&amp;id=${element.id}&amp;page=${historyPage - 1}" aria-label="Page précédente">Précédent</a>
+                            <a class="page-link" href="${historyEditBase}&amp;page=${historyPage - 1}" aria-label="Page précédente">Précédent</a>
                         </c:if>
                         <c:forEach var="pageNumber" begin="${historyFirstPage}" end="${historyLastPage}">
                             <a class="page-link ${pageNumber eq historyPage ? 'current' : ''}"
-                               href="${pageContext.request.contextPath}/admin/${type}?vue=form&amp;id=${element.id}&amp;page=${pageNumber}"
+                               href="${historyEditBase}&amp;page=${pageNumber}"
                                aria-label="Page ${pageNumber}" ${pageNumber eq historyPage ? 'aria-current="page"' : ''}><c:out value="${pageNumber}"/></a>
                         </c:forEach>
                         <c:if test="${historyPage lt historyTotalPages}">
-                            <a class="page-link" href="${pageContext.request.contextPath}/admin/${type}?vue=form&amp;id=${element.id}&amp;page=${historyPage + 1}" aria-label="Page suivante">Suivant</a>
+                            <a class="page-link" href="${historyEditBase}&amp;page=${historyPage + 1}" aria-label="Page suivante">Suivant</a>
                         </c:if>
                     </div>
                 </nav>

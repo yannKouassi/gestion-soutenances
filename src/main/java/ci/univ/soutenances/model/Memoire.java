@@ -30,6 +30,10 @@ public class Memoire extends BaseEntity {
     protected Memoire() {
     }
 
+    public static Memoire create() {
+        return new Memoire();
+    }
+
     public String getTitre() {
         return titre;
     }

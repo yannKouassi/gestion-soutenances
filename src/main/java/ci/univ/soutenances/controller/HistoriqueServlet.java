@@ -29,11 +29,6 @@ public class HistoriqueServlet extends HttpServlet {
     private static final int DEFAULT_PAGE_SIZE = 15;
     private static final Set<Integer> PAGE_SIZES = Set.of(10, 15, 20, 50);
     private static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
-    private static final Map<String, String> SCREENS = Map.of(
-            "GRADE", "Grades",
-            "DEPARTEMENT", "Départements",
-            "FILIERE", "Filières",
-            "SALLE", "Salles");
     private static final Map<String, String> ACTIONS = Map.of(
             "CREATION", "Création",
             "MODIFICATION", "Modification",
@@ -69,6 +64,7 @@ public class HistoriqueServlet extends HttpServlet {
                 throw new IllegalArgumentException("Numéro de page trop grand.");
             }
 
+            Map<String, String> screens = historiqueActionService.screens();
             request.setAttribute("type", "historique");
             request.setAttribute("titre", "Journal d’audit");
             request.setAttribute("entries",
@@ -79,11 +75,11 @@ public class HistoriqueServlet extends HttpServlet {
                                     actionLabel(historique.getAction(), historique.getTypeAction()),
                                     historique.getUtilisateur().getLogin(),
                                     historique.getUtilisateur().getRole().name(),
-                                    screenLabel(historique.getEcran(), historique.getTypeAction())))
+                                    screenLabel(historique.getEcran(), historique.getTypeAction(), screens)))
                             .toList());
             List<String> auteurs = auteursAvecFiltreApplique(auteur);
             request.setAttribute("auteurs", auteurs);
-            request.setAttribute("screens", orderedScreens());
+            request.setAttribute("screens", screens);
             request.setAttribute("actions", orderedActions());
             request.setAttribute("filtreEcran", ecran == null ? "" : ecran);
             request.setAttribute("filtreAction", action == null ? "" : action);
@@ -107,13 +103,13 @@ public class HistoriqueServlet extends HttpServlet {
         }
     }
 
-    private static String screenLabel(String ecran, String typeAction) {
-        if (ecran != null && SCREENS.containsKey(ecran)) {
-            return SCREENS.get(ecran);
+    private static String screenLabel(String ecran, String typeAction, Map<String, String> screens) {
+        if (ecran != null && screens.containsKey(ecran)) {
+            return screens.get(ecran);
         }
         String code = screenCodeOf(typeAction);
-        if (code != null && SCREENS.containsKey(code)) {
-            return SCREENS.get(code);
+        if (code != null && screens.containsKey(code)) {
+            return screens.get(code);
         }
         return typeAction;
     }
@@ -137,15 +133,6 @@ public class HistoriqueServlet extends HttpServlet {
     private static String screenCodeOf(String typeAction) {
         int separator = typeAction.indexOf('_');
         return separator < 1 ? null : typeAction.substring(0, separator);
-    }
-
-    private static Map<String, String> orderedScreens() {
-        Map<String, String> screens = new LinkedHashMap<>();
-        screens.put("GRADE", SCREENS.get("GRADE"));
-        screens.put("DEPARTEMENT", SCREENS.get("DEPARTEMENT"));
-        screens.put("FILIERE", SCREENS.get("FILIERE"));
-        screens.put("SALLE", SCREENS.get("SALLE"));
-        return screens;
     }
 
     private static Map<String, String> orderedActions() {

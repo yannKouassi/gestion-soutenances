@@ -27,7 +27,8 @@ public class EvaluationRepositoryImpl implements EvaluationRepository {
         CriteriaBuilder builder = entityManager.getCriteriaBuilder();
         CriteriaQuery<Evaluation> query = builder.createQuery(Evaluation.class);
         Root<Evaluation> evaluation = query.from(Evaluation.class);
-        Join<Evaluation, Encadreur> membre = evaluation.join("encadreur", JoinType.INNER);
+        Join<Evaluation, Encadreur> membre = (Join<Evaluation, Encadreur>) evaluation.<Evaluation, Encadreur>fetch(
+                "encadreur", JoinType.INNER);
         query.select(evaluation)
                 .where(builder.equal(evaluation.get("soutenance").get("id"), soutenanceId))
                 .orderBy(builder.asc(membre.get("nom")), builder.asc(membre.get("prenom")));
@@ -64,7 +65,7 @@ public class EvaluationRepositoryImpl implements EvaluationRepository {
         CriteriaBuilder builder = entityManager.getCriteriaBuilder();
         CriteriaQuery<Evaluation> query = builder.createQuery(Evaluation.class);
         Root<Evaluation> evaluation = query.from(Evaluation.class);
-        evaluation.fetch("soutenance", JoinType.INNER);
+        evaluation.fetch("soutenance", JoinType.INNER).fetch("memoire", JoinType.INNER);
         evaluation.fetch("encadreur", JoinType.INNER);
         query.select(evaluation).distinct(true).where(
                 builder.equal(evaluation.get("soutenance").get("id"), soutenanceId),
