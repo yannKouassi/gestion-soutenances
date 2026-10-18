@@ -20,6 +20,7 @@
         </div></header>
         <c:if test="${not empty message}"><div class="alert alert-success" role="status"><c:out value="${message}"/></div></c:if>
         <c:if test="${not empty erreur}"><div class="alert alert-error" role="alert"><c:out value="${erreur}"/></div></c:if>
+        <c:if test="${membres.size() lt 2}"><div class="alert alert-warning" role="alert">Jury incomplet : ajoute au moins un autre membre avant toute évaluation.</div></c:if>
         <section class="card"><div class="card-body">
             <div class="form-card-heading">
                 <span class="form-mode"><c:out value="${dateAffichee}"/></span>

@@ -129,6 +129,10 @@ public class EncadreurServiceImpl implements EncadreurService {
         Evaluation evaluation = evaluationRepository.findBySoutenanceAndEncadreur(soutenanceId, encadreurId)
                 .orElseThrow(() -> new IllegalArgumentException(
                         "Cet encadreur n’est pas membre du jury de cette soutenance."));
+        if (evaluationRepository.findBySoutenanceId(soutenanceId).size() < 2) {
+            throw new IllegalArgumentException(
+                    "Un jury doit comporter au moins deux membres avant la saisie des notes.");
+        }
         if (evaluation.getNote() != null) {
             throw new IllegalArgumentException("Une note a déjà été soumise pour ce membre du jury.");
         }
