@@ -13,6 +13,7 @@ import ci.univ.soutenances.model.Etudiant;
 import ci.univ.soutenances.model.Grade;
 import ci.univ.soutenances.model.RoleUtilisateur;
 import ci.univ.soutenances.model.Soutenance;
+import ci.univ.soutenances.model.StatutSoutenance;
 import ci.univ.soutenances.repository.DepartementRepository;
 import ci.univ.soutenances.repository.EncadreurRepository;
 import ci.univ.soutenances.repository.EtudiantRepository;
@@ -132,6 +133,12 @@ public class EncadreurServiceImpl implements EncadreurService {
                         "Cet encadreur n’est pas membre du jury de cette soutenance."));
         Soutenance soutenance = soutenanceRepository.findById(soutenanceId)
                 .orElseThrow(() -> new IllegalArgumentException("Soutenance introuvable."));
+        if (soutenance.getStatut() == StatutSoutenance.EVALUEE) {
+            throw new IllegalArgumentException("Cette soutenance est déjà évaluée ; les notes sont closes.");
+        }
+        if (soutenance.getStatut() == StatutSoutenance.ANNULEE) {
+            throw new IllegalArgumentException("Cette soutenance est annulée.");
+        }
         if (soutenance.getDateHeure() != null && soutenance.getDateHeure().isAfter(LocalDateTime.now())) {
             throw new IllegalArgumentException(
                     "La soutenance n’a pas encore eu lieu ; la note ne peut pas être saisie.");

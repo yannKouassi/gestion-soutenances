@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
@@ -201,6 +202,7 @@ public class EncadreurServlet extends HttpServlet {
         request.setAttribute("moyenne", encadreurService.calculerMoyenne(soutenanceId).orElse(null));
         request.setAttribute("dejaNote", maConvocation.getNote() != null);
         request.setAttribute("dateAffichee", formatDate(soutenance));
+        setSaisieAuthorization(request, soutenance, jury.size());
         request.setAttribute("message", request.getParameter("message"));
         request.setAttribute("erreur", request.getParameter("erreur"));
         setLogoutToken(request);
@@ -236,6 +238,7 @@ public class EncadreurServlet extends HttpServlet {
             request.setAttribute("moyenne", encadreurService.calculerMoyenne(soutenanceId).orElse(null));
             request.setAttribute("dejaNote", maConvocation.getNote() != null);
             request.setAttribute("dateAffichee", formatDate(soutenance));
+            setSaisieAuthorization(request, soutenance, jury.size());
             request.setAttribute("erreur", error);
             setLogoutToken(request);
             request.getRequestDispatcher("/WEB-INF/views/encadreur/evaluation-form.jsp").forward(request, response);
@@ -386,6 +389,31 @@ public class EncadreurServlet extends HttpServlet {
             return "Date à confirmer";
         }
         return soutenance.getDateHeure().format(DATE_FORMAT);
+    }
+
+    private static void setSaisieAuthorization(HttpServletRequest request, Soutenance soutenance, int tailleJury) {
+        boolean autorisee = soutenance.getStatut() == StatutSoutenance.PLANIFIEE
+                && soutenance.getDateHeure() != null
+                && !soutenance.getDateHeure().isAfter(LocalDateTime.now())
+                && tailleJury >= 2;
+        request.setAttribute("saisieAutorisee", autorisee);
+        request.setAttribute("raisonSaisieBloquee", autorisee ? null : raisonBlocageSaisie(soutenance, tailleJury));
+    }
+
+    private static String raisonBlocageSaisie(Soutenance soutenance, int tailleJury) {
+        if (soutenance.getStatut() == StatutSoutenance.ANNULEE) {
+            return "Cette soutenance est annulée.";
+        }
+        if (soutenance.getStatut() == StatutSoutenance.EVALUEE) {
+            return "Cette soutenance est déjà évaluée ; les notes sont closes.";
+        }
+        if (soutenance.getDateHeure() != null && soutenance.getDateHeure().isAfter(LocalDateTime.now())) {
+            return "La soutenance n’a pas encore eu lieu ; la note ne peut pas être saisie.";
+        }
+        if (tailleJury < 2) {
+            return "Un jury doit comporter au moins deux membres avant la saisie des notes.";
+        }
+        return null;
     }
 
     private static String clean(String value) {
