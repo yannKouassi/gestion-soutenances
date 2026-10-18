@@ -159,13 +159,18 @@ public class PlanificationServlet extends HttpServlet {
     }
 
     private static String dateHeureMin(List<Memoire> memoires, UUID selectedMemoireId) {
-        return memoires.stream()
+        LocalDateTime minimum = LocalDateTime.now();
+        LocalDateTime borneDepot = memoires.stream()
                 .filter(memoire -> memoire.getId().equals(selectedMemoireId))
                 .map(Memoire::getDateDepot)
                 .filter(depot -> depot != null)
                 .findFirst()
-                .map(depot -> depot.plusDays(1).atStartOfDay().format(INPUT_FORMAT))
-                .orElse("");
+                .map(depot -> depot.plusDays(1).atStartOfDay())
+                .orElse(null);
+        if (borneDepot != null && borneDepot.isAfter(minimum)) {
+            minimum = borneDepot;
+        }
+        return minimum.format(INPUT_FORMAT);
     }
 
     private void showFormError(HttpServletRequest request, HttpServletResponse response, String error)

@@ -67,9 +67,14 @@
         borne.setDate(borne.getDate() + 1);
         return borne;
     }
-    memoireSelect.addEventListener('change', function () {
+    function borneMin() {
         var borne = borneMemoire();
-        dateInput.min = borne ? formatLocal(borne) : '';
+        var now = new Date();
+        now.setSeconds(0, 0);
+        return borne && borne > now ? borne : now;
+    }
+    memoireSelect.addEventListener('change', function () {
+        dateInput.min = formatLocal(borneMin());
     });
 })();
 </script>

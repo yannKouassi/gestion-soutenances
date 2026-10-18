@@ -74,6 +74,16 @@ public class SoutenanceServiceImpl implements SoutenanceService {
         if (dateHeure == null) {
             throw new IllegalArgumentException("La date et l'heure de la soutenance sont obligatoires.");
         }
+        if (soutenance.getId() == null) {
+            requireFutur(dateHeure);
+        } else {
+            LocalDateTime dateInitiale = soutenanceRepository.findById(soutenance.getId())
+                    .map(Soutenance::getDateHeure)
+                    .orElse(null);
+            if (!dateHeure.equals(dateInitiale)) {
+                requireFutur(dateHeure);
+            }
+        }
         Memoire memoire = memoireRepository.findById(requireId(memoireId, "du mémoire"))
                 .orElseThrow(() -> new IllegalArgumentException("Mémoire introuvable."));
         if (memoire.getDateDepot() != null && !dateHeure.toLocalDate().isAfter(memoire.getDateDepot())) {
@@ -156,6 +166,13 @@ public class SoutenanceServiceImpl implements SoutenanceService {
                 soutenance.setStatut(StatutSoutenance.EVALUEE);
             }
         });
+    }
+
+    private static void requireFutur(LocalDateTime dateHeure) {
+        if (!dateHeure.isAfter(LocalDateTime.now())) {
+            throw new IllegalArgumentException(
+                    "La date et l'heure de la soutenance doivent être dans le futur.");
+        }
     }
 
     private static UUID requireId(UUID id, String label) {
