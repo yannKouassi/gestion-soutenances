@@ -8,6 +8,7 @@ import java.util.UUID;
 import ci.univ.soutenances.model.Encadreur;
 import ci.univ.soutenances.model.Memoire;
 import ci.univ.soutenances.repository.EncadreurRepository;
+import ci.univ.soutenances.repository.EtudiantRepository;
 import ci.univ.soutenances.repository.MemoireRepository;
 import ci.univ.soutenances.repository.SoutenanceRepository;
 import ci.univ.soutenances.service.MemoireService;
@@ -24,6 +25,9 @@ public class MemoireServiceImpl implements MemoireService {
 
     @EJB
     private SoutenanceRepository soutenanceRepository;
+
+    @EJB
+    private EtudiantRepository etudiantRepository;
 
     @Override
     public List<Memoire> findAll() {
@@ -61,6 +65,10 @@ public class MemoireServiceImpl implements MemoireService {
     public void delete(UUID id) {
         Memoire memoire = memoireRepository.findById(requireId(id, "du mémoire"))
                 .orElseThrow(() -> new IllegalArgumentException("Mémoire introuvable."));
+        if (etudiantRepository.existsByMemoireId(memoire.getId(), null)) {
+            throw new IllegalArgumentException(
+                    "Ce mémoire est rattaché à un étudiant et ne peut pas être supprimé.");
+        }
         if (soutenanceRepository.findByMemoireId(memoire.getId()).isPresent()) {
             throw new IllegalArgumentException(
                     "Ce mémoire est déjà rattaché à une soutenance et ne peut pas être supprimé.");
