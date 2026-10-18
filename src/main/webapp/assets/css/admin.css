@@ -1047,6 +1047,10 @@ tbody tr:hover td {
     gap: 4px;
 }
 
+.admin-form-page .field-full {
+    grid-column: 1 / -1;
+}
+
 .admin-form-page .field input,
 .admin-form-page .field select {
     min-height: 40px;
