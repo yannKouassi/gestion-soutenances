@@ -76,6 +76,10 @@ public class SoutenanceServiceImpl implements SoutenanceService {
         }
         Memoire memoire = memoireRepository.findById(requireId(memoireId, "du mémoire"))
                 .orElseThrow(() -> new IllegalArgumentException("Mémoire introuvable."));
+        if (memoire.getDateDepot() != null && !dateHeure.toLocalDate().isAfter(memoire.getDateDepot())) {
+            throw new IllegalArgumentException(
+                    "La date de la soutenance doit être postérieure à la date de dépôt du mémoire.");
+        }
         Salle salle = salleRepository.findById(requireId(salleId, "de la salle"))
                 .orElseThrow(() -> new IllegalArgumentException("Salle introuvable."));
         Optional<Soutenance> dejaPlanifiee = soutenanceRepository.findByMemoireId(memoire.getId());

@@ -29,8 +29,8 @@
             <form class="form-grid" method="post" action="${pageContext.request.contextPath}/admin/planification/enregistrer">
                 <input type="hidden" name="csrfToken" value="<c:out value='${csrfToken}'/>">
                 <input type="hidden" name="id" value="<c:out value='${element.id}'/>">
-                <div class="field field-full"><label for="memoireId">Mémoire à soutenir <span class="required-mark" aria-hidden="true">*</span></label><select id="memoireId" name="memoireId" required><option value="">Choisir un mémoire</option><c:forEach var="memoire" items="${memoires}"><option value="<c:out value='${memoire.id}'/>" ${memoire.id eq selectedMemoireId ? 'selected' : ''}><c:out value="${memoire.titre}"/> — <c:out value="${memoire.encadreur.prenom}"/> <c:out value="${memoire.encadreur.nom}"/></option></c:forEach></select><small class="field-hint">Seuls les mémoires encore sans soutenance sont proposés.</small></div>
-                <div class="field"><label for="dateHeure">Date et heure <span class="required-mark" aria-hidden="true">*</span></label><input id="dateHeure" name="dateHeure" type="datetime-local" required value="<c:out value='${dateHeureValue}'/>"></div>
+                <div class="field field-full"><label for="memoireId">Mémoire à soutenir <span class="required-mark" aria-hidden="true">*</span></label><select id="memoireId" name="memoireId" required><option value="">Choisir un mémoire</option><c:forEach var="memoire" items="${memoires}"><option value="<c:out value='${memoire.id}'/>" data-date-depot="<c:out value='${memoire.dateDepot}'/>" ${memoire.id eq selectedMemoireId ? 'selected' : ''}><c:out value="${memoire.titre}"/> — <c:out value="${memoire.encadreur.prenom}"/> <c:out value="${memoire.encadreur.nom}"/></option></c:forEach></select><small class="field-hint">Seuls les mémoires encore sans soutenance sont proposés.</small></div>
+                <div class="field"><label for="dateHeure">Date et heure <span class="required-mark" aria-hidden="true">*</span></label><input id="dateHeure" name="dateHeure" type="datetime-local" required min="<c:out value='${dateHeureMin}'/>" value="<c:out value='${dateHeureValue}'/>"></div>
                 <div class="field"><label for="salleId">Salle <span class="required-mark" aria-hidden="true">*</span></label><select id="salleId" name="salleId" required><option value="">Choisir une salle</option><c:forEach var="salle" items="${salles}"><option value="<c:out value='${salle.id}'/>" ${salle.id eq selectedSalleId ? 'selected' : ''}><c:out value="${salle.nomSalle}"/> — <c:out value="${salle.departement.nom}"/></option></c:forEach></select></div>
                 <div class="form-actions">
                     <button class="btn btn-primary" type="submit">Enregistrer</button>
@@ -42,5 +42,36 @@
         <%@ include file="admin-history.jspf" %>
     </main>
 </div>
+<script>
+(function () {
+    var memoireSelect = document.getElementById('memoireId');
+    var dateInput = document.getElementById('dateHeure');
+    if (!memoireSelect || !dateInput) {
+        return;
+    }
+    function formatLocal(date) {
+        var pad = function (value) { return value < 10 ? '0' + value : '' + value; };
+        return date.getFullYear() + '-' + pad(date.getMonth() + 1) + '-' + pad(date.getDate())
+            + 'T' + pad(date.getHours()) + ':' + pad(date.getMinutes());
+    }
+    function borneMemoire() {
+        var option = memoireSelect.options[memoireSelect.selectedIndex];
+        var depot = option ? option.getAttribute('data-date-depot') : null;
+        if (!depot) {
+            return null;
+        }
+        var borne = new Date(depot + 'T00:00:00');
+        if (isNaN(borne.getTime())) {
+            return null;
+        }
+        borne.setDate(borne.getDate() + 1);
+        return borne;
+    }
+    memoireSelect.addEventListener('change', function () {
+        var borne = borneMemoire();
+        dateInput.min = borne ? formatLocal(borne) : '';
+    });
+})();
+</script>
 </body>
 </html>

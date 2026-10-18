@@ -149,11 +149,23 @@ public class PlanificationServlet extends HttpServlet {
         memoires.sort(Comparator.comparing(Memoire::getTitre, Comparator.nullsLast(String.CASE_INSENSITIVE_ORDER)));
         request.setAttribute("memoires", memoires);
         request.setAttribute("salles", salleRepository.findAll());
-        request.setAttribute("selectedMemoireId", selectedId(request.getParameter("memoireId"),
-                element == null || element.getMemoire() == null ? null : element.getMemoire().getId()));
+        UUID selectedMemoireId = selectedId(request.getParameter("memoireId"),
+                element == null || element.getMemoire() == null ? null : element.getMemoire().getId());
+        request.setAttribute("selectedMemoireId", selectedMemoireId);
         request.setAttribute("selectedSalleId", selectedId(request.getParameter("salleId"),
                 element == null || element.getSalle() == null ? null : element.getSalle().getId()));
         request.setAttribute("dateHeureValue", dateHeureValue(request.getParameter("dateHeure"), element));
+        request.setAttribute("dateHeureMin", dateHeureMin(memoires, selectedMemoireId));
+    }
+
+    private static String dateHeureMin(List<Memoire> memoires, UUID selectedMemoireId) {
+        return memoires.stream()
+                .filter(memoire -> memoire.getId().equals(selectedMemoireId))
+                .map(Memoire::getDateDepot)
+                .filter(depot -> depot != null)
+                .findFirst()
+                .map(depot -> depot.plusDays(1).atStartOfDay().format(INPUT_FORMAT))
+                .orElse("");
     }
 
     private void showFormError(HttpServletRequest request, HttpServletResponse response, String error)
