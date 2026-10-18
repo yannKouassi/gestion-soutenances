@@ -17,5 +17,7 @@ public interface EtudiantRepository {
 
     boolean matriculeExists(String matricule, UUID excludedId);
 
+    boolean existsByMemoireId(UUID memoireId, UUID excludedEtudiantId);
+
     Etudiant save(Etudiant etudiant);
 }

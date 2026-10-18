@@ -78,6 +78,17 @@ public class EtudiantRepositoryImpl implements EtudiantRepository {
     }
 
     @Override
+    public boolean existsByMemoireId(UUID memoireId, UUID excludedEtudiantId) {
+        CriteriaBuilder builder = entityManager.getCriteriaBuilder();
+        CriteriaQuery<Long> query = builder.createQuery(Long.class);
+        Root<Etudiant> etudiant = query.from(Etudiant.class);
+        query.select(builder.count(etudiant)).where(builder.equal(etudiant.get("memoire").get("id"), memoireId),
+                excludedEtudiantId == null ? builder.conjunction()
+                        : builder.notEqual(etudiant.get("id"), excludedEtudiantId));
+        return entityManager.createQuery(query).getSingleResult() > 0;
+    }
+
+    @Override
     public Etudiant save(Etudiant etudiant) {
         if (etudiant.getId() == null) {
             entityManager.persist(etudiant);
