@@ -16,6 +16,7 @@ import ci.univ.soutenances.model.Soutenance;
 import ci.univ.soutenances.model.SoutenanceVue;
 import ci.univ.soutenances.model.StatutSoutenance;
 import ci.univ.soutenances.repository.EncadreurRepository;
+import ci.univ.soutenances.repository.EtudiantRepository;
 import ci.univ.soutenances.repository.EvaluationRepository;
 import ci.univ.soutenances.repository.MemoireRepository;
 import ci.univ.soutenances.repository.SalleRepository;
@@ -42,6 +43,9 @@ public class SoutenanceServiceImpl implements SoutenanceService {
 
     @EJB
     private EncadreurRepository encadreurRepository;
+
+    @EJB
+    private EtudiantRepository etudiantRepository;
 
     @Override
     public Optional<Soutenance> findById(UUID id) {
@@ -78,6 +82,10 @@ public class SoutenanceServiceImpl implements SoutenanceService {
                 .orElseThrow(() -> new IllegalArgumentException("Mémoire introuvable."));
         Salle salle = salleRepository.findById(requireId(salleId, "de la salle"))
                 .orElseThrow(() -> new IllegalArgumentException("Salle introuvable."));
+        if (!etudiantRepository.existsByMemoireId(memoire.getId(), null)) {
+            throw new IllegalArgumentException(
+                    "Ce mémoire n'est rattaché à aucun étudiant ; rattache-le d'abord à un étudiant avant de le planifier.");
+        }
         Optional<Soutenance> dejaPlanifiee = soutenanceRepository.findByMemoireId(memoire.getId());
         if (dejaPlanifiee.isPresent() && !dejaPlanifiee.get().getId().equals(soutenance.getId())) {
             throw new IllegalArgumentException("Ce mémoire est déjà rattaché à une soutenance.");
