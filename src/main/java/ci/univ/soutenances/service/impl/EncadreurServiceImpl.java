@@ -1,6 +1,7 @@
 package ci.univ.soutenances.service.impl;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -129,6 +130,12 @@ public class EncadreurServiceImpl implements EncadreurService {
         Evaluation evaluation = evaluationRepository.findBySoutenanceAndEncadreur(soutenanceId, encadreurId)
                 .orElseThrow(() -> new IllegalArgumentException(
                         "Cet encadreur n’est pas membre du jury de cette soutenance."));
+        Soutenance soutenance = soutenanceRepository.findById(soutenanceId)
+                .orElseThrow(() -> new IllegalArgumentException("Soutenance introuvable."));
+        if (soutenance.getDateHeure() != null && soutenance.getDateHeure().isAfter(LocalDateTime.now())) {
+            throw new IllegalArgumentException(
+                    "La soutenance n’a pas encore eu lieu ; la note ne peut pas être saisie.");
+        }
         if (evaluationRepository.findBySoutenanceId(soutenanceId).size() < 2) {
             throw new IllegalArgumentException(
                     "Un jury doit comporter au moins deux membres avant la saisie des notes.");
