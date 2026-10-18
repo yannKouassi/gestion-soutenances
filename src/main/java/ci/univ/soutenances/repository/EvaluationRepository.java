@@ -14,4 +14,6 @@ public interface EvaluationRepository {
     Optional<Evaluation> findBySoutenanceAndEncadreur(UUID soutenanceId, UUID encadreurId);
 
     Evaluation save(Evaluation evaluation);
+
+    void delete(Evaluation evaluation);
 }

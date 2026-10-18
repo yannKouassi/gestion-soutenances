@@ -1,5 +1,6 @@
 package ci.univ.soutenances.repository.impl;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -107,5 +108,27 @@ public class SoutenanceRepositoryImpl implements SoutenanceRepository {
         soutenance.fetch("salle", JoinType.INNER);
         query.select(soutenance).distinct(true).where(builder.equal(soutenance.get("id"), id));
         return entityManager.createQuery(query).getResultStream().findFirst();
+    }
+
+    @Override
+    public boolean existsSalleConflit(UUID salleId, LocalDateTime dateHeure, UUID excludedSoutenanceId) {
+        CriteriaBuilder builder = entityManager.getCriteriaBuilder();
+        CriteriaQuery<Long> query = builder.createQuery(Long.class);
+        Root<Soutenance> soutenance = query.from(Soutenance.class);
+        query.select(builder.count(soutenance)).where(
+                builder.equal(soutenance.get("salle").get("id"), salleId),
+                builder.equal(soutenance.get("dateHeure"), dateHeure),
+                excludedSoutenanceId == null ? builder.conjunction()
+                        : builder.notEqual(soutenance.get("id"), excludedSoutenanceId));
+        return entityManager.createQuery(query).getSingleResult() > 0;
+    }
+
+    @Override
+    public Soutenance save(Soutenance soutenance) {
+        if (soutenance.getId() == null) {
+            entityManager.persist(soutenance);
+            return soutenance;
+        }
+        return entityManager.merge(soutenance);
     }
 }

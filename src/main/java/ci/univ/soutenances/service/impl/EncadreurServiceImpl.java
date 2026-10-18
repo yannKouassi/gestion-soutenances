@@ -1,7 +1,6 @@
 package ci.univ.soutenances.service.impl;
 
 import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -13,7 +12,6 @@ import ci.univ.soutenances.model.Etudiant;
 import ci.univ.soutenances.model.Grade;
 import ci.univ.soutenances.model.RoleUtilisateur;
 import ci.univ.soutenances.model.Soutenance;
-import ci.univ.soutenances.model.StatutSoutenance;
 import ci.univ.soutenances.repository.DepartementRepository;
 import ci.univ.soutenances.repository.EncadreurRepository;
 import ci.univ.soutenances.repository.EtudiantRepository;
@@ -22,6 +20,7 @@ import ci.univ.soutenances.repository.GradeRepository;
 import ci.univ.soutenances.repository.SoutenanceRepository;
 import ci.univ.soutenances.service.CompteService;
 import ci.univ.soutenances.service.EncadreurService;
+import ci.univ.soutenances.service.SoutenanceService;
 import jakarta.ejb.EJB;
 import jakarta.ejb.Stateless;
 
@@ -47,6 +46,9 @@ public class EncadreurServiceImpl implements EncadreurService {
 
     @EJB
     private SoutenanceRepository soutenanceRepository;
+
+    @EJB
+    private SoutenanceService soutenanceService;
 
     @Override
     public List<Encadreur> findAll() {
@@ -111,18 +113,7 @@ public class EncadreurServiceImpl implements EncadreurService {
 
     @Override
     public Optional<BigDecimal> calculerMoyenne(UUID soutenanceId) {
-        List<Evaluation> jury = evaluationRepository.findBySoutenanceId(requireId(soutenanceId, "soutenance"));
-        if (jury.isEmpty()) {
-            return Optional.empty();
-        }
-        BigDecimal total = BigDecimal.ZERO;
-        for (Evaluation evaluation : jury) {
-            if (evaluation.getNote() == null) {
-                return Optional.empty();
-            }
-            total = total.add(evaluation.getNote());
-        }
-        return Optional.of(total.divide(BigDecimal.valueOf(jury.size()), 2, RoundingMode.HALF_UP));
+        return soutenanceService.calculerMoyenne(requireId(soutenanceId, "soutenance"));
     }
 
     @Override
@@ -144,14 +135,7 @@ public class EncadreurServiceImpl implements EncadreurService {
         evaluation.setNote(note);
         evaluation.setAvis(avis == null || avis.isBlank() ? null : avis.trim());
         Evaluation soumise = evaluationRepository.save(evaluation);
-        List<Evaluation> jury = evaluationRepository.findBySoutenanceId(soutenanceId);
-        if (jury.size() >= 2 && jury.stream().allMatch(membre -> membre.getNote() != null)) {
-            soutenanceRepository.findById(soutenanceId).ifPresent(soutenance -> {
-                if (soutenance.getStatut() == StatutSoutenance.PLANIFIEE) {
-                    soutenance.setStatut(StatutSoutenance.EVALUEE);
-                }
-            });
-        }
+        soutenanceService.mettreAJourStatutApresEvaluation(soutenanceId);
         return soumise;
     }
 

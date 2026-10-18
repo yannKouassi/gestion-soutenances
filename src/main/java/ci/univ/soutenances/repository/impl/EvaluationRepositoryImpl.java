@@ -81,4 +81,11 @@ public class EvaluationRepositoryImpl implements EvaluationRepository {
         }
         return entityManager.merge(evaluation);
     }
+
+    @Override
+    public void delete(Evaluation evaluation) {
+        entityManager.remove(entityManager.contains(evaluation)
+                ? evaluation
+                : entityManager.merge(evaluation));
+    }
 }

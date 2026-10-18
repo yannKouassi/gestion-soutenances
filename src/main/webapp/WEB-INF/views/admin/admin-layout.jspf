@@ -70,6 +70,12 @@
                 <a class="${type eq 'memoires' and param.vue eq 'form' ? 'active' : ''}" href="${pageContext.request.contextPath}/admin/memoires?vue=form">Ajout / Édition Mémoire</a>
             </div>
         </details>
+        <details class="nav-group" ${(type eq 'planification' or type eq 'jury') ? 'open' : ''}>
+            <summary><span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><path d="M4 5h16v15H4z"/><path d="M8 3v4m8-4v4M4 10h16"/><path d="M8 14h3m5 0h.01"/></svg></span>Gestion des Soutenances</summary>
+            <div class="nav-submenu">
+                <a class="${(type eq 'planification' or type eq 'jury') ? 'active' : ''}" href="${pageContext.request.contextPath}/admin/planification">Planifier une soutenance</a>
+            </div>
+        </details>
     </nav>
     <p class="nav-heading">Pilotage &amp; audit</p>
     <nav class="admin-nav" aria-label="Pilotage et audit">
