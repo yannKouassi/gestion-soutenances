@@ -44,6 +44,11 @@ public class SoutenanceRepositoryImpl implements SoutenanceRepository {
     }
 
     @Override
+    public List<SoutenanceVue> findByFiltres(StatutSoutenance statut, UUID etudiantId, UUID filiereId) {
+        return search(statut, etudiantId, filiereId, null);
+    }
+
+    @Override
     public Optional<SoutenanceVue> findVueById(UUID id) {
         return search(null, null, null, id).stream().findFirst();
     }

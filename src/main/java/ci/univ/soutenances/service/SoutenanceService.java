@@ -1,6 +1,7 @@
 package ci.univ.soutenances.service;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -15,7 +16,7 @@ public interface SoutenanceService {
 
     Optional<SoutenanceVue> findVueById(UUID id);
 
-    List<SoutenanceVue> lister(StatutSoutenance statut, UUID etudiantId, UUID filiereId);
+    List<SoutenanceVue> lister(StatutSoutenance statut, UUID etudiantId, UUID filiereId, LocalDate jour);
 
     Soutenance save(Soutenance soutenance, UUID memoireId, UUID salleId);
 

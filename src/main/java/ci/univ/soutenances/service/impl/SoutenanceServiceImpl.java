@@ -2,6 +2,7 @@ package ci.univ.soutenances.service.impl;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -53,16 +54,15 @@ public class SoutenanceServiceImpl implements SoutenanceService {
     }
 
     @Override
-    public List<SoutenanceVue> lister(StatutSoutenance statut, UUID etudiantId, UUID filiereId) {
-        if (statut != null) {
-            return soutenanceRepository.findByStatut(statut);
+    public List<SoutenanceVue> lister(StatutSoutenance statut, UUID etudiantId, UUID filiereId, LocalDate jour) {
+        List<SoutenanceVue> soutenances = soutenanceRepository.findByFiltres(statut, etudiantId, filiereId);
+        if (jour == null) {
+            return soutenances;
         }
-        if (etudiantId != null || filiereId != null) {
-            return soutenanceRepository.findByEtudiantAndFiliere(
-                    etudiantId != null ? etudiantId : null,
-                    filiereId != null ? filiereId : null);
-        }
-        return soutenanceRepository.findAll();
+        return soutenances.stream()
+                .filter(vue -> vue.getSoutenance().getDateHeure() != null
+                        && vue.getSoutenance().getDateHeure().toLocalDate().equals(jour))
+                .toList();
     }
 
     @Override

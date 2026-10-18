@@ -16,6 +16,8 @@ public interface SoutenanceRepository {
 
     List<SoutenanceVue> findByEtudiantAndFiliere(UUID etudiantId, UUID filiereId);
 
+    List<SoutenanceVue> findByFiltres(StatutSoutenance statut, UUID etudiantId, UUID filiereId);
+
     Optional<SoutenanceVue> findVueById(UUID id);
 
     Optional<Soutenance> findByMemoireId(UUID memoireId);
