@@ -7,4 +7,6 @@ import ci.univ.soutenances.model.Soutenance;
 
 public interface SoutenanceRepository {
     Optional<Soutenance> findById(UUID id);
+
+    boolean existsBySalleId(UUID salleId);
 }

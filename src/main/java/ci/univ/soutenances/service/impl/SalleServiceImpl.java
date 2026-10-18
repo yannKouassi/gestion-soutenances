@@ -8,6 +8,7 @@ import ci.univ.soutenances.model.Departement;
 import ci.univ.soutenances.model.Salle;
 import ci.univ.soutenances.repository.DepartementRepository;
 import ci.univ.soutenances.repository.SalleRepository;
+import ci.univ.soutenances.repository.SoutenanceRepository;
 import ci.univ.soutenances.service.SalleService;
 import jakarta.ejb.EJB;
 import jakarta.ejb.Stateless;
@@ -19,6 +20,9 @@ public class SalleServiceImpl implements SalleService {
 
     @EJB
     private DepartementRepository departementRepository;
+
+    @EJB
+    private SoutenanceRepository soutenanceRepository;
 
     @Override
     public List<Salle> findAll() {
@@ -50,6 +54,10 @@ public class SalleServiceImpl implements SalleService {
     public void delete(UUID id) {
         Salle salle = salleRepository.findById(requireId(id, "salle"))
                 .orElseThrow(() -> new IllegalArgumentException("Salle introuvable."));
+        if (soutenanceRepository.existsBySalleId(salle.getId())) {
+            throw new IllegalArgumentException(
+                    "Cette salle est utilisée par au moins une soutenance et ne peut pas être supprimée.");
+        }
         salleRepository.delete(salle);
     }
 
