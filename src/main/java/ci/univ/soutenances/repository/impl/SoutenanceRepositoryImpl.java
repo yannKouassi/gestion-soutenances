@@ -28,4 +28,16 @@ public class SoutenanceRepositoryImpl implements SoutenanceRepository {
         query.select(soutenance).distinct(true).where(builder.equal(soutenance.get("id"), id));
         return entityManager.createQuery(query).getResultStream().findFirst();
     }
+
+    @Override
+    public Optional<Soutenance> findByMemoireId(UUID memoireId) {
+        return entityManager.createQuery(
+                "SELECT s FROM Soutenance s "
+                        + "JOIN FETCH s.memoire "
+                        + "JOIN FETCH s.salle "
+                        + "WHERE s.memoire.id = :memoireId",
+                Soutenance.class)
+                .setParameter("memoireId", memoireId)
+                .getResultStream().findFirst();
+    }
 }

@@ -13,6 +13,8 @@ public interface EtudiantRepository {
 
     Optional<Etudiant> findById(UUID id);
 
+    Optional<Etudiant> findByUtilisateurId(UUID utilisateurId);
+
     boolean emailExists(String email, UUID excludedId);
 
     boolean matriculeExists(String matricule, UUID excludedId);

@@ -58,6 +58,21 @@ public class EtudiantRepositoryImpl implements EtudiantRepository {
     }
 
     @Override
+    public Optional<Etudiant> findByUtilisateurId(UUID utilisateurId) {
+        return entityManager.createQuery(
+                "SELECT e FROM Etudiant e "
+                        + "JOIN FETCH e.filiere f "
+                        + "JOIN FETCH f.departement "
+                        + "JOIN FETCH e.utilisateur "
+                        + "LEFT JOIN FETCH e.memoire m "
+                        + "LEFT JOIN FETCH m.encadreur "
+                        + "WHERE e.utilisateur.id = :utilisateurId",
+                Etudiant.class)
+                .setParameter("utilisateurId", utilisateurId)
+                .getResultStream().findFirst();
+    }
+
+    @Override
     public boolean emailExists(String email, UUID excludedId) {
         CriteriaBuilder builder = entityManager.getCriteriaBuilder();
         CriteriaQuery<Long> query = builder.createQuery(Long.class);
