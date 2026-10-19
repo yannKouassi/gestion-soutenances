@@ -1165,6 +1165,12 @@ button:focus-visible,
     background: #fee2e2;
 }
 
+.alert-warning {
+    border-color: #fde68a;
+    color: #b45309;
+    background: #fef3c7;
+}
+
 .empty-state {
     display: grid;
     justify-items: center;

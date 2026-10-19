@@ -19,6 +19,7 @@
         <c:if test="${not empty message}"><div class="alert alert-success" role="status"><c:out value="${message}"/></div></c:if>
         <c:if test="${not empty erreur}"><div class="alert alert-error" role="alert"><c:out value="${erreur}"/></div></c:if>
         <c:if test="${dejaNote}"><div class="alert alert-success" role="status">Tu as déjà soumis ta note pour cette soutenance. Elle est affichée ci-dessous en lecture seule.</div></c:if>
+        <c:if test="${not dejaNote and not saisieAutorisee and empty erreur}"><div class="alert alert-error" role="alert"><c:out value="${raisonSaisieBloquee}"/></div></c:if>
         <section class="card"><div class="card-body">
             <div class="form-card-heading"><span class="form-mode"><c:out value="${dateAffichee}"/></span>
                 <h2><c:out value="${soutenance.memoire.titre}"/></h2>
@@ -39,9 +40,9 @@
             </div>
             <form class="form-grid" method="post" action="${pageContext.request.contextPath}/encadreur/mes-jurys/noter">
                 <input type="hidden" name="csrfToken" value="<c:out value='${csrfToken}'/>"><input type="hidden" name="soutenanceId" value="<c:out value='${soutenance.id}'/>">
-                <div class="field"><label for="note">Note sur 20 <span class="required-mark">*</span></label><input id="note" name="note" type="number" min="0" max="20" step="0.01" required ${dejaNote ? 'disabled' : ''} value="<c:out value='${maConvocation.note}'/>"><small class="field-hint">Utilise le point comme séparateur décimal (ex. 14.50).</small></div>
-                <div class="field"><label for="avis">Avis</label><textarea id="avis" name="avis" rows="4" ${dejaNote ? 'disabled' : ''}><c:out value="${maConvocation.avis}"/></textarea></div>
-                <div class="form-actions"><c:if test="${not dejaNote}"><button class="btn btn-primary" type="submit">Enregistrer ma note</button></c:if><a class="btn btn-secondary" href="${pageContext.request.contextPath}/encadreur/mes-jurys">Retour à mes jurys</a></div>
+                <div class="field"><label for="note">Note sur 20 <span class="required-mark">*</span></label><input id="note" name="note" type="number" min="0" max="20" step="0.01" required ${dejaNote or not saisieAutorisee ? 'disabled' : ''} value="<c:out value='${maConvocation.note}'/>"><small class="field-hint">Utilise le point comme séparateur décimal (ex. 14.50).</small></div>
+                <div class="field"><label for="avis">Avis</label><textarea id="avis" name="avis" rows="4" ${dejaNote or not saisieAutorisee ? 'disabled' : ''}><c:out value="${maConvocation.avis}"/></textarea></div>
+                <div class="form-actions"><c:if test="${not dejaNote and saisieAutorisee}"><button class="btn btn-primary" type="submit">Enregistrer ma note</button></c:if><a class="btn btn-secondary" href="${pageContext.request.contextPath}/encadreur/mes-jurys">Retour à mes jurys</a></div>
             </form>
         </div></section>
     </main>
