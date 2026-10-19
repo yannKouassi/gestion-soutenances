@@ -26,5 +26,7 @@ public interface SoutenanceRepository {
 
     boolean existsSalleConflit(UUID salleId, LocalDateTime dateHeure, UUID excludedSoutenanceId);
 
+    boolean existsBySalleId(UUID salleId);
+
     Soutenance save(Soutenance soutenance);
 }

@@ -129,6 +129,16 @@ public class SoutenanceRepositoryImpl implements SoutenanceRepository {
     }
 
     @Override
+    public boolean existsBySalleId(UUID salleId) {
+        CriteriaBuilder builder = entityManager.getCriteriaBuilder();
+        CriteriaQuery<Long> query = builder.createQuery(Long.class);
+        Root<Soutenance> soutenance = query.from(Soutenance.class);
+        query.select(builder.count(soutenance))
+                .where(builder.equal(soutenance.get("salle").get("id"), salleId));
+        return entityManager.createQuery(query).getSingleResult() > 0;
+    }
+
+    @Override
     public Soutenance save(Soutenance soutenance) {
         if (soutenance.getId() == null) {
             entityManager.persist(soutenance);
