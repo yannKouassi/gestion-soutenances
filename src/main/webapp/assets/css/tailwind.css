@@ -1,0 +1,266 @@
+/* Source Tailwind compilee vers src/main/webapp/assets/css/tailwind.css (npm run build:css). */
+
+*, ::before, ::after {
+  --tw-border-spacing-x: 0;
+  --tw-border-spacing-y: 0;
+  --tw-translate-x: 0;
+  --tw-translate-y: 0;
+  --tw-rotate: 0;
+  --tw-skew-x: 0;
+  --tw-skew-y: 0;
+  --tw-scale-x: 1;
+  --tw-scale-y: 1;
+  --tw-pan-x:  ;
+  --tw-pan-y:  ;
+  --tw-pinch-zoom:  ;
+  --tw-scroll-snap-strictness: proximity;
+  --tw-gradient-from-position:  ;
+  --tw-gradient-via-position:  ;
+  --tw-gradient-to-position:  ;
+  --tw-ordinal:  ;
+  --tw-slashed-zero:  ;
+  --tw-numeric-figure:  ;
+  --tw-numeric-spacing:  ;
+  --tw-numeric-fraction:  ;
+  --tw-ring-inset:  ;
+  --tw-ring-offset-width: 0px;
+  --tw-ring-offset-color: #fff;
+  --tw-ring-color: rgb(59 130 246 / 0.5);
+  --tw-ring-offset-shadow: 0 0 #0000;
+  --tw-ring-shadow: 0 0 #0000;
+  --tw-shadow: 0 0 #0000;
+  --tw-shadow-colored: 0 0 #0000;
+  --tw-blur:  ;
+  --tw-brightness:  ;
+  --tw-contrast:  ;
+  --tw-grayscale:  ;
+  --tw-hue-rotate:  ;
+  --tw-invert:  ;
+  --tw-saturate:  ;
+  --tw-sepia:  ;
+  --tw-drop-shadow:  ;
+  --tw-backdrop-blur:  ;
+  --tw-backdrop-brightness:  ;
+  --tw-backdrop-contrast:  ;
+  --tw-backdrop-grayscale:  ;
+  --tw-backdrop-hue-rotate:  ;
+  --tw-backdrop-invert:  ;
+  --tw-backdrop-opacity:  ;
+  --tw-backdrop-saturate:  ;
+  --tw-backdrop-sepia:  ;
+  --tw-contain-size:  ;
+  --tw-contain-layout:  ;
+  --tw-contain-paint:  ;
+  --tw-contain-style:  
+}
+
+::backdrop {
+  --tw-border-spacing-x: 0;
+  --tw-border-spacing-y: 0;
+  --tw-translate-x: 0;
+  --tw-translate-y: 0;
+  --tw-rotate: 0;
+  --tw-skew-x: 0;
+  --tw-skew-y: 0;
+  --tw-scale-x: 1;
+  --tw-scale-y: 1;
+  --tw-pan-x:  ;
+  --tw-pan-y:  ;
+  --tw-pinch-zoom:  ;
+  --tw-scroll-snap-strictness: proximity;
+  --tw-gradient-from-position:  ;
+  --tw-gradient-via-position:  ;
+  --tw-gradient-to-position:  ;
+  --tw-ordinal:  ;
+  --tw-slashed-zero:  ;
+  --tw-numeric-figure:  ;
+  --tw-numeric-spacing:  ;
+  --tw-numeric-fraction:  ;
+  --tw-ring-inset:  ;
+  --tw-ring-offset-width: 0px;
+  --tw-ring-offset-color: #fff;
+  --tw-ring-color: rgb(59 130 246 / 0.5);
+  --tw-ring-offset-shadow: 0 0 #0000;
+  --tw-ring-shadow: 0 0 #0000;
+  --tw-shadow: 0 0 #0000;
+  --tw-shadow-colored: 0 0 #0000;
+  --tw-blur:  ;
+  --tw-brightness:  ;
+  --tw-contrast:  ;
+  --tw-grayscale:  ;
+  --tw-hue-rotate:  ;
+  --tw-invert:  ;
+  --tw-saturate:  ;
+  --tw-sepia:  ;
+  --tw-drop-shadow:  ;
+  --tw-backdrop-blur:  ;
+  --tw-backdrop-brightness:  ;
+  --tw-backdrop-contrast:  ;
+  --tw-backdrop-grayscale:  ;
+  --tw-backdrop-hue-rotate:  ;
+  --tw-backdrop-invert:  ;
+  --tw-backdrop-opacity:  ;
+  --tw-backdrop-saturate:  ;
+  --tw-backdrop-sepia:  ;
+  --tw-contain-size:  ;
+  --tw-contain-layout:  ;
+  --tw-contain-paint:  ;
+  --tw-contain-style:  
+}
+
+.visible {
+  visibility: visible
+}
+
+.table {
+  display: table
+}
+
+.hidden {
+  display: none
+}
+
+.border-danger {
+  --tw-border-opacity: 1;
+  border-color: color-mix(in srgb, var(--c-danger) calc(var(--tw-border-opacity, 1) * 100%), transparent)
+}
+
+.border-line {
+  --tw-border-opacity: 1;
+  border-color: color-mix(in srgb, var(--c-line) calc(var(--tw-border-opacity, 1) * 100%), transparent)
+}
+
+.border-primary {
+  --tw-border-opacity: 1;
+  border-color: color-mix(in srgb, var(--c-primary) calc(var(--tw-border-opacity, 1) * 100%), transparent)
+}
+
+.border-success {
+  --tw-border-opacity: 1;
+  border-color: color-mix(in srgb, var(--c-success) calc(var(--tw-border-opacity, 1) * 100%), transparent)
+}
+
+.bg-accent {
+  --tw-bg-opacity: 1;
+  background-color: color-mix(in srgb, var(--c-accent) calc(var(--tw-bg-opacity, 1) * 100%), transparent)
+}
+
+.bg-bg {
+  --tw-bg-opacity: 1;
+  background-color: color-mix(in srgb, var(--c-bg) calc(var(--tw-bg-opacity, 1) * 100%), transparent)
+}
+
+.bg-danger {
+  --tw-bg-opacity: 1;
+  background-color: color-mix(in srgb, var(--c-danger) calc(var(--tw-bg-opacity, 1) * 100%), transparent)
+}
+
+.bg-indigo {
+  --tw-bg-opacity: 1;
+  background-color: color-mix(in srgb, var(--c-indigo) calc(var(--tw-bg-opacity, 1) * 100%), transparent)
+}
+
+.bg-primary {
+  --tw-bg-opacity: 1;
+  background-color: color-mix(in srgb, var(--c-primary) calc(var(--tw-bg-opacity, 1) * 100%), transparent)
+}
+
+.bg-success {
+  --tw-bg-opacity: 1;
+  background-color: color-mix(in srgb, var(--c-success) calc(var(--tw-bg-opacity, 1) * 100%), transparent)
+}
+
+.bg-surface {
+  --tw-bg-opacity: 1;
+  background-color: color-mix(in srgb, var(--c-surface) calc(var(--tw-bg-opacity, 1) * 100%), transparent)
+}
+
+.bg-warning {
+  --tw-bg-opacity: 1;
+  background-color: color-mix(in srgb, var(--c-warning) calc(var(--tw-bg-opacity, 1) * 100%), transparent)
+}
+
+.text-accent {
+  --tw-text-opacity: 1;
+  color: color-mix(in srgb, var(--c-accent) calc(var(--tw-text-opacity, 1) * 100%), transparent)
+}
+
+.text-body {
+  --tw-text-opacity: 1;
+  color: color-mix(in srgb, var(--c-text) calc(var(--tw-text-opacity, 1) * 100%), transparent)
+}
+
+.text-danger {
+  --tw-text-opacity: 1;
+  color: color-mix(in srgb, var(--c-danger) calc(var(--tw-text-opacity, 1) * 100%), transparent)
+}
+
+.text-ink {
+  --tw-text-opacity: 1;
+  color: color-mix(in srgb, var(--c-ink) calc(var(--tw-text-opacity, 1) * 100%), transparent)
+}
+
+.text-muted {
+  --tw-text-opacity: 1;
+  color: color-mix(in srgb, var(--c-muted) calc(var(--tw-text-opacity, 1) * 100%), transparent)
+}
+
+.text-primary {
+  --tw-text-opacity: 1;
+  color: color-mix(in srgb, var(--c-primary) calc(var(--tw-text-opacity, 1) * 100%), transparent)
+}
+
+.text-success {
+  --tw-text-opacity: 1;
+  color: color-mix(in srgb, var(--c-success) calc(var(--tw-text-opacity, 1) * 100%), transparent)
+}
+
+.text-warning {
+  --tw-text-opacity: 1;
+  color: color-mix(in srgb, var(--c-warning) calc(var(--tw-text-opacity, 1) * 100%), transparent)
+}
+
+.text-white {
+  --tw-text-opacity: 1;
+  color: rgb(255 255 255 / var(--tw-text-opacity, 1))
+}
+
+.filter {
+  filter: var(--tw-blur) var(--tw-brightness) var(--tw-contrast) var(--tw-grayscale) var(--tw-hue-rotate) var(--tw-invert) var(--tw-saturate) var(--tw-sepia) var(--tw-drop-shadow)
+}
+
+.hover\:bg-accent:hover {
+  --tw-bg-opacity: 1;
+  background-color: color-mix(in srgb, var(--c-accent) calc(var(--tw-bg-opacity, 1) * 100%), transparent)
+}
+
+.hover\:bg-primary:hover {
+  --tw-bg-opacity: 1;
+  background-color: color-mix(in srgb, var(--c-primary) calc(var(--tw-bg-opacity, 1) * 100%), transparent)
+}
+
+.hover\:text-accent:hover {
+  --tw-text-opacity: 1;
+  color: color-mix(in srgb, var(--c-accent) calc(var(--tw-text-opacity, 1) * 100%), transparent)
+}
+
+.hover\:text-primary:hover {
+  --tw-text-opacity: 1;
+  color: color-mix(in srgb, var(--c-primary) calc(var(--tw-text-opacity, 1) * 100%), transparent)
+}
+
+.focus\:outline-none:focus {
+  outline: 2px solid transparent;
+  outline-offset: 2px
+}
+
+.focus\:ring-2:focus {
+  --tw-ring-offset-shadow: var(--tw-ring-inset) 0 0 0 var(--tw-ring-offset-width) var(--tw-ring-offset-color);
+  --tw-ring-shadow: var(--tw-ring-inset) 0 0 0 calc(2px + var(--tw-ring-offset-width)) var(--tw-ring-color);
+  box-shadow: var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow, 0 0 #0000)
+}
+
+.focus\:ring-accent:focus {
+  --tw-ring-opacity: 1;
+  --tw-ring-color: color-mix(in srgb, var(--c-accent) calc(var(--tw-ring-opacity, 1) * 100%), transparent)
+}

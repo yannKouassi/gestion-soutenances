@@ -1,4 +1,6 @@
 /target/
+# Dependances npm du build Tailwind (le CSS compile, lui, est versionne)
+/node_modules/
 *.log
 .env
 .env.*

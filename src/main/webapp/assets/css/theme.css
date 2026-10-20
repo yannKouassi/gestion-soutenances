@@ -1,0 +1,997 @@
+/* ==========================================================================
+   GESTION DES SOUTENANCES — DESIGN SYSTEM (theme.css)
+   ==========================================================================
+   Fichier autonome : tokens + base/reset + primitives réutilisables.
+
+   Direction esthétique : « papier découpé académique » (cartoon + minimaliste).
+     - aplats de couleur, zéro dégradé, zéro backdrop-filter ;
+     - contours francs : bordure pleine de --border-w (2px) sur les composants ;
+     - ombres dures et plates : offset net, spread 0, blur 0, couleur encre ;
+     - rayons presque carrés : 2 à 6 px, jamais plus (--radius-xs → --radius-lg) ;
+     - beaucoup d'air, typographie Segoe UI nette (charte imposée).
+
+   Contrats :
+     - les tokens --c-* sont la source de vérité des couleurs ; tailwind.config.js
+       ne fait que pointer dessus (var(--c-primary), etc.) ;
+     - le reset de base est fourni ICI (preflight Tailwind désactivé) ;
+     - toutes les classes de composants sont préfixées `ui-` : aucun recoupement
+       avec admin.css (classes BEM non préfixées) ;
+     - pas de @import, pas de CDN, pas de dégradé, pas de flou.
+   ========================================================================== */
+
+
+/* ==========================================================================
+   1. TOKENS
+   ========================================================================== */
+
+:root {
+    /* ---- Charte imposée : valeurs exactes, non modifiables ---- */
+    --c-primary: #1E3A8A;          /* Bleu Marine Académique */
+    --c-accent: #0284C7;           /* Bleu Cyan */
+    --c-indigo: #4F46E5;           /* Indigo */
+    --c-bg: #F8FAFC;               /* Gris Très Clair */
+    --c-surface: #FFFFFF;
+    --c-text: #1E293B;             /* Gris Ardoise Foncé */
+
+    /* ---- Nuances dérivées de la charte (états, encres, lignes) ---- */
+    --c-primary-strong: #172F73;   /* survol des boutons primaires */
+    --c-accent-strong: #0369A1;    /* survol des boutons accent */
+    --c-accent-ink: #075985;       /* texte lisible sur les aplats cyan */
+    --c-accent-soft: #E0F2FE;      /* aplat cyan doux */
+    --c-accent-wash: #F0F9FF;      /* lavis cyan : survols de lignes de tableau */
+    --c-indigo-strong: #4338CA;    /* survol des boutons indigo */
+    --c-indigo-soft: #EEF2FF;      /* aplat indigo doux */
+    --c-muted: #64748B;            /* texte secondaire */
+    --c-ink: #0F172A;              /* encre : contours et ombres dures */
+    --c-line: #E2E8F0;             /* séparateurs internes */
+    --c-line-strong: #CBD5E1;      /* bordures de champs au repos */
+    --c-placeholder: #94A3B8;
+    --c-danger: #B91C1C;
+    --c-danger-strong: #991B1B;
+    --c-success: #047857;
+    --c-warning: #B45309;
+
+    /* ---- Paires de badges : statut (texte / fond), valeurs charte ---- */
+    --c-badge-planifiee: #B45309;
+    --c-badge-planifiee-bg: #FEF3C7;
+    --c-badge-evaluee: #047857;
+    --c-badge-evaluee-bg: #D1FAE5;
+    --c-badge-annulee: #B91C1C;
+    --c-badge-annulee-bg: #FEE2E2;
+
+    /* ---- Paires de badges : rôle (texte / fond), valeurs charte ---- */
+    --c-badge-admin: #6D28D9;
+    --c-badge-admin-bg: #EDE9FE;
+    --c-badge-encadreur: #1D4ED8;
+    --c-badge-encadreur-bg: #DBEAFE;
+    --c-badge-etudiant: #0F766E;
+    --c-badge-etudiant-bg: #CCFBF1;
+
+    /* ---- Aliasing sémantique : les aplats doux réutilisent les fonds de badges ---- */
+    --c-success-soft: var(--c-badge-evaluee-bg);    /* #D1FAE5 */
+    --c-warning-soft: var(--c-badge-planifiee-bg);  /* #FEF3C7 */
+    --c-danger-soft: var(--c-badge-annulee-bg);     /* #FEE2E2 */
+
+    /* ---- Rayons : presque carrés, jamais plus de 6 px ---- */
+    --radius-xs: 2px;
+    --radius-sm: 3px;
+    --radius-md: 4px;
+    --radius-lg: 6px;
+
+    /* ---- Contours et ombres dures (offset net, spread 0, blur 0) ---- */
+    --border-w: 2px;
+    --shadow-1: 2px 2px 0 0 var(--c-ink);
+    --shadow-2: 3px 3px 0 0 var(--c-ink);
+    --shadow-3: 5px 5px 0 0 var(--c-ink);
+
+    /* ---- Typographie : Segoe UI (police de la charte) ---- */
+    --font-sans: "Segoe UI", "Segoe UI Variable Text", system-ui, -apple-system, "Helvetica Neue", Arial, sans-serif;
+    --fs-xs: 12px;
+    --fs-sm: 13px;
+    --fs-base: 15px;
+    --fs-lg: 18px;
+    --fs-xl: 22px;
+    --fs-2xl: 28px;
+
+    /* ---- Échelle d'espacement ---- */
+    --space-1: 4px;
+    --space-2: 8px;
+    --space-3: 12px;
+    --space-4: 16px;
+    --space-5: 24px;
+    --space-6: 32px;
+
+    /* Cases à cocher, radios, curseurs de progress */
+    accent-color: var(--c-accent);
+}
+
+
+/* ==========================================================================
+   2. BASE / RESET
+   Le reset demandé par tailwind.config.js (preflight désactivé).
+   Volontairement court : pas de reset de list-style ni de vertical-align,
+   pour ne pas déranger les pages admin.css déjà en production.
+   ========================================================================== */
+
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+
+html {
+    -webkit-text-size-adjust: 100%;
+    tab-size: 4;
+}
+
+body {
+    margin: 0;
+    background: var(--c-bg);
+    color: var(--c-text);
+    font-family: var(--font-sans);
+    font-size: var(--fs-base);
+    line-height: 1.55;
+    -webkit-font-smoothing: antialiased;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+    margin: 0;
+    color: var(--c-primary);       /* la charte réserve le primaire aux titres */
+    font-weight: 800;
+    line-height: 1.2;
+    letter-spacing: -0.015em;
+}
+
+h1 { font-size: var(--fs-2xl); }
+h2 { font-size: var(--fs-xl); }
+h3 { font-size: var(--fs-lg); }
+h4 { font-size: var(--fs-base); }
+h5,
+h6 { font-size: var(--fs-sm); }
+
+p,
+figure,
+blockquote {
+    margin: 0;
+}
+
+fieldset,
+legend {
+    margin: 0;
+    padding: 0;
+    border: 0;
+    min-width: 0;
+}
+
+ul,
+ol {
+    margin: 0;
+}
+
+a {
+    color: var(--c-accent);
+    text-decoration: none;
+    text-underline-offset: 2px;
+}
+
+/* Le survol ne fixe volontairement AUCUNE couleur : une règle a:hover
+   (0,1,1) écraserait les classes applicatives (0,1,0) d'admin.css et
+   rendrait `.brand` ou `.btn-primary` illisibles sur fond primaire.
+   La couleur de survol reste donc portée par les classes de admin.css. */
+a:hover {
+    text-decoration: underline;
+    text-decoration-thickness: 2px;
+}
+
+strong,
+b {
+    font-weight: 700;
+}
+
+small {
+    font-size: var(--fs-xs);
+}
+
+img {
+    max-width: 100%;
+    height: auto;
+}
+
+table {
+    border-collapse: collapse;
+    text-align: left;
+}
+
+th {
+    text-align: inherit;
+}
+
+button,
+input,
+select,
+textarea {
+    font: inherit;
+    color: inherit;
+}
+
+button {
+    cursor: pointer;
+}
+
+hr {
+    margin: var(--space-4) 0;
+    border: 0;
+    border-top: var(--border-w) solid var(--c-line);
+}
+
+:focus-visible {
+    outline: 3px solid var(--c-accent);
+    outline-offset: 2px;
+}
+
+:focus:not(:focus-visible) {
+    outline: none;
+}
+
+::selection {
+    background: var(--c-accent);
+    color: var(--c-surface);
+}
+
+* {
+    scrollbar-width: thin;
+    scrollbar-color: var(--c-line-strong) transparent;
+}
+
+::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+}
+
+::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--c-line-strong);
+    border: 2px solid var(--c-bg);
+    border-radius: var(--radius-md);
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--c-muted);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+    }
+}
+
+
+/* ==========================================================================
+   3. PRIMITIVES « ui- »
+   Socle des refontes de pages à venir. Aucune de ces classes n'existe dans
+   admin.css : le recoupement est vide par construction (préfixe ui-).
+   ========================================================================== */
+
+/* ---- 3.1 Mécanique de pression partagée (boutons, boutons icône) ----------
+   Le composant « s'enfonce » dans la page : au repos l'ombre dure le décolle,
+   au survol il se soulève d'un pixel, à l'appui il s'écrase sur son ombre. */
+
+.ui-btn,
+.ui-iconbtn {
+    transition: transform 0.12s ease, box-shadow 0.12s ease,
+        background-color 0.12s ease, color 0.12s ease, border-color 0.12s ease;
+}
+
+.ui-btn:hover,
+.ui-iconbtn:hover {
+    transform: translate(-1px, -1px);
+    box-shadow: 4px 4px 0 0 var(--c-ink);
+}
+
+.ui-btn:active,
+.ui-iconbtn:active {
+    transform: translate(3px, 3px);
+    box-shadow: 0 0 0 0 var(--c-ink);
+}
+
+
+/* ---- 3.2 Boutons ---------------------------------------------------------- */
+
+.ui-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-2);
+    min-height: 40px;
+    padding: 9px var(--space-4);
+    border: var(--border-w) solid var(--c-ink);
+    border-radius: var(--radius-sm);
+    background: var(--c-surface);
+    color: var(--c-text);
+    font-family: var(--font-sans);
+    font-size: var(--fs-sm);
+    font-weight: 700;
+    letter-spacing: 0.01em;
+    text-decoration: none;
+    white-space: nowrap;
+    cursor: pointer;
+    box-shadow: var(--shadow-2);
+}
+
+.ui-btn:hover {
+    text-decoration: none;
+}
+
+.ui-btn--primary {
+    color: var(--c-surface);
+    background: var(--c-primary);
+}
+
+.ui-btn--primary:hover {
+    background: var(--c-primary-strong);
+}
+
+.ui-btn--accent {
+    color: var(--c-surface);
+    background: var(--c-accent);
+}
+
+.ui-btn--accent:hover {
+    background: var(--c-accent-strong);
+}
+
+.ui-btn--indigo {
+    color: var(--c-surface);
+    background: var(--c-indigo);
+}
+
+.ui-btn--indigo:hover {
+    background: var(--c-indigo-strong);
+}
+
+.ui-btn--soft {
+    color: var(--c-accent-ink);
+    background: var(--c-accent-soft);
+}
+
+.ui-btn--ghost {
+    color: var(--c-text);
+    background: transparent;
+}
+
+.ui-btn--ghost:hover {
+    background: var(--c-accent-wash);
+}
+
+.ui-btn--danger {
+    color: var(--c-surface);
+    background: var(--c-danger);
+}
+
+.ui-btn--danger:hover {
+    background: var(--c-danger-strong);
+}
+
+.ui-btn--sm {
+    min-height: 32px;
+    padding: 5px 10px;
+    font-size: var(--fs-xs);
+    box-shadow: var(--shadow-1);
+}
+
+.ui-btn--lg {
+    min-height: 48px;
+    padding: 12px var(--space-5);
+    font-size: var(--fs-base);
+    box-shadow: var(--shadow-3);
+}
+
+.ui-btn--block {
+    width: 100%;
+}
+
+.ui-btn:disabled,
+.ui-btn[disabled],
+.ui-btn.ui-btn--disabled,
+.ui-iconbtn:disabled {
+    opacity: 0.55;
+    transform: none;
+    box-shadow: none;
+    cursor: not-allowed;
+}
+
+
+/* ---- 3.3 Champs de formulaire --------------------------------------------- */
+
+.ui-field {
+    display: grid;
+    gap: 6px;
+    min-width: 0;
+}
+
+.ui-label {
+    color: var(--c-text);
+    font-size: var(--fs-sm);
+    font-weight: 700;
+}
+
+.ui-required {
+    color: var(--c-danger);
+}
+
+.ui-hint {
+    color: var(--c-muted);
+    font-size: var(--fs-xs);
+    line-height: 1.4;
+}
+
+.ui-error {
+    color: var(--c-danger);
+    font-size: var(--fs-xs);
+    font-weight: 600;
+}
+
+.ui-input,
+.ui-select,
+.ui-textarea {
+    width: 100%;
+    min-height: 42px;
+    padding: 9px var(--space-3);
+    border: var(--border-w) solid var(--c-line-strong);
+    border-radius: var(--radius-sm);
+    background: var(--c-surface);
+    color: var(--c-text);
+    font-family: var(--font-sans);
+    font-size: var(--fs-base);
+    transition: border-color 0.12s ease, box-shadow 0.12s ease;
+}
+
+.ui-input::placeholder,
+.ui-textarea::placeholder {
+    color: var(--c-placeholder);
+}
+
+/* Focus : le champ reçoit lui aussi une ombre dure, mais à l'accent. */
+.ui-input:focus,
+.ui-select:focus,
+.ui-textarea:focus {
+    outline: none;
+    border-color: var(--c-accent);
+    box-shadow: 3px 3px 0 0 var(--c-accent);
+}
+
+.ui-input:disabled,
+.ui-select:disabled,
+.ui-textarea:disabled {
+    border-color: var(--c-line);
+    background: var(--c-bg);
+    color: var(--c-muted);
+    cursor: not-allowed;
+}
+
+.ui-textarea {
+    min-height: 96px;
+    line-height: 1.5;
+    resize: vertical;
+}
+
+/* Flèche custom : SVG inline en data-URI, aucune ressource externe. */
+.ui-select {
+    padding-right: 34px;
+    appearance: none;
+    background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1.5l5 5 5-5' fill='none' stroke='%231E293B' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+}
+
+/* Grille de formulaire prête à l'emploi pour les refontes. */
+.ui-form-grid {
+    display: grid;
+    gap: var(--space-4);
+    min-width: 0;
+}
+
+.ui-form-grid--2 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.ui-form-grid--full {
+    grid-column: 1 / -1;
+}
+
+@media (max-width: 640px) {
+    .ui-form-grid--2 {
+        grid-template-columns: 1fr;
+    }
+}
+
+
+/* ---- 3.4 Carte ------------------------------------------------------------ */
+
+.ui-card {
+    overflow: hidden;
+    border: var(--border-w) solid var(--c-ink);
+    border-radius: var(--radius-md);
+    background: var(--c-surface);
+    box-shadow: var(--shadow-3);
+}
+
+.ui-card-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-3);
+    padding: var(--space-4) var(--space-5);
+    border-bottom: var(--border-w) solid var(--c-ink);
+    background: var(--c-surface);
+}
+
+.ui-card-head--tinted {
+    background: var(--c-accent-soft);
+}
+
+.ui-card-title {
+    margin: 0;
+    color: var(--c-primary);
+    font-size: var(--fs-lg);
+    font-weight: 800;
+    letter-spacing: -0.01em;
+}
+
+.ui-card-sub {
+    margin: 2px 0 0;
+    color: var(--c-muted);
+    font-size: var(--fs-sm);
+}
+
+.ui-card-body {
+    padding: var(--space-5);
+}
+
+
+/* ---- 3.5 Badge -------------------------------------------------------------
+   Contour dans la couleur du texte (currentColor) : l'étiquette est encadrée
+   par sa propre encre, façon étiquette de classeur. Pas d'ombre : les badges
+   restent plats, seuls les éléments interactifs se décollent. */
+
+.ui-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    min-height: 24px;
+    padding: 2px 9px;
+    border: var(--border-w) solid currentColor;
+    border-radius: var(--radius-sm);
+    color: var(--c-muted);
+    background: var(--c-bg);
+    font-size: var(--fs-xs);
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    white-space: nowrap;
+}
+
+/* Statuts de soutenance (valeurs charte, via tokens) */
+.ui-badge--planifiee {
+    color: var(--c-badge-planifiee);
+    background: var(--c-badge-planifiee-bg);
+}
+
+.ui-badge--evaluee {
+    color: var(--c-badge-evaluee);
+    background: var(--c-badge-evaluee-bg);
+}
+
+.ui-badge--annulee {
+    color: var(--c-badge-annulee);
+    background: var(--c-badge-annulee-bg);
+}
+
+/* Rôles (valeurs charte, via tokens) */
+.ui-badge--admin {
+    color: var(--c-badge-admin);
+    background: var(--c-badge-admin-bg);
+}
+
+.ui-badge--encadreur {
+    color: var(--c-badge-encadreur);
+    background: var(--c-badge-encadreur-bg);
+}
+
+.ui-badge--etudiant {
+    color: var(--c-badge-etudiant);
+    background: var(--c-badge-etudiant-bg);
+}
+
+/* Variantes génériques */
+.ui-badge--accent {
+    color: var(--c-accent-ink);
+    background: var(--c-accent-soft);
+}
+
+.ui-badge--indigo {
+    color: var(--c-indigo);
+    background: var(--c-indigo-soft);
+}
+
+
+/* ---- 3.6 Alerte ------------------------------------------------------------ */
+
+.ui-alert {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--space-3);
+    padding: var(--space-3) var(--space-4);
+    border: var(--border-w) solid currentColor;
+    border-radius: var(--radius-sm);
+    background: var(--c-surface);
+    color: var(--c-text);
+    font-size: var(--fs-sm);
+}
+
+.ui-alert strong {
+    font-weight: 800;
+}
+
+.ui-alert--success {
+    color: var(--c-success);
+    background: var(--c-success-soft);
+}
+
+.ui-alert--error {
+    color: var(--c-danger);
+    background: var(--c-danger-soft);
+}
+
+.ui-alert--warning {
+    color: var(--c-warning);
+    background: var(--c-warning-soft);
+}
+
+.ui-alert--info {
+    color: var(--c-accent-ink);
+    background: var(--c-accent-soft);
+}
+
+
+/* ---- 3.7 État vide ---------------------------------------------------------- */
+
+.ui-empty {
+    display: grid;
+    justify-items: center;
+    gap: var(--space-3);
+    padding: var(--space-6) var(--space-4);
+    color: var(--c-muted);
+    text-align: center;
+}
+
+.ui-empty-icon {
+    display: grid;
+    place-items: center;
+    width: 56px;
+    height: 56px;
+    border: var(--border-w) solid var(--c-ink);
+    border-radius: var(--radius-md);
+    background: var(--c-accent-soft);
+    color: var(--c-accent-ink);
+    box-shadow: var(--shadow-2);
+}
+
+.ui-empty-icon svg {
+    width: 26px;
+    height: 26px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+.ui-empty-title {
+    margin: 0;
+    color: var(--c-text);
+    font-size: var(--fs-lg);
+    font-weight: 800;
+}
+
+.ui-empty-text {
+    margin: 0;
+    max-width: 46ch;
+    font-size: var(--fs-sm);
+}
+
+.ui-empty .ui-btn {
+    margin-top: var(--space-2);
+}
+
+
+/* ---- 3.8 Grille de statistiques ---------------------------------------------
+   L'icône des cartes de stats porte l'accent cyan (charte) sur un aplat doux
+   encré ; la valeur est posée en primaire, en chiffres tabulaires. */
+
+.ui-stats {
+    display: grid;
+    gap: var(--space-4);
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+}
+
+.ui-stat {
+    display: grid;
+    gap: var(--space-2);
+    padding: var(--space-4);
+    border: var(--border-w) solid var(--c-ink);
+    border-radius: var(--radius-md);
+    background: var(--c-surface);
+    box-shadow: var(--shadow-2);
+}
+
+.ui-stat-head {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+}
+
+.ui-stat-icon {
+    display: grid;
+    place-items: center;
+    flex: none;
+    width: 38px;
+    height: 38px;
+    border: var(--border-w) solid var(--c-ink);
+    border-radius: var(--radius-sm);
+    background: var(--c-accent-soft);
+    color: var(--c-accent-ink);
+}
+
+.ui-stat-icon svg {
+    width: 19px;
+    height: 19px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+.ui-stat-icon--indigo {
+    background: var(--c-indigo-soft);
+    color: var(--c-indigo);
+}
+
+.ui-stat-icon--success {
+    background: var(--c-success-soft);
+    color: var(--c-success);
+}
+
+.ui-stat-icon--warning {
+    background: var(--c-warning-soft);
+    color: var(--c-warning);
+}
+
+.ui-stat-label {
+    color: var(--c-muted);
+    font-size: var(--fs-xs);
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+}
+
+.ui-stat-value {
+    color: var(--c-primary);
+    font-size: var(--fs-2xl);
+    font-weight: 800;
+    line-height: 1.1;
+    font-variant-numeric: tabular-nums;
+}
+
+
+/* ---- 3.9 Tableau -------------------------------------------------------------
+   En-tête en aplat primaire (charte), filets internes fins, survol de ligne en
+   lavis cyan. Le cadre, l'arrondi et l'ombre vive sont portés par .ui-table-wrap. */
+
+.ui-table-wrap {
+    overflow-x: auto;
+    border: var(--border-w) solid var(--c-ink);
+    border-radius: var(--radius-md);
+    background: var(--c-surface);
+    box-shadow: var(--shadow-3);
+}
+
+.ui-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.ui-table thead th {
+    padding: 10px 14px;
+    background: var(--c-primary);
+    color: var(--c-surface);
+    font-size: var(--fs-xs);
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    text-align: left;
+    white-space: nowrap;
+}
+
+.ui-table tbody td {
+    padding: 12px 14px;
+    border-top: 1px solid var(--c-line);
+    color: var(--c-text);
+    font-size: var(--fs-sm);
+    vertical-align: top;
+}
+
+.ui-table tbody tr:hover {
+    background: var(--c-accent-wash);
+}
+
+.ui-table-num {
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+}
+
+
+/* ---- 3.10 Bouton / lien icône ------------------------------------------------- */
+
+.ui-iconbtn {
+    display: inline-grid;
+    place-items: center;
+    width: 36px;
+    height: 36px;
+    padding: 0;
+    border: var(--border-w) solid var(--c-ink);
+    border-radius: var(--radius-sm);
+    background: var(--c-surface);
+    color: var(--c-text);
+    text-decoration: none;
+    cursor: pointer;
+    box-shadow: var(--shadow-1);
+}
+
+.ui-iconbtn svg {
+    width: 18px;
+    height: 18px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+.ui-iconbtn:hover {
+    background: var(--c-accent-soft);
+    color: var(--c-accent-ink);
+    text-decoration: none;
+}
+
+.ui-iconbtn--danger:hover {
+    background: var(--c-danger-soft);
+    color: var(--c-danger);
+}
+
+
+/* ---- 3.11 Liens ---------------------------------------------------------------- */
+
+.ui-link {
+    color: var(--c-accent);
+    font-weight: 600;
+    text-decoration: none;
+    text-underline-offset: 2px;
+}
+
+.ui-link:hover {
+    color: var(--c-primary);
+    text-decoration: underline;
+    text-decoration-thickness: 2px;
+}
+
+.ui-link--quiet {
+    color: var(--c-muted);
+    font-weight: 500;
+}
+
+.ui-link--quiet:hover {
+    color: var(--c-accent);
+}
+
+
+/* ---- 3.12 Code en ligne --------------------------------------------------------- */
+
+.ui-code {
+    padding: 1px 5px;
+    border: 1px solid var(--c-line);
+    border-radius: var(--radius-xs);
+    background: var(--c-bg);
+    color: var(--c-text);
+    font-family: ui-monospace, Consolas, "Cascadia Mono", monospace;
+    font-size: 0.85em;
+}
+
+
+/* ---- 3.13 Aides de mise en page et typographie ----------------------------------- */
+
+.ui-stack {
+    display: grid;
+    gap: var(--space-4);
+    min-width: 0;
+}
+
+.ui-stack--tight {
+    gap: var(--space-2);
+}
+
+.ui-cluster {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-3);
+    min-width: 0;
+}
+
+.ui-cluster--tight {
+    gap: var(--space-2);
+}
+
+.ui-kicker {
+    color: var(--c-accent);
+    font-size: var(--fs-xs);
+    font-weight: 800;
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+}
+
+
+/* ---- 3.14 Boîte de dialogue -------------------------------------------------------
+   Ombre dure élargie (8 px) pour marquer la profondeur ; voile plein sur le
+   backdrop, sans aucun flou. */
+
+.ui-dialog {
+    width: min(480px, calc(100vw - 32px));
+    max-height: min(80vh, 640px);
+    padding: 0;
+    overflow: hidden;
+    border: var(--border-w) solid var(--c-ink);
+    border-radius: var(--radius-lg);
+    background: var(--c-surface);
+    color: var(--c-text);
+    box-shadow: 8px 8px 0 0 var(--c-ink);
+}
+
+.ui-dialog::backdrop {
+    background: rgb(15 23 42 / 55%);
+}
+
+.ui-dialog-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-3);
+    padding: var(--space-4) var(--space-5);
+    border-bottom: var(--border-w) solid var(--c-ink);
+}
+
+.ui-dialog-title {
+    margin: 0;
+    color: var(--c-primary);
+    font-size: var(--fs-lg);
+    font-weight: 800;
+}
+
+.ui-dialog-body {
+    padding: var(--space-5);
+    overflow-y: auto;
+}
