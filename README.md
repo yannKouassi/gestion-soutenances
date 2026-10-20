@@ -171,6 +171,20 @@ les notes et avis individuels des autres membres ne sont pas exposés. Le statut
 de la soutenance passe à `EVALUEE` lorsque tous les membres d'un jury d'au moins
 deux personnes ont noté.
 
+## Espace étudiant
+
+L'espace étudiant est accessible aux comptes de rôle `ETUDIANT`, en lecture seule :
+
+- `/etudiant/ma-soutenance` : mémoire rattaché, planning de la soutenance,
+  composition du jury et note finale.
+- `/etudiant/profil` : profil, filière et mémoire de l'étudiant connecté.
+
+Un étudiant ne voit que sa propre soutenance : elle est résolue depuis son compte
+de session, en passant par son mémoire, et aucun identifiant reçu en paramètre
+d'URL ne donne accès à une autre soutenance. La note finale (moyenne du jury)
+n'est affichée que lorsque la soutenance est au statut `EVALUEE`. L'URL
+`/etudiant/menu` redirige vers `/etudiant/ma-soutenance`.
+
 ## Connexion
 
 1. Ouvrir `/login`.
@@ -182,8 +196,8 @@ deux personnes ont noté.
 4. L'administrateur est redirigé vers `/admin/departements`. La déconnexion se
    fait par le bouton de session.
 
-Les autres rôles peuvent se connecter, mais leurs écrans ne sont pas encore
-implémentés ; ils verront une page temporaire qui l'indique.
+Un encadreur est redirigé vers `/encadreur/dashboard` et un étudiant vers
+`/etudiant/ma-soutenance`.
 
 ## Lancer le projet
 

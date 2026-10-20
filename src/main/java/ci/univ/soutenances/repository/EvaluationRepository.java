@@ -9,9 +9,13 @@ import ci.univ.soutenances.model.Evaluation;
 public interface EvaluationRepository {
     List<Evaluation> findBySoutenanceId(UUID soutenanceId);
 
+    List<Evaluation> findJuryBySoutenanceId(UUID soutenanceId);
+
     List<Evaluation> findByEncadreurId(UUID encadreurId);
 
     Optional<Evaluation> findBySoutenanceAndEncadreur(UUID soutenanceId, UUID encadreurId);
 
     Evaluation save(Evaluation evaluation);
+
+    void delete(Evaluation evaluation);
 }

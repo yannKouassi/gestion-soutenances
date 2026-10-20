@@ -622,6 +622,20 @@ a:hover {
     background: #f0f9ff;
 }
 
+.note-badge {
+    display: inline-flex;
+    align-items: center;
+    min-height: 25px;
+    padding: 3px 8px;
+    border: 1px solid #a7f3d0;
+    border-radius: 6px;
+    color: #047857;
+    background: #d1fae5;
+    font-size: 12px;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+}
+
 .primary-cell {
     color: #0f172a;
     font-weight: 600;
@@ -1047,6 +1061,10 @@ tbody tr:hover td {
     gap: 4px;
 }
 
+.admin-form-page .field-full {
+    grid-column: 1 / -1;
+}
+
 .admin-form-page .field input,
 .admin-form-page .field select {
     min-height: 40px;
@@ -1145,6 +1163,12 @@ button:focus-visible,
     border-color: #fecaca;
     color: #b91c1c;
     background: #fee2e2;
+}
+
+.alert-warning {
+    border-color: #fde68a;
+    color: #b45309;
+    background: #fef3c7;
 }
 
 .empty-state {

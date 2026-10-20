@@ -1,7 +1,10 @@
 package ci.univ.soutenances.service.impl;
 
 import java.time.LocalDateTime;
+import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
@@ -16,8 +19,8 @@ import jakarta.ejb.Stateless;
 
 @Stateless
 public class HistoriqueActionServiceImpl implements HistoriqueActionService {
-    private static final Set<String> SCREENS = Set.of(
-            "GRADE", "DEPARTEMENT", "FILIERE", "SALLE", "ENCADREUR", "ETUDIANT", "UTILISATEUR");
+    private static final Map<String, String> SCREEN_LABELS = buildScreenLabels();
+    private static final Set<String> SCREENS = SCREEN_LABELS.keySet();
     private static final Set<String> ACTIONS = Set.of("CREATION", "MODIFICATION", "SUPPRESSION");
 
     @EJB
@@ -25,6 +28,11 @@ public class HistoriqueActionServiceImpl implements HistoriqueActionService {
 
     @EJB
     private UtilisateurRepository utilisateurRepository;
+
+    @Override
+    public Map<String, String> screens() {
+        return SCREEN_LABELS;
+    }
 
     @Override
     public List<HistoriqueAction> findPage(String screenCode, int offset, int pageSize) {
@@ -81,6 +89,21 @@ public class HistoriqueActionServiceImpl implements HistoriqueActionService {
         historiqueAction.setDescription(label);
         historiqueAction.setUtilisateur(utilisateur);
         historiqueActionRepository.save(historiqueAction);
+    }
+
+    private static Map<String, String> buildScreenLabels() {
+        Map<String, String> labels = new LinkedHashMap<>();
+        labels.put("GRADE", "Grades");
+        labels.put("DEPARTEMENT", "Départements");
+        labels.put("FILIERE", "Filières");
+        labels.put("SALLE", "Salles");
+        labels.put("ENCADREUR", "Encadreurs");
+        labels.put("ETUDIANT", "Étudiants");
+        labels.put("MEMOIRE", "Mémoires");
+        labels.put("SOUTENANCE", "Soutenances");
+        labels.put("JURY", "Jurys");
+        labels.put("UTILISATEUR", "Utilisateurs");
+        return Collections.unmodifiableMap(labels);
     }
 
     private static void requireScreen(String screenCode) {

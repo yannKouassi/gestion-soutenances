@@ -61,6 +61,23 @@
             </div>
         </details>
     </nav>
+    <p class="nav-heading">Académique &amp; Soutenances</p>
+    <nav class="admin-nav" aria-label="Académique et soutenances">
+        <details class="nav-group" ${type eq 'memoires' ? 'open' : ''}>
+            <summary><span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><path d="M4 4.5A2.5 2.5 0 0 1 6.5 2H20v17H6.5A2.5 2.5 0 0 0 4 21.5Z"/><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M8 7h8m-8 4h5"/></svg></span>Gestion des Mémoires</summary>
+            <div class="nav-submenu">
+                <a class="${type eq 'memoires' and empty param.vue ? 'active' : ''}" href="${pageContext.request.contextPath}/admin/memoires">Liste des Mémoires</a>
+                <a class="${type eq 'memoires' and param.vue eq 'form' ? 'active' : ''}" href="${pageContext.request.contextPath}/admin/memoires?vue=form">Ajout / Édition Mémoire</a>
+            </div>
+        </details>
+        <details class="nav-group" ${(type eq 'planification' or type eq 'jury' or type eq 'soutenances') ? 'open' : ''}>
+            <summary><span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><path d="M4 5h16v15H4z"/><path d="M8 3v4m8-4v4M4 10h16"/><path d="M8 14h3m5 0h.01"/></svg></span>Gestion des Soutenances</summary>
+            <div class="nav-submenu">
+                <a class="${type eq 'soutenances' ? 'active' : ''}" href="${pageContext.request.contextPath}/admin/soutenances">Liste des Soutenances</a>
+                <a class="${(type eq 'planification' or type eq 'jury') ? 'active' : ''}" href="${pageContext.request.contextPath}/admin/planification">Planifier une soutenance</a>
+            </div>
+        </details>
+    </nav>
     <p class="nav-heading">Pilotage &amp; audit</p>
     <nav class="admin-nav" aria-label="Pilotage et audit">
         <details class="nav-group" ${type eq 'dashboard' ? 'open' : ''}>
