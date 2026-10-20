@@ -1,16 +1,22 @@
 package ci.univ.soutenances.service.impl;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
 import ci.univ.soutenances.model.Etudiant;
+import ci.univ.soutenances.model.Evaluation;
 import ci.univ.soutenances.model.Filiere;
 import ci.univ.soutenances.model.Memoire;
 import ci.univ.soutenances.model.RoleUtilisateur;
+import ci.univ.soutenances.model.Soutenance;
 import ci.univ.soutenances.repository.EtudiantRepository;
+import ci.univ.soutenances.repository.EvaluationRepository;
 import ci.univ.soutenances.repository.FiliereRepository;
 import ci.univ.soutenances.repository.MemoireRepository;
+import ci.univ.soutenances.repository.SoutenanceRepository;
 import ci.univ.soutenances.service.CompteService;
 import ci.univ.soutenances.service.EtudiantService;
 import jakarta.ejb.EJB;
@@ -28,6 +34,12 @@ public class EtudiantServiceImpl implements EtudiantService {
     private MemoireRepository memoireRepository;
 
     @EJB
+    private SoutenanceRepository soutenanceRepository;
+
+    @EJB
+    private EvaluationRepository evaluationRepository;
+
+    @EJB
     private CompteService compteService;
 
     @Override
@@ -38,6 +50,37 @@ public class EtudiantServiceImpl implements EtudiantService {
     @Override
     public Optional<Etudiant> findById(UUID id) {
         return etudiantRepository.findById(requireId(id, "étudiant"));
+    }
+
+    @Override
+    public Optional<Etudiant> findByUtilisateurId(UUID utilisateurId) {
+        return etudiantRepository.findByUtilisateurId(requireId(utilisateurId, "utilisateur"));
+    }
+
+    @Override
+    public Optional<Soutenance> findSoutenanceByMemoireId(UUID memoireId) {
+        return soutenanceRepository.findByMemoireId(requireId(memoireId, "mémoire"));
+    }
+
+    @Override
+    public List<Evaluation> findJuryBySoutenanceId(UUID soutenanceId) {
+        return evaluationRepository.findJuryBySoutenanceId(requireId(soutenanceId, "soutenance"));
+    }
+
+    @Override
+    public Optional<BigDecimal> calculerMoyenne(UUID soutenanceId) {
+        List<Evaluation> jury = evaluationRepository.findJuryBySoutenanceId(requireId(soutenanceId, "soutenance"));
+        if (jury.isEmpty()) {
+            return Optional.empty();
+        }
+        BigDecimal total = BigDecimal.ZERO;
+        for (Evaluation evaluation : jury) {
+            if (evaluation.getNote() == null) {
+                return Optional.empty();
+            }
+            total = total.add(evaluation.getNote());
+        }
+        return Optional.of(total.divide(BigDecimal.valueOf(jury.size()), 2, RoundingMode.HALF_UP));
     }
 
     @Override

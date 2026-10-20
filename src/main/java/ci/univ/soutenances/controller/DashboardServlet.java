@@ -1,7 +1,6 @@
 package ci.univ.soutenances.controller;
 
 import java.io.IOException;
-import java.util.UUID;
 
 import ci.univ.soutenances.config.AdminAuthorizationFilter;
 import ci.univ.soutenances.model.RoleUtilisateur;
@@ -36,13 +35,11 @@ public class DashboardServlet extends HttpServlet {
             return;
         }
 
-        request.setAttribute("utilisateur", utilisateur);
-        String csrfToken = (String) session.getAttribute("logoutCsrfToken");
-        if (csrfToken == null) {
-            csrfToken = UUID.randomUUID().toString();
-            session.setAttribute("logoutCsrfToken", csrfToken);
+        if (utilisateur.role() == RoleUtilisateur.ETUDIANT) {
+            response.sendRedirect(request.getContextPath() + "/etudiant/ma-soutenance");
+            return;
         }
-        request.setAttribute("csrfToken", csrfToken);
-        request.getRequestDispatcher("/WEB-INF/views/auth/dashboard-placeholder.jsp").forward(request, response);
+
+        response.sendError(HttpServletResponse.SC_FORBIDDEN);
     }
 }

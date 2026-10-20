@@ -36,6 +36,18 @@ public class EvaluationRepositoryImpl implements EvaluationRepository {
     }
 
     @Override
+    public List<Evaluation> findJuryBySoutenanceId(UUID soutenanceId) {
+        return entityManager.createQuery(
+                "SELECT e FROM Evaluation e "
+                        + "JOIN FETCH e.encadreur "
+                        + "WHERE e.soutenance.id = :soutenanceId "
+                        + "ORDER BY e.encadreur.nom, e.encadreur.prenom",
+                Evaluation.class)
+                .setParameter("soutenanceId", soutenanceId)
+                .getResultList();
+    }
+
+    @Override
     public List<Evaluation> findByEncadreurId(UUID encadreurId) {
         List<Evaluation> evaluations = entityManager.createQuery(
                 "SELECT e FROM Evaluation e "
