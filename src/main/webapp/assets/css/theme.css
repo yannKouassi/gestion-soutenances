@@ -13,6 +13,10 @@
      5. composants partagés (page-heading, card, badges, alertes, tableaux,
         formulaires, boutons, états vides, info-list, history-total/date, …).
 
+   Le composant « champ à label flottant » vit dans float-field.css et est
+   importé ci-dessous : ses règles passent donc avant le socle (les tokens
+   --c-* restent utilisables, ils sont résolus à l'exécution).
+
    Ne contient pas : les styles propres à un espace ; ils vivent dans
    admin.css, auth.css, encadreur.css et etudiant.css.
 
@@ -28,11 +32,17 @@
      - le reset de base est fourni ICI ;
      - les primitives de refonte restent préfixées `ui-` ; les classes non
        préfixées ci-dessous sont la coquille ou des composants partagés ;
-     - pas de @import, pas de CDN, pas de dégradé, pas de flou.
+     - pas de CDN, pas de dégradé, pas de flou ; seul import local autorisé :
+       float-field.css (composant de champ) ;
 
    Ordre de chargement : theme.css → admin.css | auth.css | encadreur.css |
    etudiant.css (jamais l'inverse : les fichiers de partie surchargent le socle).
    ========================================================================== */
+
+/* Composant de champ à label flottant : importé en tête, avant les tokens.
+   Il ne s'applique à aucune page tant que les formulaires n'utilisent pas
+   les classes .float-field-*. */
+@import url("float-field.css");
 
 
 /* ==========================================================================
