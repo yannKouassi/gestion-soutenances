@@ -41,8 +41,8 @@
    ========================================================================== */
 
 /* Composant de champ à label flottant : importé en tête, avant les tokens.
-   Il ne s'applique à aucune page tant que les formulaires n'utilisent pas
-   les classes .float-field-*. */
+   Les formulaires (login, setup-admin, formulaires d'entité admin et
+   encadreur) utilisent les classes .float-field-*. */
 @import url("float-field.css");
 
 /* ==========================================================================

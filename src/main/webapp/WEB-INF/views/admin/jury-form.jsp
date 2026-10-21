@@ -69,7 +69,12 @@
                 <form class="form-grid" method="post" action="${pageContext.request.contextPath}/admin/jury/ajouter">
                     <input type="hidden" name="csrfToken" value="<c:out value='${csrfToken}'/>">
                     <input type="hidden" name="soutenance" value="<c:out value='${soutenance.id}'/>">
-                    <div class="field field-full"><label for="encadreurId">Encadreur <span class="required-mark" aria-hidden="true">*</span></label><select id="encadreurId" name="encadreurId" required><option value="">Choisir un encadreur</option><c:forEach var="encadreur" items="${encadreurs}"><option value="<c:out value='${encadreur.id}'/>" ${encadreur.id eq selectedEncadreurId ? 'selected' : ''}><c:out value="${encadreur.prenom}"/> <c:out value="${encadreur.nom}"/> — <c:out value="${encadreur.grade.libelle}"/></option></c:forEach></select></div>
+                    <div class="float-field field-full">
+                        <div class="float-field-box">
+                            <select id="encadreurId" name="encadreurId" required class="float-field-select"><option value=""></option><c:forEach var="encadreur" items="${encadreurs}"><option value="<c:out value='${encadreur.id}'/>" ${encadreur.id eq selectedEncadreurId ? 'selected' : ''}><c:out value="${encadreur.prenom}"/> <c:out value="${encadreur.nom}"/> — <c:out value="${encadreur.grade.libelle}"/></option></c:forEach></select>
+                            <label class="float-field-label" for="encadreurId">Encadreur <span class="required-mark" aria-hidden="true">*</span></label>
+                        </div>
+                    </div>
                     <div class="form-actions">
                         <button class="btn btn-primary" type="submit">Ajouter au jury</button>
                         <a class="btn btn-secondary" href="${pageContext.request.contextPath}/admin/planification?id=${soutenance.id}">Modifier la planification</a>

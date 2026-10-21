@@ -19,22 +19,29 @@
     </c:if>
     <form class="ui-form-grid" method="post" action="${pageContext.request.contextPath}/setup-admin">
         <input type="hidden" name="csrfToken" value="<c:out value='${csrfToken}'/>">
-        <div class="ui-field">
-            <label class="ui-label" for="login">Login administrateur</label>
-            <input class="ui-input" id="login" name="login" autocomplete="username" minlength="3" maxlength="100"
-                   pattern="[A-Za-z0-9._-]{3,100}" required value="<c:out value='${param.login}'/>">
-            <small class="ui-hint">3 à 100 caractères : lettres, chiffres, point, tiret ou souligné.</small>
+        <div class="float-field">
+            <div class="float-field-box">
+                <input class="float-field-input" id="login" name="login" type="text" placeholder=" "
+                       autocomplete="username" minlength="3" maxlength="100"
+                       pattern="[A-Za-z0-9._-]{3,100}" required value="<c:out value='${param.login}'/>">
+                <label class="float-field-label" for="login">Login administrateur</label>
+            </div>
+            <small class="float-field-hint">3 à 100 caractères : lettres, chiffres, point, tiret ou souligné.</small>
         </div>
-        <div class="ui-field">
-            <label class="ui-label" for="password">Mot de passe</label>
-            <input class="ui-input" id="password" name="password" type="password" autocomplete="new-password"
-                   minlength="8" maxlength="128" required>
-            <small class="ui-hint">Au moins 8 caractères. Choisis un mot de passe unique.</small>
+        <div class="float-field">
+            <div class="float-field-box">
+                <input class="float-field-input" id="password" name="password" type="password" placeholder=" "
+                       autocomplete="new-password" minlength="8" maxlength="128" required>
+                <label class="float-field-label" for="password">Mot de passe</label>
+            </div>
+            <small class="float-field-hint">Au moins 8 caractères. Choisis un mot de passe unique.</small>
         </div>
-        <div class="ui-field">
-            <label class="ui-label" for="confirmation">Confirmer le mot de passe</label>
-            <input class="ui-input" id="confirmation" name="confirmation" type="password" autocomplete="new-password"
-                   minlength="8" maxlength="128" required>
+        <div class="float-field">
+            <div class="float-field-box">
+                <input class="float-field-input" id="confirmation" name="confirmation" type="password" placeholder=" "
+                       autocomplete="new-password" minlength="8" maxlength="128" required>
+                <label class="float-field-label" for="confirmation">Confirmer le mot de passe</label>
+            </div>
         </div>
         <button class="ui-btn ui-btn--primary ui-btn--block" type="submit">Créer le compte administrateur</button>
     </form>

@@ -30,9 +30,25 @@
             <form class="form-grid" method="post" action="${pageContext.request.contextPath}/admin/planification/enregistrer">
                 <input type="hidden" name="csrfToken" value="<c:out value='${csrfToken}'/>">
                 <input type="hidden" name="id" value="<c:out value='${element.id}'/>">
-                <div class="field field-full"><label for="memoireId">Mémoire à soutenir <span class="required-mark" aria-hidden="true">*</span></label><select id="memoireId" name="memoireId" required><option value="">Choisir un mémoire</option><c:forEach var="memoire" items="${memoires}"><option value="<c:out value='${memoire.id}'/>" data-date-depot="<c:out value='${memoire.dateDepot}'/>" ${memoire.id eq selectedMemoireId ? 'selected' : ''}><c:out value="${memoire.titre}"/> — <c:out value="${memoire.encadreur.prenom}"/> <c:out value="${memoire.encadreur.nom}"/></option></c:forEach></select><small class="field-hint">Seuls les mémoires encore sans soutenance sont proposés.</small></div>
-                <div class="field"><label for="dateHeure">Date et heure <span class="required-mark" aria-hidden="true">*</span></label><input id="dateHeure" name="dateHeure" type="datetime-local" required min="<c:out value='${dateHeureMin}'/>" value="<c:out value='${dateHeureValue}'/>"></div>
-                <div class="field"><label for="salleId">Salle <span class="required-mark" aria-hidden="true">*</span></label><select id="salleId" name="salleId" required><option value="">Choisir une salle</option><c:forEach var="salle" items="${salles}"><option value="<c:out value='${salle.id}'/>" ${salle.id eq selectedSalleId ? 'selected' : ''}><c:out value="${salle.nomSalle}"/> — <c:out value="${salle.departement.nom}"/></option></c:forEach></select></div>
+                <div class="float-field field-full">
+                    <div class="float-field-box">
+                        <select id="memoireId" name="memoireId" required class="float-field-select"><option value=""></option><c:forEach var="memoire" items="${memoires}"><option value="<c:out value='${memoire.id}'/>" data-date-depot="<c:out value='${memoire.dateDepot}'/>" ${memoire.id eq selectedMemoireId ? 'selected' : ''}><c:out value="${memoire.titre}"/> — <c:out value="${memoire.encadreur.prenom}"/> <c:out value="${memoire.encadreur.nom}"/></option></c:forEach></select>
+                        <label class="float-field-label" for="memoireId">Mémoire à soutenir <span class="required-mark" aria-hidden="true">*</span></label>
+                    </div>
+                    <small class="float-field-hint">Seuls les mémoires encore sans soutenance sont proposés.</small>
+                </div>
+                <div class="float-field">
+                    <div class="float-field-box">
+                        <input class="float-field-input" id="dateHeure" name="dateHeure" type="datetime-local" required min="<c:out value='${dateHeureMin}'/>" value="<c:out value='${dateHeureValue}'/>">
+                        <label class="float-field-label" for="dateHeure">Date et heure <span class="required-mark" aria-hidden="true">*</span></label>
+                    </div>
+                </div>
+                <div class="float-field">
+                    <div class="float-field-box">
+                        <select id="salleId" name="salleId" required class="float-field-select"><option value=""></option><c:forEach var="salle" items="${salles}"><option value="<c:out value='${salle.id}'/>" ${salle.id eq selectedSalleId ? 'selected' : ''}><c:out value="${salle.nomSalle}"/> — <c:out value="${salle.departement.nom}"/></option></c:forEach></select>
+                        <label class="float-field-label" for="salleId">Salle <span class="required-mark" aria-hidden="true">*</span></label>
+                    </div>
+                </div>
                 <div class="form-actions">
                     <button class="btn btn-primary" type="submit">Enregistrer</button>
                     <c:if test="${not empty element.id}"><a class="btn btn-secondary" href="${pageContext.request.contextPath}/admin/jury?soutenance=${element.id}">Composer le jury</a></c:if>

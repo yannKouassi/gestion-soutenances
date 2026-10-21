@@ -29,16 +29,29 @@
             <form class="form-grid" method="post" action="${pageContext.request.contextPath}/admin/filieres/enregistrer">
                 <input type="hidden" name="csrfToken" value="<c:out value='${csrfToken}'/>">
                 <input type="hidden" name="id" value="<c:out value='${element.id}'/>">
-                <div class="field"><label for="code">Code <span class="required-mark" aria-hidden="true">*</span></label><input id="code" name="code" maxlength="30" required autocomplete="off" placeholder="Ex. INFO-M2" value="<c:out value='${not empty param.code ? param.code : element.code}'/>"></div>
-                <div class="field"><label for="libelle">Libellé <span class="required-mark" aria-hidden="true">*</span></label><input id="libelle" name="libelle" maxlength="120" required placeholder="Ex. Master Génie logiciel" value="<c:out value='${not empty param.libelle ? param.libelle : element.libelle}'/>"></div>
-                <div class="field"><label for="departementId">Département <span class="required-mark" aria-hidden="true">*</span></label>
-                    <select id="departementId" name="departementId" required>
-                        <option value="">Choisir un département</option>
-                        <c:forEach var="departement" items="${departements}">
-                            <option value="${departement.id}" ${selectedDepartementId eq departement.id ? 'selected' : ''}><c:out value="${departement.code} — ${departement.nom}"/></option>
-                        </c:forEach>
-                    </select>
-                    <small class="field-hint"><c:choose><c:when test="${empty departements}">Crée d’abord un département pour pouvoir rattacher cette filière.</c:when><c:otherwise>Le département auquel cette filière est rattachée.</c:otherwise></c:choose></small>
+                <div class="float-field">
+                    <div class="float-field-box">
+                        <input class="float-field-input" id="code" name="code" maxlength="30" required autocomplete="off" placeholder="Ex. INFO-M2" value="<c:out value='${not empty param.code ? param.code : element.code}'/>">
+                        <label class="float-field-label" for="code">Code <span class="required-mark" aria-hidden="true">*</span></label>
+                    </div>
+                </div>
+                <div class="float-field">
+                    <div class="float-field-box">
+                        <input class="float-field-input" id="libelle" name="libelle" maxlength="120" required placeholder="Ex. Master Génie logiciel" value="<c:out value='${not empty param.libelle ? param.libelle : element.libelle}'/>">
+                        <label class="float-field-label" for="libelle">Libellé <span class="required-mark" aria-hidden="true">*</span></label>
+                    </div>
+                </div>
+                <div class="float-field">
+                    <div class="float-field-box">
+                        <select id="departementId" name="departementId" required class="float-field-select">
+                            <option value=""></option>
+                            <c:forEach var="departement" items="${departements}">
+                                <option value="${departement.id}" ${selectedDepartementId eq departement.id ? 'selected' : ''}><c:out value="${departement.code} — ${departement.nom}"/></option>
+                            </c:forEach>
+                        </select>
+                        <label class="float-field-label" for="departementId">Département <span class="required-mark" aria-hidden="true">*</span></label>
+                    </div>
+                    <small class="float-field-hint"><c:choose><c:when test="${empty departements}">Crée d’abord un département pour pouvoir rattacher cette filière.</c:when><c:otherwise>Le département auquel cette filière est rattachée.</c:otherwise></c:choose></small>
                 </div>
                 <div class="form-actions">
                     <button class="btn btn-primary" type="submit" ${empty departements ? 'disabled' : ''}>Enregistrer</button>

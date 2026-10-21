@@ -2,8 +2,11 @@
    CHAMP À LABEL FLOTTANT (float-field.css)
    ==========================================================================
    Rôle : composant de champ « bordure basse » pour les formulaires.
-   Importé par theme.css, donc chargé avant le reste du socle. Aucune page
-   ne l'utilise pour l'instant : le composant est posé, pas appliqué.
+   Importé par theme.css, donc chargé avant le reste du socle. Utilisé par les
+   formulaires des espaces (login, setup-admin et formulaires d'entité
+   admin / encadreur). Exception connue : un champ date NON requis
+   (dateDepot du formulaire mémoire) reste en champ classique, la détection
+   « champ rempli » du composant ne couvre que les dates requises.
 
    Principe :
      - pas de cadre : une seule bordure basse ;
