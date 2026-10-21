@@ -10,9 +10,6 @@
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <maven.compiler.release>17</maven.compiler.release>
-    <!-- Toolchain front (profil `frontend` uniquement) : versions installees dans target/node. -->
-    <frontend.node.version>v20.18.1</frontend.node.version>
-    <frontend.npm.version>10.8.2</frontend.npm.version>
   </properties>
 
   <dependencies>
@@ -53,69 +50,4 @@
       </plugin>
     </plugins>
   </build>
-
-  <profiles>
-    <!--
-      Compilation Tailwind CSS, OPT-IN : `mvn -Pfrontend package`.
-
-      Strategie retenue : le fichier src/main/webapp/assets/css/tailwind.css est
-      compile en local et commite. Le build par defaut (`mvn package`) n'appelle
-      donc jamais Node, ni npm, ni le reseau : il reste vert sur une machine sans
-      Node et hors ligne. La regeneration n'est necessaire que lorsqu'on ajoute
-      ou modifie des classes Tailwind dans les JSP ; elle reste accessible aux
-      coequipiers via `npm run build:css` s'ils ont Node.
-    -->
-    <profile>
-      <id>frontend</id>
-      <build>
-        <plugins>
-          <plugin>
-            <groupId>com.github.eirslett</groupId>
-            <artifactId>frontend-maven-plugin</artifactId>
-            <version>1.15.1</version>
-            <configuration>
-              <workingDirectory>${project.basedir}</workingDirectory>
-              <installDirectory>${project.build.directory}/node</installDirectory>
-            </configuration>
-            <executions>
-              <!-- 1. Node + npm locaux, installes sous target/node (jamais sur le systeme). -->
-              <execution>
-                <id>install-node-and-npm</id>
-                <phase>generate-resources</phase>
-                <goals>
-                  <goal>install-node-and-npm</goal>
-                </goals>
-                <configuration>
-                  <nodeVersion>${frontend.node.version}</nodeVersion>
-                  <npmVersion>${frontend.npm.version}</npmVersion>
-                </configuration>
-              </execution>
-              <!-- 2. Dependances de dev (tailwindcss) depuis package.json. -->
-              <execution>
-                <id>npm-install</id>
-                <phase>generate-resources</phase>
-                <goals>
-                  <goal>npm</goal>
-                </goals>
-                <configuration>
-                  <arguments>install --no-audit --no-fund</arguments>
-                </configuration>
-              </execution>
-              <!-- 3. Compilation vers src/main/webapp/assets/css/tailwind.css, avant le WAR. -->
-              <execution>
-                <id>npm-build-css</id>
-                <phase>generate-resources</phase>
-                <goals>
-                  <goal>npm</goal>
-                </goals>
-                <configuration>
-                  <arguments>run build:css</arguments>
-                </configuration>
-              </execution>
-            </executions>
-          </plugin>
-        </plugins>
-      </build>
-    </profile>
-  </profiles>
 </project>

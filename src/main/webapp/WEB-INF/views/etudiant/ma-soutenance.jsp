@@ -7,8 +7,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Ma soutenance | PGS-PFE</title>
     <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/theme.css?v=20261020-cartoon-ui">
-    <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/admin.css?v=20261020-cartoon-ui">
-    <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/tailwind.css?v=20261020-cartoon-ui">
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/etudiant.css?v=20261020-cartoon-ui">
 </head>
 <body>
 <div class="admin-shell">

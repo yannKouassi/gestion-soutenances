@@ -4,7 +4,7 @@
 <html lang="fr">
 <head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Liste des Comptes | PGS-PFE</title><link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/theme.css?v=20261020-cartoon-ui">
     <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/admin.css?v=20261020-cartoon-ui">
-    <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/tailwind.css?v=20261020-cartoon-ui"></head>
+    </head>
 <body><div class="admin-shell">
     <%@ include file="admin-layout.jspf" %>
     <main class="admin-main"><%@ include file="admin-topbar.jspf" %>
