@@ -1020,42 +1020,88 @@ hr {
 /* ==========================================================================
    4. COQUILLE APPLICATIVE PARTAGÉE
    Utilisée à l'identique par les espaces admin, encadreur et étudiant.
-   --sidebar-width accompagne .admin-shell : il alimente sa grid-template-columns.
+   Un SEUL défilement : celui de la page. La sidebar est collante
+   (position: sticky) et ne défile jamais elle-même ; le panneau clair est
+   peint par le ::before de la coquille pour couvrir toute la hauteur de
+   colonne, quel que soit le contenu de la page.
+   --sidebar-width accompagne .admin-shell : il alimente grid-template-columns.
    ========================================================================== */
 :root {
-  --sidebar-width: 268px; /* métrique de layout, pas un token de couleur */
+  --sidebar-width: 264px; /* métrique de layout, pas un token de couleur */
 }
 
 .admin-shell {
+  position: relative;
   display: grid;
   grid-template-columns: var(--sidebar-width) minmax(0, 1fr);
-  height: 100vh;
-  min-height: 600px;
-  overflow: hidden;
+  align-items: start;
+}
+
+.admin-shell::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: var(--sidebar-width);
+  background: var(--c-surface);
+  border-right: var(--border-w) solid var(--c-ink);
+  box-shadow: 6px 0 0 0 rgb(15 23 42 / 5%);
+  z-index: 0;
+}
+
+/* Rail de la colonne latérale : il s'étire sur toute la hauteur du
+   contenu ; la sidebar qu'il contient est collante sur ~la fenêtre.
+   (Un position: sticky posé directement sur l'item de grid ne se déclenche
+   pas avec align-self: start dans Chromium — d'où ce rail.) */
+.admin-rail {
+  align-self: stretch;
+  position: relative;
+  z-index: 1;
 }
 
 .admin-sidebar {
+  position: sticky;
+  top: 0;
+  height: max-content;
+  max-height: 100vh;
   display: flex;
-  min-height: 0;
   flex-direction: column;
-  color: var(--c-surface);
-  background: var(--c-primary);
-  box-shadow: 4px 0 0 0 var(--c-ink);
-  z-index: 1;
+  color: var(--c-text);
+  /* Filet de secours sur les écrans bas : une barre ultra-fine n'apparaît
+     que si le contenu dépasse réellement la hauteur de la fenêtre ; en
+     situation normale la sidebar tient sous 100 vh et il n'existe qu'un
+     seul scroll, celui de la page. */
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: var(--c-line-strong) transparent;
+}
+
+.admin-sidebar::-webkit-scrollbar {
+  width: 5px;
+}
+
+.admin-sidebar::-webkit-scrollbar-thumb {
+  border-radius: 999px;
+  background: var(--c-line-strong);
+}
+
+.admin-sidebar::-webkit-scrollbar-track {
+  background: transparent;
 }
 
 .brand {
   display: flex;
   align-items: center;
   gap: 12px;
-  min-height: 82px;
-  padding: 15px 20px;
-  border-bottom: var(--border-w) solid var(--c-primary-strong);
-  color: var(--c-surface);
+  min-height: 58px;
+  padding: 10px 16px;
+  border-bottom: var(--border-w) solid var(--c-line);
+  color: var(--c-text);
 }
 
 .brand:hover {
-  color: var(--c-surface);
+  color: var(--c-text);
   text-decoration: none;
 }
 
@@ -1073,14 +1119,15 @@ hr {
 }
 
 .brand-mark {
-  width: 42px;
-  height: 42px;
+  width: 36px;
+  height: 36px;
+  background: var(--c-primary);
   box-shadow: var(--shadow-1);
 }
 
 .brand-mark svg {
-  width: 25px;
-  height: 25px;
+  width: 22px;
+  height: 22px;
   fill: none;
   stroke: currentColor;
   stroke-linecap: round;
@@ -1094,18 +1141,19 @@ hr {
 }
 
 .brand-copy strong {
+  color: var(--c-primary);
   font-size: 15px;
   letter-spacing: 0.01em;
 }
 
 .brand-copy small {
-  color: rgb(255 255 255 / 72%);
+  color: var(--c-muted);
   font-size: 11px;
 }
 
 .nav-heading {
-  margin: 23px 20px 9px;
-  color: rgb(255 255 255 / 62%);
+  margin: 13px 16px 5px;
+  color: var(--c-muted);
   font-size: 11px;
   font-weight: 700;
   letter-spacing: 0.09em;
@@ -1115,10 +1163,8 @@ hr {
 .admin-nav {
   display: grid;
   align-content: start;
-  gap: 5px;
-  flex: 1;
-  overflow-y: auto;
-  padding: 0 12px 18px;
+  gap: 3px;
+  padding: 0 12px 12px;
 }
 
 .nav-group {
@@ -1129,14 +1175,15 @@ hr {
   display: flex;
   align-items: center;
   gap: 11px;
-  min-height: 43px;
+  min-height: 40px;
   padding: 8px 10px;
   border-radius: var(--radius-sm);
-  color: rgb(255 255 255 / 82%);
+  color: var(--c-text);
   cursor: pointer;
   list-style: none;
   font-size: 13px;
   font-weight: 600;
+  transition: background-color 120ms ease;
 }
 
 .nav-group summary::-webkit-details-marker {
@@ -1146,49 +1193,62 @@ hr {
 .nav-group summary::after {
   margin-left: auto;
   content: "+";
-  color: rgb(255 255 255 / 60%);
+  color: var(--c-muted);
   font-size: 16px;
 }
 
 .nav-group[open] summary::after {
   content: "−";
+  color: var(--c-surface);
+}
+
+.nav-group summary:hover {
+  background: var(--c-accent-soft);
+  text-decoration: none;
+}
+
+.nav-group[open] summary {
+  background: var(--c-primary);
+  color: var(--c-surface);
+  box-shadow: var(--shadow-1);
 }
 
 .nav-submenu {
   display: grid;
   gap: 3px;
-  padding: 2px 0 8px 31px;
+  padding: 2px 0 8px 17px;
 }
 
 .nav-submenu a {
-  padding: 7px 9px;
-  border-radius: var(--radius-sm);
-  color: rgb(255 255 255 / 75%);
+  padding: 6px 9px;
+  border-radius: var(--radius-xs);
+  color: var(--c-muted);
   font-size: 12px;
+  font-weight: 550;
+  transition: background-color 120ms ease, color 120ms ease;
 }
 
-.nav-group summary:hover,
-.nav-submenu a:hover,
-.nav-submenu a.active {
-  color: var(--c-surface);
-  background: rgb(255 255 255 / 16%);
+.nav-submenu a:hover {
+  color: var(--c-accent-ink);
+  background: var(--c-accent-soft);
   text-decoration: none;
 }
 
-.nav-group[open] summary {
-  color: var(--c-surface);
+.nav-submenu a.active {
+  color: var(--c-primary);
+  font-weight: 700;
 }
 
 .nav-icon {
   display: grid;
-  width: 25px;
-  height: 25px;
+  width: 26px;
+  height: 26px;
   flex: 0 0 auto;
   place-items: center;
-  border: var(--border-w) solid rgb(255 255 255 / 30%);
-  border-radius: var(--radius-sm);
-  color: rgb(255 255 255 / 85%);
-  background: rgb(255 255 255 / 8%);
+  border: var(--border-w) solid var(--c-line-strong);
+  border-radius: var(--radius-xs);
+  color: var(--c-primary);
+  background: var(--c-bg);
 }
 
 .nav-icon svg {
@@ -1202,13 +1262,24 @@ hr {
 }
 
 .nav-icon svg circle {
-  fill: var(--c-primary);
+  fill: var(--c-surface);
+}
+
+.nav-group summary:hover .nav-icon {
+  border-color: var(--c-ink);
+}
+
+.nav-group[open] summary .nav-icon {
+  border-color: var(--c-ink);
+  color: var(--c-surface);
+  background: var(--c-primary);
+  box-shadow: var(--shadow-1);
 }
 
 .sidebar-logout {
   margin-top: auto;
-  padding: 14px 12px;
-  border-top: var(--border-w) solid var(--c-primary-strong);
+  padding: 12px;
+  border-top: var(--border-w) solid var(--c-line);
 }
 
 .sidebar-logout button {
@@ -1216,16 +1287,18 @@ hr {
   align-items: center;
   gap: 10px;
   width: 100%;
-  min-height: 42px;
+  min-height: 40px;
   padding: 9px 12px;
-  border: var(--border-w) solid rgb(255 255 255 / 40%);
+  border: var(--border-w) solid var(--c-line-strong);
   border-radius: var(--radius-sm);
-  color: var(--c-surface);
-  background: transparent;
+  color: var(--c-text);
+  background: var(--c-surface);
   font: inherit;
   text-align: left;
   cursor: pointer;
   font-size: 13px;
+  font-weight: 600;
+  transition: border-color 120ms ease, background-color 120ms ease;
 }
 
 .logout-icon {
@@ -1239,17 +1312,15 @@ hr {
 }
 
 .sidebar-logout button:hover {
-  background: rgb(255 255 255 / 16%);
+  border-color: var(--c-ink);
+  color: var(--c-accent-ink);
+  background: var(--c-accent-soft);
 }
 
 .admin-main {
   min-width: 0;
-  overflow-y: auto;
+  padding-bottom: clamp(24px, 3vw, 42px);
   background: var(--c-bg);
-}
-
-.admin-form-page {
-  overflow-y: auto;
 }
 
 .admin-topbar {
@@ -1987,37 +2058,36 @@ button:focus-visible,
 @media (max-width: 760px) {
   .admin-shell {
     grid-template-columns: 1fr;
-    height: auto;
-    min-height: 100vh;
-    overflow: visible;
+  }
+
+  .admin-shell::before {
+    display: none;
+  }
+
+  .admin-rail {
+    align-self: stretch;
   }
 
   .admin-sidebar {
-    min-height: auto;
+    position: static;
+    height: auto;
+    min-height: 0;
+    max-height: none;
+    overflow: visible;
+    background: var(--c-surface);
+    border-bottom: var(--border-w) solid var(--c-ink);
   }
 
   .brand {
-    min-height: 68px;
+    min-height: 60px;
   }
 
   .nav-heading {
     margin-top: 14px;
   }
 
-  .admin-nav {
-    max-height: 42vh;
-  }
-
   .sidebar-logout {
-    margin-top: 0;
-  }
-
-  .admin-main {
-    overflow: visible;
-  }
-
-  .admin-form-page {
-    overflow: visible;
+    margin-top: 12px;
   }
 
   .admin-topbar {
