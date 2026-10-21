@@ -11,7 +11,8 @@
      4. coquille applicative partagée (admin-shell, sidebar, topbar, brand, nav,
         compte) : utilisée par les espaces admin, encadreur et étudiant ;
      5. composants partagés (page-heading, card, badges, alertes, tableaux,
-        formulaires, boutons, états vides, info-list, history-total/date, …).
+        formulaires, boutons, états vides, info-list, history-total/date, …) ;
+     6. responsive de la coquille et de ces composants partagés.
 
    Ne contient pas : les styles propres à un espace ; ils vivent dans
    admin.css, auth.css, encadreur.css et etudiant.css.

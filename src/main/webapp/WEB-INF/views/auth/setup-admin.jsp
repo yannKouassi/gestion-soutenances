@@ -15,28 +15,28 @@
     <h1>Premier compte administrateur</h1>
     <p class="auth-intro">Cette étape est disponible uniquement tant qu’aucun compte administrateur n’existe.</p>
     <c:if test="${not empty erreur}">
-        <div class="alert alert-error" role="alert"><c:out value="${erreur}"/></div>
+        <div class="ui-alert ui-alert--error" role="alert"><c:out value="${erreur}"/></div>
     </c:if>
-    <form class="form-grid" method="post" action="${pageContext.request.contextPath}/setup-admin">
+    <form class="ui-form-grid" method="post" action="${pageContext.request.contextPath}/setup-admin">
         <input type="hidden" name="csrfToken" value="<c:out value='${csrfToken}'/>">
-        <div class="field">
-            <label for="login">Login administrateur</label>
-            <input id="login" name="login" autocomplete="username" minlength="3" maxlength="100"
+        <div class="ui-field">
+            <label class="ui-label" for="login">Login administrateur</label>
+            <input class="ui-input" id="login" name="login" autocomplete="username" minlength="3" maxlength="100"
                    pattern="[A-Za-z0-9._-]{3,100}" required value="<c:out value='${param.login}'/>">
-            <small>3 à 100 caractères : lettres, chiffres, point, tiret ou souligné.</small>
+            <small class="ui-hint">3 à 100 caractères : lettres, chiffres, point, tiret ou souligné.</small>
         </div>
-        <div class="field">
-            <label for="password">Mot de passe</label>
-            <input id="password" name="password" type="password" autocomplete="new-password"
+        <div class="ui-field">
+            <label class="ui-label" for="password">Mot de passe</label>
+            <input class="ui-input" id="password" name="password" type="password" autocomplete="new-password"
                    minlength="8" maxlength="128" required>
-            <small>Au moins 8 caractères. Choisis un mot de passe unique.</small>
+            <small class="ui-hint">Au moins 8 caractères. Choisis un mot de passe unique.</small>
         </div>
-        <div class="field">
-            <label for="confirmation">Confirmer le mot de passe</label>
-            <input id="confirmation" name="confirmation" type="password" autocomplete="new-password"
+        <div class="ui-field">
+            <label class="ui-label" for="confirmation">Confirmer le mot de passe</label>
+            <input class="ui-input" id="confirmation" name="confirmation" type="password" autocomplete="new-password"
                    minlength="8" maxlength="128" required>
         </div>
-        <button class="btn btn-primary auth-submit" type="submit">Créer le compte administrateur</button>
+        <button class="ui-btn ui-btn--primary ui-btn--block" type="submit">Créer le compte administrateur</button>
     </form>
     <p class="auth-setup-link"><a href="${pageContext.request.contextPath}/login">Retour à la connexion</a></p>
 </main>

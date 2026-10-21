@@ -4,8 +4,9 @@
    Rôle : styles propres aux pages de connexion et de création du premier
    compte administrateur.
 
-   Contient : auth-page, auth-card, auth-brand, auth-intro, auth-submit,
-   auth-setup-link (et leurs sélecteurs descendants).
+   Contient : auth-page, auth-card, auth-brand, auth-intro, auth-illustration,
+   auth-setup-link (et leurs sélecteurs descendants), plus l'espacement de
+   l'alerte migrée vers ui-alert à l'intérieur de auth-card.
 
    Ne contient pas : tokens, reset, primitives ui-*, coquille ou composants
    partagés (theme.css), ni les styles des espaces authentifiés.
@@ -49,9 +50,23 @@
     color: var(--c-muted);
 }
 
-.auth-submit {
+/* Illustration décorative (aria-hidden) : ratio préservé par height:auto,
+   hauteur bornée pour que la carte reste au-dessus de la ligne de flottaison.
+   Le reset `img { max-width: 100%; height: auto; }` de theme.css reste le
+   filet de sécurité : une image absente se réduit à 0 de haut, sans réserver
+   de cadre ni afficher de texte de remplacement. */
+.auth-illustration {
+    display: block;
     width: 100%;
-    margin-top: 4px;
+    max-width: 260px;
+    height: auto;
+    margin: 0 auto 18px;
+}
+
+/* Les primitives ui-* ne portent aucune marge : on rend à l'alerte l'espace
+   que `.alert` assurait sous elle avant la migration. */
+.auth-card > .ui-alert {
+    margin-bottom: 18px;
 }
 
 .auth-setup-link {
