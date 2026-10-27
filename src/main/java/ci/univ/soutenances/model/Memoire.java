@@ -8,6 +8,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 
 @Entity
@@ -26,6 +27,9 @@ public class Memoire extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "encadreur_id", nullable = false)
     private Encadreur encadreur;
+
+    @OneToOne(mappedBy = "memoire", fetch = FetchType.LAZY)
+    private Etudiant etudiant;
 
     protected Memoire() {
     }
@@ -64,5 +68,13 @@ public class Memoire extends BaseEntity {
 
     public void setEncadreur(Encadreur encadreur) {
         this.encadreur = encadreur;
+    }
+
+    public Etudiant getEtudiant() {
+        return etudiant;
+    }
+
+    public void setEtudiant(Etudiant etudiant) {
+        this.etudiant = etudiant;
     }
 }

@@ -27,8 +27,9 @@ import jakarta.servlet.http.HttpServletResponse;
 @WebServlet("/admin/soutenances")
 public class SoutenanceServlet extends HttpServlet {
     private static final String TYPE = "soutenances";
-    private static final String TITLE = "Soutenances";
+    private static final String TITLE = "Gestion Globale des Soutenances";
     private static final String LIST_VIEW = "/WEB-INF/views/admin/soutenance-list.jsp";
+    private static final String DETAIL_VIEW = "/WEB-INF/views/admin/soutenance-detail.jsp";
     private static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
 
     @EJB
@@ -47,6 +48,11 @@ public class SoutenanceServlet extends HttpServlet {
         request.setAttribute("titre", TITLE);
 
         try {
+            if ("detail".equals(request.getParameter("vue"))) {
+                afficherDetail(request, response);
+                return;
+            }
+
             StatutSoutenance statut = parseStatut(request.getParameter("statut"));
             LocalDate date = parseDate(request.getParameter("date"));
             UUID etudiantId = parseOptionalId(request.getParameter("etudiant"));
@@ -72,6 +78,29 @@ public class SoutenanceServlet extends HttpServlet {
             response.sendError(HttpServletResponse.SC_SERVICE_UNAVAILABLE,
                     "Impossible de charger cette page pour le moment.");
         }
+    }
+
+    private void afficherDetail(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        UUID soutenanceId = parseOptionalId(request.getParameter("id"));
+        if (soutenanceId == null) {
+            response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Soutenance non précisée.");
+            return;
+        }
+        SoutenanceVue vue = soutenanceService.findVueById(soutenanceId).orElse(null);
+        if (vue == null) {
+            response.sendError(HttpServletResponse.SC_NOT_FOUND);
+            return;
+        }
+        request.setAttribute("vueSoutenance", vue);
+        request.setAttribute("membres", soutenanceService.findMembres(soutenanceId));
+        request.setAttribute("noteFinale", soutenanceService.calculerMoyenne(soutenanceId)
+                .map(SoutenanceServlet::formatNote)
+                .orElse(null));
+        request.setAttribute("dateAffichee", vue.getSoutenance().getDateHeure() == null
+                ? null
+                : vue.getSoutenance().getDateHeure().format(DATE_FORMAT));
+        request.getRequestDispatcher(DETAIL_VIEW).forward(request, response);
     }
 
     private List<SoutenanceListeEntry> assembler(List<SoutenanceVue> soutenances) {

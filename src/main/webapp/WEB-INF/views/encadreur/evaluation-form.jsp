@@ -6,7 +6,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Saisie de note | PGS-PFE</title>
-    <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/admin.css?v=20261015-admin-menu">
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/theme.css?v=20261021-shell-light">
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/encadreur.css?v=20261021-shell-light">
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/sidebar-toggle.css?v=20261027-3">
 </head>
 <body>
 <div class="admin-shell">
@@ -40,8 +42,19 @@
             </div>
             <form class="form-grid" method="post" action="${pageContext.request.contextPath}/encadreur/mes-jurys/noter">
                 <input type="hidden" name="csrfToken" value="<c:out value='${csrfToken}'/>"><input type="hidden" name="soutenanceId" value="<c:out value='${soutenance.id}'/>">
-                <div class="field"><label for="note">Note sur 20 <span class="required-mark">*</span></label><input id="note" name="note" type="number" min="0" max="20" step="0.01" required ${dejaNote or not saisieAutorisee ? 'disabled' : ''} value="<c:out value='${maConvocation.note}'/>"><small class="field-hint">Utilise le point comme séparateur décimal (ex. 14.50).</small></div>
-                <div class="field"><label for="avis">Avis</label><textarea id="avis" name="avis" rows="4" ${dejaNote or not saisieAutorisee ? 'disabled' : ''}><c:out value="${maConvocation.avis}"/></textarea></div>
+                <div class="float-field">
+                    <div class="float-field-box">
+                        <input class="float-field-input" id="note" name="note" type="number" min="0" max="20" step="0.01" required placeholder=" " ${dejaNote or not saisieAutorisee ? 'disabled' : ''} value="<c:out value='${maConvocation.note}'/>">
+                        <label class="float-field-label" for="note">Note sur 20 <span class="required-mark">*</span></label>
+                    </div>
+                    <small class="float-field-hint">Utilise le point comme séparateur décimal (ex. 14.50).</small>
+                </div>
+                <div class="float-field">
+                    <div class="float-field-box">
+                        <textarea class="float-field-textarea" id="avis" name="avis" rows="4" placeholder=" " ${dejaNote or not saisieAutorisee ? 'disabled' : ''}><c:out value="${maConvocation.avis}"/></textarea>
+                        <label class="float-field-label" for="avis">Avis</label>
+                    </div>
+                </div>
                 <div class="form-actions"><c:if test="${not dejaNote and saisieAutorisee}"><button class="btn btn-primary" type="submit">Enregistrer ma note</button></c:if><a class="btn btn-secondary" href="${pageContext.request.contextPath}/encadreur/mes-jurys">Retour à mes jurys</a></div>
             </form>
         </div></section>

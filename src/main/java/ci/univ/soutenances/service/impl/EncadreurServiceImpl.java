@@ -114,6 +114,11 @@ public class EncadreurServiceImpl implements EncadreurService {
     }
 
     @Override
+    public Optional<Soutenance> findSoutenanceByMemoireId(UUID memoireId) {
+        return soutenanceRepository.findByMemoireId(requireId(memoireId, "mémoire"));
+    }
+
+    @Override
     public Optional<BigDecimal> calculerMoyenne(UUID soutenanceId) {
         return soutenanceService.calculerMoyenne(requireId(soutenanceId, "soutenance"));
     }

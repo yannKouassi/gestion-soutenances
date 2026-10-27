@@ -6,7 +6,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Liste des Soutenances | PGS-PFE</title>
-    <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/admin.css?v=20261015-admin-menu">
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/theme.css?v=20261021-shell-light">
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/admin.css?v=20261021-shell-light">
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/sidebar-toggle.css?v=20261027-3">
 </head>
 <body>
 <div class="admin-shell">
@@ -16,7 +18,7 @@
         <header class="page-heading">
             <div class="page-heading-copy">
                 <span class="page-eyebrow">Académique &amp; Soutenances / Soutenances</span>
-                <div><h1>Liste des Soutenances</h1><p>Filtre les soutenances par statut, date, étudiant ou filière, puis consulte la composition du jury et la note finale.</p></div>
+                <div><h1><c:choose><c:when test="${param.vue eq 'jurys'}">Planification &amp; Jurys</c:when><c:otherwise>Gestion Globale des Soutenances</c:otherwise></c:choose></h1><p>Filtre les soutenances par statut, date, étudiant ou filière, puis accède à leur planification et à leur jury.</p></div>
             </div>
             <a class="btn btn-primary" href="${pageContext.request.contextPath}/admin/planification"><span class="button-icon" aria-hidden="true">+</span> Planifier une soutenance</a>
         </header>
@@ -25,6 +27,7 @@
         <section class="card filters-card" aria-label="Filtres des soutenances">
             <div class="card-body">
                 <form method="get" action="${pageContext.request.contextPath}/admin/soutenances">
+                    <c:if test="${param.vue eq 'jurys'}"><input type="hidden" name="vue" value="jurys"></c:if>
                     <div class="filter-grid">
                         <div class="field">
                             <label for="filtre-statut">Statut</label>
@@ -60,7 +63,7 @@
                     </div>
                     <div class="filter-actions">
                         <button class="btn btn-primary" type="submit">Filtrer</button>
-                        <a class="btn btn-secondary" href="${pageContext.request.contextPath}/admin/soutenances">Réinitialiser</a>
+                        <a class="btn btn-secondary" href="${pageContext.request.contextPath}/admin/soutenances${param.vue eq 'jurys' ? '?vue=jurys' : ''}">Réinitialiser</a>
                     </div>
                 </form>
             </div>
@@ -75,17 +78,16 @@
                 </div>
             </c:when><c:otherwise>
                 <div class="table-wrap"><table class="journal-table">
-                    <thead><tr><th>Mémoire</th><th>Étudiant</th><th>Filière</th><th>Salle</th><th>Date</th><th>Statut</th><th>Jury</th><th>Note finale</th></tr></thead>
+                    <thead><tr><th>Mémoire</th><th>Étudiant</th><th>Date</th><th>Statut</th><th>Actions</th></tr></thead>
                     <tbody><c:forEach var="entry" items="${entries}">
                         <tr>
                             <td class="primary-cell"><c:out value="${entry.soutenance.memoire.titre}"/></td>
-                            <td><c:out value="${entry.etudiant.prenom}"/> <c:out value="${entry.etudiant.nom}"/></td>
-                            <td><span class="code-badge"><c:out value="${entry.etudiant.filiere.code}"/></span> <c:out value="${entry.etudiant.filiere.libelle}"/></td>
-                            <td><c:out value="${entry.soutenance.salle.nomSalle}"/></td>
+                            <td><c:choose><c:when test="${empty entry.etudiant}">Non rattaché</c:when><c:otherwise><c:out value="${entry.etudiant.prenom}"/> <c:out value="${entry.etudiant.nom}"/></c:otherwise></c:choose></td>
                             <td class="history-date"><c:out value="${entry.dateAffichee}" default="—"/></td>
                             <td><span class="status-badge status-${entry.soutenance.statut}"><c:out value="${entry.soutenance.statut}"/></span></td>
-                            <td><span class="capacity-badge"><c:out value="${entry.tailleJury}"/> membre<c:if test="${entry.tailleJury ne 1}">s</c:if></span></td>
-                            <td><c:choose><c:when test="${empty entry.noteAffichee}">—</c:when><c:otherwise><span class="note-badge"><c:out value="${entry.noteAffichee}"/> / 20</span></c:otherwise></c:choose></td>
+                            <td><div class="actions">
+                                <a class="row-action row-action-edit" href="${pageContext.request.contextPath}/admin/soutenances?vue=detail&amp;id=${entry.soutenance.id}">Détails</a>
+                            </div></td>
                         </tr>
                     </c:forEach></tbody>
                 </table></div>

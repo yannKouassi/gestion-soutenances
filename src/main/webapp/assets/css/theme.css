@@ -1,0 +1,2145 @@
+/* ==========================================================================
+   GESTION DES SOUTENANCES — SOCLE COMMUN (theme.css)
+   ==========================================================================
+   Rôle : socle chargé EN PREMIER par toutes les pages, avant le fichier CSS
+   de la partie à laquelle elles appartiennent.
+
+   Contenu :
+     1. tokens --c-* et métriques de layout partagées ;
+     2. reset de base ;
+     3. primitives « ui-* » (référence des refontes de pages à venir) ;
+     4. coquille applicative partagée (admin-shell, sidebar, topbar, brand, nav,
+        compte) : utilisée par les espaces admin, encadreur et étudiant ;
+     5. composants partagés (page-heading, card, badges, alertes, tableaux,
+        formulaires, boutons, états vides, info-list, history-total/date, …) ;
+     6. responsive de la coquille et de ces composants partagés.
+
+   Le composant « champ à label flottant » vit dans float-field.css et est
+   importé ci-dessous : ses règles passent donc avant le socle (les tokens
+   --c-* restent utilisables, ils sont résolus à l'exécution).
+
+   Ne contient pas : les styles propres à un espace ; ils vivent dans
+   admin.css, auth.css, encadreur.css et etudiant.css.
+
+   Direction esthétique : « papier découpé académique » (cartoon + minimaliste).
+     - aplats de couleur, zéro dégradé, zéro backdrop-filter ;
+     - contours francs : bordure pleine de --border-w (2px) sur les composants ;
+     - ombres dures et plates : offset net, spread 0, blur 0, couleur encre ;
+     - rayons presque carrés : 2 à 6 px, jamais plus (--radius-xs → --radius-lg) ;
+     - beaucoup d'air, typographie Segoe UI nette (charte imposée).
+
+   Contrats :
+     - les tokens --c-* sont la source de vérité des couleurs ;
+     - le reset de base est fourni ICI ;
+     - les primitives de refonte restent préfixées `ui-` ; les classes non
+       préfixées ci-dessous sont la coquille ou des composants partagés ;
+     - pas de CDN, pas de dégradé, pas de flou ; seul import local autorisé :
+       float-field.css (composant de champ) ;
+
+   Ordre de chargement : theme.css → admin.css | auth.css | encadreur.css |
+   etudiant.css (jamais l'inverse : les fichiers de partie surchargent le socle).
+   ========================================================================== */
+
+/* Composant de champ à label flottant : importé en tête, avant les tokens.
+   Les formulaires (login, setup-admin, formulaires d'entité admin et
+   encadreur) utilisent les classes .float-field-*. */
+@import url("float-field.css");
+
+/* ==========================================================================
+   1. TOKENS
+   ========================================================================== */
+
+:root {
+  /* ---- Charte imposée : valeurs exactes, non modifiables ---- */
+  --c-primary: #1e3a8a; /* Bleu Marine Académique */
+  --c-accent: #0284c7; /* Bleu Cyan */
+  --c-indigo: #4f46e5; /* Indigo */
+  --c-bg: #f8fafc; /* Gris Très Clair */
+  --c-surface: #ffffff;
+  --c-text: #1e293b; /* Gris Ardoise Foncé */
+
+  /* ---- Nuances dérivées de la charte (états, encres, lignes) ---- */
+  --c-primary-strong: #172f73; /* survol des boutons primaires */
+  --c-accent-strong: #0369a1; /* survol des boutons accent */
+  --c-accent-ink: #075985; /* texte lisible sur les aplats cyan */
+  --c-accent-soft: #e0f2fe; /* aplat cyan doux */
+  --c-accent-wash: #f0f9ff; /* lavis cyan : survols de lignes de tableau */
+  --c-indigo-strong: #4338ca; /* survol des boutons indigo */
+  --c-indigo-soft: #eef2ff; /* aplat indigo doux */
+  --c-muted: #64748b; /* texte secondaire */
+  --c-ink: #0f172a; /* encre : contours et ombres dures */
+  --c-line: #e2e8f0; /* séparateurs internes */
+  --c-line-strong: #cbd5e1; /* bordures de champs au repos */
+  --c-placeholder: #94a3b8;
+  --c-danger: #b91c1c;
+  --c-danger-strong: #991b1b;
+  --c-success: #047857;
+  --c-warning: #b45309;
+
+  /* ---- Paires de badges : statut (texte / fond), valeurs charte ---- */
+  --c-badge-planifiee: #b45309;
+  --c-badge-planifiee-bg: #fef3c7;
+  --c-badge-evaluee: #047857;
+  --c-badge-evaluee-bg: #d1fae5;
+  --c-badge-annulee: #b91c1c;
+  --c-badge-annulee-bg: #fee2e2;
+
+  /* ---- Paires de badges : rôle (texte / fond), valeurs charte ---- */
+  --c-badge-admin: #6d28d9;
+  --c-badge-admin-bg: #ede9fe;
+  --c-badge-encadreur: #1d4ed8;
+  --c-badge-encadreur-bg: #dbeafe;
+  --c-badge-etudiant: #0f766e;
+  --c-badge-etudiant-bg: #ccfbf1;
+
+  /* ---- Aliasing sémantique : les aplats doux réutilisent les fonds de badges ---- */
+  --c-success-soft: var(--c-badge-evaluee-bg); /* #D1FAE5 */
+  --c-warning-soft: var(--c-badge-planifiee-bg); /* #FEF3C7 */
+  --c-danger-soft: var(--c-badge-annulee-bg); /* #FEE2E2 */
+
+  /* ---- Rayons : presque carrés, jamais plus de 6 px ---- */
+  --radius-xs: 2px;
+  --radius-sm: 3px;
+  --radius-md: 4px;
+  --radius-lg: 6px;
+
+  /* ---- Contours et ombres dures (offset net, spread 0, blur 0) ---- */
+  --border-w: 1px;
+  --shadow-1: 2px 2px 0 0 var(--c-ink);
+  --shadow-2: 3px 3px 0 0 var(--c-ink);
+  --shadow-3: 5px 5px 0 0 var(--c-ink);
+
+  /* ---- Typographie : Segoe UI (police de la charte) ---- */
+  --font-sans: "Segoe UI", "Segoe UI Variable Text", system-ui, -apple-system,
+    "Helvetica Neue", Arial, sans-serif;
+  --fs-xs: 12px;
+  --fs-sm: 13px;
+  --fs-base: 15px;
+  --fs-lg: 18px;
+  --fs-xl: 22px;
+  --fs-2xl: 28px;
+
+  /* ---- Échelle d'espacement ---- */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 32px;
+
+  /* Cases à cocher, radios, curseurs de progress */
+  accent-color: var(--c-accent);
+}
+
+/* ==========================================================================
+   2. BASE / RESET
+   Reset de base du projet.
+   Volontairement court : pas de reset de list-style ni de vertical-align,
+   pour ne pas déranger les pages admin.css déjà en production.
+   ========================================================================== */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  tab-size: 4;
+}
+
+body {
+  margin: 0;
+  background: var(--c-bg);
+  color: var(--c-text);
+  font-family: var(--font-sans);
+  font-size: var(--fs-base);
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  margin: 0;
+  color: var(--c-primary); /* la charte réserve le primaire aux titres */
+  font-weight: 800;
+  line-height: 1.2;
+  letter-spacing: -0.015em;
+}
+
+h1 {
+  font-size: var(--fs-2xl);
+}
+h2 {
+  font-size: var(--fs-xl);
+}
+h3 {
+  font-size: var(--fs-lg);
+}
+h4 {
+  font-size: var(--fs-base);
+}
+h5,
+h6 {
+  font-size: var(--fs-sm);
+}
+
+p,
+figure,
+blockquote {
+  margin: 0;
+}
+
+fieldset,
+legend {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  min-width: 0;
+}
+
+ul,
+ol {
+  margin: 0;
+}
+
+a {
+  color: var(--c-accent);
+  text-decoration: none;
+  text-underline-offset: 2px;
+}
+
+/* Le survol ne fixe volontairement AUCUNE couleur : une règle a:hover
+   (0,1,1) écraserait les classes applicatives (0,1,0) d'admin.css et
+   rendrait `.brand` ou `.btn-primary` illisibles sur fond primaire.
+   La couleur de survol reste donc portée par les classes de admin.css. */
+a:hover {
+  text-decoration: underline;
+  text-decoration-thickness: 2px;
+}
+
+strong,
+b {
+  font-weight: 700;
+}
+
+small {
+  font-size: var(--fs-xs);
+}
+
+img {
+  max-width: 100%;
+  height: auto;
+}
+
+table {
+  border-collapse: collapse;
+  text-align: left;
+}
+
+th {
+  text-align: inherit;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+  color: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+
+hr {
+  margin: var(--space-4) 0;
+  border: 0;
+  border-top: var(--border-w) solid var(--c-line);
+}
+
+:focus-visible {
+  outline: 3px solid var(--c-accent);
+  outline-offset: 2px;
+}
+
+:focus:not(:focus-visible) {
+  outline: none;
+}
+
+::selection {
+  background: var(--c-accent);
+  color: var(--c-surface);
+}
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--c-line-strong) transparent;
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--c-line-strong);
+  border: 2px solid var(--c-bg);
+  border-radius: var(--radius-md);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--c-muted);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* ==========================================================================
+   3. PRIMITIVES « ui- »
+   Socle des refontes de pages à venir. Aucune de ces classes n'existe dans
+   admin.css : le recoupement est vide par construction (préfixe ui-).
+   ========================================================================== */
+
+/* ---- 3.1 Mécanique de pression partagée (boutons, boutons icône) ----------
+   Le composant « s'enfonce » dans la page : au repos l'ombre dure le décolle,
+   au survol il se soulève d'un pixel, à l'appui il s'écrase sur son ombre. */
+
+.ui-btn,
+.ui-iconbtn {
+  transition: transform 0.12s ease, box-shadow 0.12s ease,
+    background-color 0.12s ease, color 0.12s ease, border-color 0.12s ease;
+}
+
+.ui-btn:hover,
+.ui-iconbtn:hover {
+  transform: translate(-1px, -1px);
+  box-shadow: 4px 4px 0 0 var(--c-ink);
+}
+
+.ui-btn:active,
+.ui-iconbtn:active {
+  transform: translate(3px, 3px);
+  box-shadow: 0 0 0 0 var(--c-ink);
+}
+
+/* ---- 3.2 Boutons ---------------------------------------------------------- */
+
+.ui-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  min-height: 40px;
+  padding: 9px var(--space-4);
+  border: var(--border-w) solid var(--c-ink);
+  border-radius: var(--radius-sm);
+  background: var(--c-surface);
+  color: var(--c-text);
+  font-family: var(--font-sans);
+  font-size: var(--fs-sm);
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  text-decoration: none;
+  white-space: nowrap;
+  cursor: pointer;
+  box-shadow: var(--shadow-2);
+}
+
+.ui-btn:hover {
+  text-decoration: none;
+}
+
+.ui-btn--primary {
+  color: var(--c-surface);
+  background: var(--c-primary);
+}
+
+.ui-btn--primary:hover {
+  background: var(--c-primary-strong);
+}
+
+.ui-btn--accent {
+  color: var(--c-surface);
+  background: var(--c-accent);
+}
+
+.ui-btn--accent:hover {
+  background: var(--c-accent-strong);
+}
+
+.ui-btn--indigo {
+  color: var(--c-surface);
+  background: var(--c-indigo);
+}
+
+.ui-btn--indigo:hover {
+  background: var(--c-indigo-strong);
+}
+
+.ui-btn--soft {
+  color: var(--c-accent-ink);
+  background: var(--c-accent-soft);
+}
+
+.ui-btn--ghost {
+  color: var(--c-text);
+  background: transparent;
+}
+
+.ui-btn--ghost:hover {
+  background: var(--c-accent-wash);
+}
+
+.ui-btn--danger {
+  color: var(--c-surface);
+  background: var(--c-danger);
+}
+
+.ui-btn--danger:hover {
+  background: var(--c-danger-strong);
+}
+
+.ui-btn--sm {
+  min-height: 32px;
+  padding: 5px 10px;
+  font-size: var(--fs-xs);
+  box-shadow: var(--shadow-1);
+}
+
+.ui-btn--lg {
+  min-height: 48px;
+  padding: 12px var(--space-5);
+  font-size: var(--fs-base);
+  box-shadow: var(--shadow-3);
+}
+
+.ui-btn--block {
+  width: 100%;
+}
+
+.ui-btn:disabled,
+.ui-btn[disabled],
+.ui-btn.ui-btn--disabled,
+.ui-iconbtn:disabled {
+  opacity: 0.55;
+  transform: none;
+  box-shadow: none;
+  cursor: not-allowed;
+}
+
+/* ---- 3.3 Champs de formulaire --------------------------------------------- */
+
+.ui-field {
+  display: grid;
+  gap: 6px;
+  min-width: 0;
+}
+
+.ui-label {
+  color: var(--c-text);
+  font-size: var(--fs-sm);
+  font-weight: 700;
+}
+
+.ui-required {
+  color: var(--c-danger);
+}
+
+.ui-hint {
+  color: var(--c-muted);
+  font-size: var(--fs-xs);
+  line-height: 1.4;
+}
+
+.ui-error {
+  color: var(--c-danger);
+  font-size: var(--fs-xs);
+  font-weight: 600;
+}
+
+.ui-input,
+.ui-select,
+.ui-textarea {
+  width: 100%;
+  min-height: 42px;
+  padding: 9px var(--space-3);
+  border: var(--border-w) solid var(--c-line-strong);
+  border-radius: var(--radius-sm);
+  background: var(--c-surface);
+  color: var(--c-text);
+  font-family: var(--font-sans);
+  font-size: var(--fs-base);
+  transition: border-color 0.12s ease, box-shadow 0.12s ease;
+}
+
+.ui-input::placeholder,
+.ui-textarea::placeholder {
+  color: var(--c-placeholder);
+}
+
+/* Focus : le champ reçoit lui aussi une ombre dure, mais à l'accent. */
+.ui-input:focus,
+.ui-select:focus,
+.ui-textarea:focus {
+  outline: none;
+  border-color: var(--c-accent);
+  box-shadow: 3px 3px 0 0 var(--c-accent);
+}
+
+.ui-input:disabled,
+.ui-select:disabled,
+.ui-textarea:disabled {
+  border-color: var(--c-line);
+  background: var(--c-bg);
+  color: var(--c-muted);
+  cursor: not-allowed;
+}
+
+.ui-textarea {
+  min-height: 96px;
+  line-height: 1.5;
+  resize: vertical;
+}
+
+/* Flèche custom : SVG inline en data-URI, aucune ressource externe. */
+.ui-select {
+  padding-right: 34px;
+  appearance: none;
+  background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1.5l5 5 5-5' fill='none' stroke='%231E293B' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+}
+
+/* Grille de formulaire prête à l'emploi pour les refontes. */
+.ui-form-grid {
+  display: grid;
+  gap: var(--space-4);
+  min-width: 0;
+}
+
+.ui-form-grid--2 {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.ui-form-grid--full {
+  grid-column: 1 / -1;
+}
+
+@media (max-width: 640px) {
+  .ui-form-grid--2 {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ---- 3.4 Carte ------------------------------------------------------------ */
+
+.ui-card {
+  overflow: hidden;
+  border: var(--border-w) solid var(--c-ink);
+  border-radius: var(--radius-md);
+  background: var(--c-surface);
+  box-shadow: var(--shadow-3);
+}
+
+.ui-card-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding: var(--space-4) var(--space-5);
+  border-bottom: var(--border-w) solid var(--c-ink);
+  background: var(--c-surface);
+}
+
+.ui-card-head--tinted {
+  background: var(--c-accent-soft);
+}
+
+.ui-card-title {
+  margin: 0;
+  color: var(--c-primary);
+  font-size: var(--fs-lg);
+  font-weight: 800;
+  letter-spacing: -0.01em;
+}
+
+.ui-card-sub {
+  margin: 2px 0 0;
+  color: var(--c-muted);
+  font-size: var(--fs-sm);
+}
+
+.ui-card-body {
+  padding: var(--space-5);
+}
+
+/* ---- 3.5 Badge -------------------------------------------------------------
+   Contour dans la couleur du texte (currentColor) : l'étiquette est encadrée
+   par sa propre encre, façon étiquette de classeur. Pas d'ombre : les badges
+   restent plats, seuls les éléments interactifs se décollent. */
+
+.ui-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 24px;
+  padding: 2px 9px;
+  border: var(--border-w) solid currentColor;
+  border-radius: var(--radius-sm);
+  color: var(--c-muted);
+  background: var(--c-bg);
+  font-size: var(--fs-xs);
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+/* Statuts de soutenance (valeurs charte, via tokens) */
+.ui-badge--planifiee {
+  color: var(--c-badge-planifiee);
+  background: var(--c-badge-planifiee-bg);
+}
+
+.ui-badge--evaluee {
+  color: var(--c-badge-evaluee);
+  background: var(--c-badge-evaluee-bg);
+}
+
+.ui-badge--annulee {
+  color: var(--c-badge-annulee);
+  background: var(--c-badge-annulee-bg);
+}
+
+/* Rôles (valeurs charte, via tokens) */
+.ui-badge--admin {
+  color: var(--c-badge-admin);
+  background: var(--c-badge-admin-bg);
+}
+
+.ui-badge--encadreur {
+  color: var(--c-badge-encadreur);
+  background: var(--c-badge-encadreur-bg);
+}
+
+.ui-badge--etudiant {
+  color: var(--c-badge-etudiant);
+  background: var(--c-badge-etudiant-bg);
+}
+
+/* Variantes génériques */
+.ui-badge--accent {
+  color: var(--c-accent-ink);
+  background: var(--c-accent-soft);
+}
+
+.ui-badge--indigo {
+  color: var(--c-indigo);
+  background: var(--c-indigo-soft);
+}
+
+/* ---- 3.6 Alerte ------------------------------------------------------------ */
+
+.ui-alert {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  border: var(--border-w) solid currentColor;
+  border-radius: var(--radius-sm);
+  background: var(--c-surface);
+  color: var(--c-text);
+  font-size: var(--fs-sm);
+}
+
+.ui-alert strong {
+  font-weight: 800;
+}
+
+.ui-alert--success {
+  color: var(--c-success);
+  background: var(--c-success-soft);
+}
+
+.ui-alert--error {
+  color: var(--c-danger);
+  background: var(--c-danger-soft);
+}
+
+.ui-alert--warning {
+  color: var(--c-warning);
+  background: var(--c-warning-soft);
+}
+
+.ui-alert--info {
+  color: var(--c-accent-ink);
+  background: var(--c-accent-soft);
+}
+
+/* ---- 3.7 État vide ---------------------------------------------------------- */
+
+.ui-empty {
+  display: grid;
+  justify-items: center;
+  gap: var(--space-3);
+  padding: var(--space-6) var(--space-4);
+  color: var(--c-muted);
+  text-align: center;
+}
+
+.ui-empty-icon {
+  display: grid;
+  place-items: center;
+  width: 56px;
+  height: 56px;
+  border: var(--border-w) solid var(--c-ink);
+  border-radius: var(--radius-md);
+  background: var(--c-accent-soft);
+  color: var(--c-accent-ink);
+  box-shadow: var(--shadow-2);
+}
+
+.ui-empty-icon svg {
+  width: 26px;
+  height: 26px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.ui-empty-title {
+  margin: 0;
+  color: var(--c-text);
+  font-size: var(--fs-lg);
+  font-weight: 800;
+}
+
+.ui-empty-text {
+  margin: 0;
+  max-width: 46ch;
+  font-size: var(--fs-sm);
+}
+
+.ui-empty .ui-btn {
+  margin-top: var(--space-2);
+}
+
+/* ---- 3.8 Grille de statistiques ---------------------------------------------
+   L'icône des cartes de stats porte l'accent cyan (charte) sur un aplat doux
+   encré ; la valeur est posée en primaire, en chiffres tabulaires. */
+
+.ui-stats {
+  display: grid;
+  gap: var(--space-4);
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+}
+
+.ui-stat {
+  display: grid;
+  gap: var(--space-2);
+  padding: var(--space-4);
+  border: var(--border-w) solid var(--c-ink);
+  border-radius: var(--radius-md);
+  background: var(--c-surface);
+  box-shadow: var(--shadow-2);
+}
+
+.ui-stat-head {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.ui-stat-icon {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 38px;
+  height: 38px;
+  border: var(--border-w) solid var(--c-ink);
+  border-radius: var(--radius-sm);
+  background: var(--c-accent-soft);
+  color: var(--c-accent-ink);
+}
+
+.ui-stat-icon svg {
+  width: 19px;
+  height: 19px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.ui-stat-icon--indigo {
+  background: var(--c-indigo-soft);
+  color: var(--c-indigo);
+}
+
+.ui-stat-icon--success {
+  background: var(--c-success-soft);
+  color: var(--c-success);
+}
+
+.ui-stat-icon--warning {
+  background: var(--c-warning-soft);
+  color: var(--c-warning);
+}
+
+.ui-stat-label {
+  color: var(--c-muted);
+  font-size: var(--fs-xs);
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.ui-stat-value {
+  color: var(--c-primary);
+  font-size: var(--fs-2xl);
+  font-weight: 800;
+  line-height: 1.1;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---- 3.9 Tableau -------------------------------------------------------------
+   En-tête en aplat primaire (charte), filets internes fins, survol de ligne en
+   lavis cyan. Le cadre, l'arrondi et l'ombre vive sont portés par .ui-table-wrap. */
+
+.ui-table-wrap {
+  overflow-x: auto;
+  border: var(--border-w) solid var(--c-ink);
+  border-radius: var(--radius-md);
+  background: var(--c-surface);
+  box-shadow: var(--shadow-3);
+}
+
+.ui-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.ui-table thead th {
+  padding: 10px 14px;
+  background: var(--c-primary);
+  color: var(--c-surface);
+  font-size: var(--fs-xs);
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  text-align: left;
+  white-space: nowrap;
+}
+
+.ui-table tbody td {
+  padding: 12px 14px;
+  border-top: 1px solid var(--c-line);
+  color: var(--c-text);
+  font-size: var(--fs-sm);
+  vertical-align: top;
+}
+
+.ui-table tbody tr:hover {
+  background: var(--c-accent-wash);
+}
+
+.ui-table-num {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---- 3.10 Bouton / lien icône ------------------------------------------------- */
+
+.ui-iconbtn {
+  display: inline-grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  border: var(--border-w) solid var(--c-ink);
+  border-radius: var(--radius-sm);
+  background: var(--c-surface);
+  color: var(--c-text);
+  text-decoration: none;
+  cursor: pointer;
+  box-shadow: var(--shadow-1);
+}
+
+.ui-iconbtn svg {
+  width: 18px;
+  height: 18px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.ui-iconbtn:hover {
+  background: var(--c-accent-soft);
+  color: var(--c-accent-ink);
+  text-decoration: none;
+}
+
+.ui-iconbtn--danger:hover {
+  background: var(--c-danger-soft);
+  color: var(--c-danger);
+}
+
+/* ---- 3.11 Liens ---------------------------------------------------------------- */
+
+.ui-link {
+  color: var(--c-accent);
+  font-weight: 600;
+  text-decoration: none;
+  text-underline-offset: 2px;
+}
+
+.ui-link:hover {
+  color: var(--c-primary);
+  text-decoration: underline;
+  text-decoration-thickness: 2px;
+}
+
+.ui-link--quiet {
+  color: var(--c-muted);
+  font-weight: 500;
+}
+
+.ui-link--quiet:hover {
+  color: var(--c-accent);
+}
+
+/* ---- 3.12 Code en ligne --------------------------------------------------------- */
+
+.ui-code {
+  padding: 1px 5px;
+  border: 1px solid var(--c-line);
+  border-radius: var(--radius-xs);
+  background: var(--c-bg);
+  color: var(--c-text);
+  font-family: ui-monospace, Consolas, "Cascadia Mono", monospace;
+  font-size: 0.85em;
+}
+
+/* ---- 3.13 Aides de mise en page et typographie ----------------------------------- */
+
+.ui-stack {
+  display: grid;
+  gap: var(--space-4);
+  min-width: 0;
+}
+
+.ui-stack--tight {
+  gap: var(--space-2);
+}
+
+.ui-cluster {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-3);
+  min-width: 0;
+}
+
+.ui-cluster--tight {
+  gap: var(--space-2);
+}
+
+.ui-kicker {
+  color: var(--c-accent);
+  font-size: var(--fs-xs);
+  font-weight: 800;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+}
+
+/* ---- 3.14 Boîte de dialogue -------------------------------------------------------
+   Ombre dure élargie (8 px) pour marquer la profondeur ; voile plein sur le
+   backdrop, sans aucun flou. */
+
+.ui-dialog {
+  width: min(480px, calc(100vw - 32px));
+  max-height: min(80vh, 640px);
+  padding: 0;
+  overflow: hidden;
+  border: var(--border-w) solid var(--c-ink);
+  border-radius: var(--radius-lg);
+  background: var(--c-surface);
+  color: var(--c-text);
+  box-shadow: 8px 8px 0 0 var(--c-ink);
+}
+
+.ui-dialog::backdrop {
+  background: rgb(15 23 42 / 55%);
+}
+
+.ui-dialog-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding: var(--space-4) var(--space-5);
+  border-bottom: var(--border-w) solid var(--c-ink);
+}
+
+.ui-dialog-title {
+  margin: 0;
+  color: var(--c-primary);
+  font-size: var(--fs-lg);
+  font-weight: 800;
+}
+
+.ui-dialog-body {
+  padding: var(--space-5);
+  overflow-y: auto;
+}
+
+/* ==========================================================================
+   4. COQUILLE APPLICATIVE PARTAGÉE
+   Utilisée à l'identique par les espaces admin, encadreur et étudiant.
+   Un SEUL défilement : celui de la page. La sidebar est collante
+   (position: sticky) et ne défile jamais elle-même ; le panneau clair est
+   peint par le ::before de la coquille pour couvrir toute la hauteur de
+   colonne, quel que soit le contenu de la page.
+   --sidebar-width accompagne .admin-shell : il alimente grid-template-columns.
+   ========================================================================== */
+:root {
+  --sidebar-width: 264px; /* métrique de layout, pas un token de couleur */
+}
+
+.admin-shell {
+  position: relative;
+  display: grid;
+  grid-template-columns: var(--sidebar-width) minmax(0, 1fr);
+  align-items: start;
+}
+
+.admin-shell::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: var(--sidebar-width);
+  background: var(--c-surface);
+  border-right: var(--border-w) solid var(--c-ink);
+  box-shadow: 6px 0 0 0 rgb(15 23 42 / 5%);
+  z-index: 0;
+}
+
+/* Rail de la colonne latérale : il s'étire sur toute la hauteur du
+   contenu ; la sidebar qu'il contient est collante sur ~la fenêtre.
+   (Un position: sticky posé directement sur l'item de grid ne se déclenche
+   pas avec align-self: start dans Chromium — d'où ce rail.) */
+.admin-rail {
+  align-self: stretch;
+  position: relative;
+  z-index: 1;
+}
+
+.admin-sidebar {
+  position: sticky;
+  top: 0;
+  height: max-content;
+  max-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  color: var(--c-text);
+  /* Filet de secours sur les écrans bas : une barre ultra-fine n'apparaît
+     que si le contenu dépasse réellement la hauteur de la fenêtre ; en
+     situation normale la sidebar tient sous 100 vh et il n'existe qu'un
+     seul scroll, celui de la page. */
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: var(--c-line-strong) transparent;
+}
+
+.admin-sidebar::-webkit-scrollbar {
+  width: 5px;
+}
+
+.admin-sidebar::-webkit-scrollbar-thumb {
+  border-radius: 999px;
+  background: var(--c-line-strong);
+}
+
+.admin-sidebar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 58px;
+  padding: 10px 16px;
+  border-bottom: var(--border-w) solid var(--c-line);
+  color: var(--c-text);
+}
+
+.brand:hover {
+  color: var(--c-text);
+  text-decoration: none;
+}
+
+.brand-mark,
+.topbar-mark {
+  display: grid;
+  flex: 0 0 auto;
+  place-items: center;
+  border: var(--border-w) solid var(--c-ink);
+  border-radius: var(--radius-sm);
+  color: var(--c-surface);
+  background: var(--c-accent);
+  font-weight: 800;
+  letter-spacing: -0.04em;
+}
+
+.brand-mark {
+  width: 36px;
+  height: 36px;
+  background: var(--c-primary);
+  box-shadow: var(--shadow-1);
+}
+
+.brand-mark svg {
+  width: 22px;
+  height: 22px;
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 1.7;
+}
+
+.brand-copy {
+  display: grid;
+  gap: 2px;
+}
+
+.brand-copy strong {
+  color: var(--c-primary);
+  font-size: 15px;
+  letter-spacing: 0.01em;
+}
+
+.brand-copy small {
+  color: var(--c-muted);
+  font-size: 11px;
+}
+
+.nav-heading {
+  margin: 13px 16px 5px;
+  color: var(--c-muted);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+}
+
+.admin-nav {
+  display: grid;
+  align-content: start;
+  gap: 3px;
+  padding: 0 12px 12px;
+}
+
+.nav-group {
+  border-radius: var(--radius-sm);
+}
+
+.nav-group summary {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  min-height: 40px;
+  padding: 8px 10px;
+  border-radius: var(--radius-sm);
+  color: var(--c-text);
+  cursor: pointer;
+  list-style: none;
+  font-size: 13px;
+  font-weight: 600;
+  transition: background-color 120ms ease;
+}
+
+.nav-group summary::-webkit-details-marker {
+  display: none;
+}
+
+.nav-group summary::after {
+  margin-left: auto;
+  content: "+";
+  color: var(--c-muted);
+  font-size: 16px;
+}
+
+.nav-group[open] summary::after {
+  content: "−";
+  color: var(--c-surface);
+}
+
+.nav-group summary:hover {
+  background: var(--c-accent-soft);
+  text-decoration: none;
+}
+
+.nav-group[open] summary {
+  background: var(--c-primary);
+  color: var(--c-surface);
+  box-shadow: var(--shadow-1);
+}
+
+.nav-submenu {
+  display: grid;
+  gap: 3px;
+  padding: 2px 0 8px 17px;
+}
+
+.nav-submenu a {
+  padding: 6px 9px;
+  border-radius: var(--radius-xs);
+  color: var(--c-muted);
+  font-size: 12px;
+  font-weight: 550;
+  transition: background-color 120ms ease, color 120ms ease;
+}
+
+.nav-submenu a:hover {
+  color: var(--c-accent-ink);
+  background: var(--c-accent-soft);
+  text-decoration: none;
+}
+
+.nav-submenu a.active {
+  color: var(--c-primary);
+  font-weight: 700;
+}
+
+.nav-icon {
+  display: grid;
+  width: 26px;
+  height: 26px;
+  flex: 0 0 auto;
+  place-items: center;
+  border: var(--border-w) solid var(--c-line-strong);
+  border-radius: var(--radius-xs);
+  color: var(--c-primary);
+  background: var(--c-bg);
+}
+
+.nav-icon svg {
+  width: 16px;
+  height: 16px;
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 1.7;
+}
+
+.nav-icon svg circle {
+  fill: var(--c-surface);
+}
+
+.nav-group summary:hover .nav-icon {
+  border-color: var(--c-ink);
+}
+
+.nav-group[open] summary .nav-icon {
+  border-color: var(--c-ink);
+  color: var(--c-surface);
+  background: var(--c-primary);
+  box-shadow: var(--shadow-1);
+}
+
+.sidebar-logout {
+  margin-top: auto;
+  padding: 12px;
+  border-top: var(--border-w) solid var(--c-line);
+}
+
+.sidebar-logout button {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  min-height: 40px;
+  padding: 9px 12px;
+  border: var(--border-w) solid var(--c-line-strong);
+  border-radius: var(--radius-sm);
+  color: var(--c-text);
+  background: var(--c-surface);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 600;
+  transition: border-color 120ms ease, background-color 120ms ease;
+}
+
+.logout-icon {
+  width: 16px;
+  height: 16px;
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 1.8;
+}
+
+.sidebar-logout button:hover {
+  border-color: var(--c-ink);
+  color: var(--c-accent-ink);
+  background: var(--c-accent-soft);
+}
+
+.admin-main {
+  min-width: 0;
+  padding-bottom: clamp(24px, 3vw, 42px);
+  background: var(--c-bg);
+}
+
+.admin-topbar {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  display: flex;
+  min-height: 72px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 10px clamp(20px, 3vw, 42px);
+  border-bottom: var(--border-w) solid var(--c-ink);
+  background: var(--c-surface);
+}
+
+.topbar-context,
+.topbar-account {
+  display: flex;
+  align-items: center;
+}
+
+.topbar-context {
+  gap: 12px;
+}
+
+.topbar-mark {
+  width: 34px;
+  height: 34px;
+  border-radius: var(--radius-sm);
+}
+
+.topbar-mark svg {
+  width: 19px;
+  height: 19px;
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 1.7;
+}
+
+.topbar-mark svg circle {
+  fill: var(--c-accent);
+}
+
+.topbar-context > div,
+.account-label {
+  display: grid;
+  gap: 1px;
+}
+
+.topbar-eyebrow {
+  color: var(--c-muted);
+  font-size: 10px;
+  font-weight: 650;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.topbar-section {
+  color: var(--c-text);
+  font-size: 13px;
+  font-weight: 650;
+}
+
+.topbar-account {
+  gap: 10px;
+  padding-left: 18px;
+  border-left: var(--border-w) solid var(--c-line);
+}
+
+.account-avatar {
+  display: grid;
+  width: 38px;
+  height: 38px;
+  place-items: center;
+  border: var(--border-w) solid var(--c-ink);
+  border-radius: var(--radius-sm);
+  color: var(--c-surface);
+  background: var(--c-primary);
+  box-shadow: var(--shadow-1);
+}
+
+.account-avatar svg {
+  width: 21px;
+  height: 21px;
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 1.7;
+}
+
+.account-label strong {
+  color: var(--c-text);
+  font-size: 12px;
+}
+
+.account-label small {
+  color: var(--c-muted);
+  font-size: 11px;
+}
+
+/* ==========================================================================
+   5. COMPOSANTS PARTAGÉS
+   Composants utilisés par au moins deux parties de l'application.
+   ========================================================================== */
+.page-heading,
+.admin-main > .alert,
+.admin-main > .card {
+  margin-right: clamp(20px, 3vw, 42px);
+  margin-left: clamp(20px, 3vw, 42px);
+}
+
+.page-heading {
+  padding-top: 30px;
+}
+
+.admin-form-page .page-heading {
+  padding-top: 17px;
+  margin-bottom: 13px;
+}
+
+.admin-form-page .page-heading h1 {
+  font-size: clamp(22px, 2.5vw, 28px);
+}
+
+.admin-form-page .page-heading p {
+  font-size: 13px;
+}
+
+.page-heading-copy {
+  display: grid;
+  gap: 5px;
+}
+
+.page-eyebrow {
+  color: var(--c-accent);
+  font-size: 11px;
+  font-weight: 750;
+  letter-spacing: 0.075em;
+  text-transform: uppercase;
+}
+
+.page-heading-copy h1 {
+  margin-bottom: 4px;
+}
+
+.page-heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 18px;
+  margin-bottom: 24px;
+}
+
+.page-heading h1 {
+  margin: 0 0 5px;
+  color: var(--c-primary);
+  font-size: clamp(24px, 3vw, 32px);
+  letter-spacing: -0.035em;
+}
+
+.page-heading p {
+  margin: 0;
+  color: var(--c-muted);
+  font-size: 14px;
+}
+
+.card {
+  overflow: hidden;
+  border: var(--border-w) solid var(--c-ink);
+  border-radius: var(--radius-md);
+  background: var(--c-surface);
+  box-shadow: var(--shadow-3);
+}
+
+.primary-cell {
+  color: var(--c-ink);
+  font-weight: 600;
+}
+
+.card-body {
+  padding: 24px;
+}
+
+.admin-form-page .card {
+  max-width: 1040px;
+}
+
+.form-history-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 11px 16px;
+  border-bottom: var(--border-w) solid var(--c-line);
+}
+
+.form-history-heading h2 {
+  margin: 2px 0 0;
+  color: var(--c-primary);
+  font-size: 14px;
+}
+
+.form-history-heading .page-eyebrow {
+  font-size: 9px;
+}
+
+.form-history-empty {
+  margin: 0;
+  padding: 13px 16px;
+  color: var(--c-muted);
+  font-size: 12px;
+}
+
+.admin-form-page .card-body {
+  padding: 18px 22px;
+}
+
+.form-card-heading {
+  margin: 0 0 22px;
+  padding-bottom: 17px;
+  border-bottom: var(--border-w) solid var(--c-line);
+}
+
+.admin-form-page .form-card-heading {
+  margin-bottom: 14px;
+  padding-bottom: 12px;
+}
+
+.admin-form-page .form-card-heading h2 {
+  margin: 5px 0 1px;
+  font-size: 16px;
+}
+
+.admin-form-page .form-card-heading p {
+  font-size: 12px;
+}
+
+.form-card-heading h2 {
+  margin: 8px 0 3px;
+  color: var(--c-primary);
+  font-size: 17px;
+  letter-spacing: -0.01em;
+}
+
+.form-card-heading p {
+  margin: 0;
+  color: var(--c-muted);
+  font-size: 13px;
+}
+
+.form-mode {
+  display: inline-flex;
+  align-items: center;
+  min-height: 23px;
+  padding: 2px 8px;
+  border: var(--border-w) solid currentColor;
+  border-radius: var(--radius-sm);
+  color: var(--c-accent-ink);
+  background: var(--c-accent-soft);
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.table-wrap {
+  overflow-x: auto;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+}
+
+thead th:last-child {
+  width: 190px;
+}
+
+th {
+  padding: 13px 16px;
+  border-bottom: var(--border-w) solid var(--c-ink);
+  color: var(--c-surface);
+  background: var(--c-primary);
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.025em;
+}
+
+td {
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--c-line);
+  font-size: 14px;
+}
+
+tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+tbody tr:nth-child(even) td {
+  background: var(--c-bg);
+}
+
+tbody tr:hover {
+  background: var(--c-accent-wash);
+}
+
+tbody tr:hover td {
+  background: var(--c-accent-wash);
+}
+
+.row-action {
+  display: inline-flex;
+  min-height: 32px;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 5px 9px;
+  border: var(--border-w) solid transparent;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  font: inherit;
+  font-size: 12px;
+  font-weight: 650;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.row-action svg {
+  width: 14px;
+  height: 14px;
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 1.7;
+}
+
+.row-action-edit {
+  border-color: var(--c-accent);
+  color: var(--c-accent-ink);
+  background: var(--c-accent-soft);
+}
+
+.row-action-edit:hover {
+  border-color: var(--c-accent-ink);
+  background: var(--c-accent-soft);
+  color: var(--c-accent-ink);
+  text-decoration: none;
+}
+
+.row-action:focus-visible {
+  outline: 3px solid var(--c-accent);
+  outline-offset: 2px;
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 40px;
+  padding: 9px 15px;
+  border: var(--border-w) solid var(--c-ink);
+  border-radius: var(--radius-sm);
+  font: inherit;
+  font-weight: 650;
+  cursor: pointer;
+  box-shadow: var(--shadow-1);
+  transition: transform 0.12s ease, box-shadow 0.12s ease,
+    background-color 0.12s ease, color 0.12s ease, border-color 0.12s ease;
+}
+
+.btn:hover {
+  text-decoration: none;
+  transform: translate(-1px, -1px);
+  box-shadow: var(--shadow-2);
+}
+
+.btn:active {
+  transform: translate(2px, 2px);
+  box-shadow: none;
+}
+
+.btn-primary {
+  color: var(--c-surface);
+  background: var(--c-primary);
+}
+
+.btn-primary:hover {
+  color: var(--c-surface);
+  background: var(--c-primary-strong);
+}
+
+.btn-secondary {
+  color: var(--c-indigo);
+  border-color: var(--c-ink);
+  background: var(--c-indigo-soft);
+}
+
+.btn-secondary:hover {
+  border-color: var(--c-indigo);
+  background: var(--c-indigo-soft);
+  color: var(--c-indigo);
+}
+
+.form-grid {
+  display: grid;
+  gap: 18px;
+  max-width: 720px;
+}
+
+.admin-form-page .form-grid {
+  width: 100%;
+  max-width: none;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px 18px;
+}
+
+.admin-form-page .field {
+  gap: 4px;
+}
+
+.admin-form-page .field input,
+.admin-form-page .field select {
+  min-height: 40px;
+}
+
+.admin-form-page .field-hint {
+  line-height: 1.35;
+}
+
+.field {
+  display: grid;
+  gap: 6px;
+}
+
+.field label {
+  font-weight: 650;
+  font-size: 13px;
+}
+
+.required-mark {
+  color: var(--c-danger);
+}
+
+.field-hint {
+  color: var(--c-muted);
+  font-size: 12px;
+}
+
+.field input,
+.field select {
+  width: 100%;
+  min-height: 42px;
+  padding: 9px 11px;
+  border: var(--border-w) solid var(--c-line-strong);
+  border-radius: var(--radius-sm);
+  color: var(--c-text);
+  background: var(--c-surface);
+  font: inherit;
+}
+
+.field input:focus,
+.field select:focus {
+  border-color: var(--c-accent);
+  outline: none;
+  box-shadow: 3px 3px 0 0 var(--c-accent);
+}
+
+.field input::placeholder {
+  color: var(--c-placeholder);
+}
+
+.field select:disabled,
+.field input:disabled {
+  color: var(--c-muted);
+  background: var(--c-bg);
+  border-color: var(--c-line);
+  cursor: not-allowed;
+}
+
+.form-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 6px;
+}
+
+.admin-form-page .form-actions {
+  grid-column: 1 / -1;
+  margin-top: 0;
+}
+
+.form-actions .btn {
+  min-width: 120px;
+}
+
+.btn:focus-visible,
+a:focus-visible,
+button:focus-visible,
+.nav-group summary:focus-visible {
+  outline: 3px solid var(--c-accent);
+  outline-offset: 2px;
+}
+
+.alert {
+  margin: 0 0 18px;
+  padding: 12px 15px;
+  border: var(--border-w) solid currentColor;
+  border-radius: var(--radius-sm);
+  background: var(--c-surface);
+}
+
+.alert-success {
+  color: var(--c-success);
+  background: var(--c-success-soft);
+}
+
+.alert-error {
+  color: var(--c-danger);
+  background: var(--c-danger-soft);
+}
+
+.alert-warning {
+  color: var(--c-warning);
+  background: var(--c-warning-soft);
+}
+
+.empty-state {
+  display: grid;
+  justify-items: center;
+  gap: 9px;
+  padding: 48px 20px;
+  color: var(--c-muted);
+  text-align: center;
+}
+
+.empty-state-icon {
+  display: grid;
+  width: 52px;
+  height: 52px;
+  margin-bottom: 4px;
+  place-items: center;
+  border: var(--border-w) solid var(--c-ink);
+  border-radius: var(--radius-md);
+  color: var(--c-accent-ink);
+  background: var(--c-accent-soft);
+  box-shadow: var(--shadow-2);
+}
+
+.empty-state-icon svg {
+  width: 25px;
+  height: 25px;
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 1.6;
+}
+
+.empty-state-icon svg circle {
+  fill: var(--c-accent-soft);
+}
+
+.empty-state h2 {
+  margin: 0;
+  color: var(--c-text);
+  font-size: 17px;
+}
+
+.empty-state p {
+  max-width: 420px;
+  margin: 0 0 7px;
+  font-size: 13px;
+}
+
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  min-height: 24px;
+  padding: 3px 9px;
+  border: var(--border-w) solid currentColor;
+  border-radius: var(--radius-sm);
+  background: var(--c-bg);
+  font-size: 12px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.status-active {
+  color: var(--c-success);
+  background: var(--c-success-soft);
+}
+
+.status-inactive {
+  color: var(--c-danger);
+  background: var(--c-danger-soft);
+}
+
+.history-total {
+  display: inline-flex;
+  align-items: center;
+  padding: 6px 10px;
+  border: var(--border-w) solid var(--c-line);
+  border-radius: var(--radius-sm);
+  background: var(--c-bg);
+  color: var(--c-muted);
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+.history-date {
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+.role-badge {
+  display: inline-flex;
+  align-items: center;
+  min-height: 24px;
+  padding: 2px 8px;
+  border: var(--border-w) solid currentColor;
+  border-radius: var(--radius-sm);
+  background: var(--c-bg);
+  font-size: 11px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.role-ADMIN {
+  color: var(--c-badge-admin);
+  background: var(--c-badge-admin-bg);
+}
+
+.role-ENCADREUR {
+  color: var(--c-badge-encadreur);
+  background: var(--c-badge-encadreur-bg);
+}
+
+.role-ETUDIANT {
+  color: var(--c-badge-etudiant);
+  background: var(--c-badge-etudiant-bg);
+}
+
+.status-PLANIFIEE {
+  color: var(--c-badge-planifiee);
+  background: var(--c-badge-planifiee-bg);
+}
+
+.status-EVALUEE {
+  color: var(--c-badge-evaluee);
+  background: var(--c-badge-evaluee-bg);
+}
+
+.status-ANNULEE {
+  color: var(--c-badge-annulee);
+  background: var(--c-badge-annulee-bg);
+}
+
+.info-list {
+  display: grid;
+  gap: 0;
+  margin: 0;
+}
+
+.info-list > div {
+  display: grid;
+  grid-template-columns: minmax(140px, 0.35fr) minmax(0, 1fr);
+  gap: 14px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--c-line);
+}
+
+.info-list > div:last-child {
+  border-bottom: 0;
+}
+
+.info-list dt {
+  color: var(--c-muted);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.info-list dd {
+  margin: 0;
+  overflow-wrap: anywhere;
+  color: var(--c-text);
+  font-size: 14px;
+}
+
+.member-list {
+  margin: 8px 0 0;
+  padding-left: 18px;
+  color: var(--c-muted);
+  font-size: 12px;
+}
+
+.member-list li {
+  margin: 2px 0;
+}
+
+.field textarea {
+  width: 100%;
+  min-height: 96px;
+  padding: 9px 11px;
+  border: var(--border-w) solid var(--c-line-strong);
+  border-radius: var(--radius-sm);
+  color: var(--c-text);
+  background: var(--c-surface);
+  font: inherit;
+  resize: vertical;
+}
+
+.field textarea:focus {
+  border-color: var(--c-accent);
+  outline: none;
+  box-shadow: 3px 3px 0 0 var(--c-accent);
+}
+
+.field textarea:disabled,
+.field input:disabled {
+  color: var(--c-muted);
+  background: var(--c-bg);
+  border-color: var(--c-line);
+  cursor: not-allowed;
+}
+
+/* ==========================================================================
+   6. RESPONSIVE DE LA COQUILLE ET DES COMPOSANTS PARTAGÉS
+   ========================================================================== */
+@media (max-width: 760px) {
+  .admin-shell {
+    grid-template-columns: 1fr;
+  }
+
+  .admin-shell::before {
+    display: none;
+  }
+
+  .admin-rail {
+    align-self: stretch;
+  }
+
+  .admin-sidebar {
+    position: static;
+    height: auto;
+    min-height: 0;
+    max-height: none;
+    overflow: visible;
+    background: var(--c-surface);
+    border-bottom: var(--border-w) solid var(--c-ink);
+  }
+
+  .brand {
+    min-height: 60px;
+  }
+
+  .nav-heading {
+    margin-top: 14px;
+  }
+
+  .sidebar-logout {
+    margin-top: 12px;
+  }
+
+  .admin-topbar {
+    min-height: 64px;
+  }
+
+  .page-heading {
+    align-items: stretch;
+    flex-direction: column;
+    padding-top: 24px;
+  }
+
+  .page-heading .btn {
+    align-self: flex-start;
+  }
+
+  thead th:last-child {
+    width: auto;
+  }
+
+  .card-body {
+    padding: 18px;
+  }
+
+  .admin-form-page .form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .admin-form-page .form-actions {
+    grid-column: auto;
+  }
+}
+
+@media (max-height: 700px) and (min-width: 761px) {
+  .admin-form-page .admin-topbar {
+    min-height: 58px;
+  }
+
+  .admin-form-page .page-heading {
+    padding-top: 10px;
+    margin-bottom: 9px;
+  }
+
+  .admin-form-page .page-heading h1 {
+    font-size: 23px;
+  }
+
+  .admin-form-page .card-body {
+    padding: 14px 20px;
+  }
+
+  .admin-form-page .form-grid {
+    gap: 9px 16px;
+  }
+}

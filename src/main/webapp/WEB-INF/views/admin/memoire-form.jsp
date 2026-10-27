@@ -6,7 +6,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Ajout / Édition Mémoire | PGS-PFE</title>
-    <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/admin.css?v=20261015-admin-menu">
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/theme.css?v=20261021-shell-light">
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/admin.css?v=20261021-shell-light">
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/sidebar-toggle.css?v=20261027-3">
 </head>
 <body>
 <div class="admin-shell">
@@ -29,10 +31,26 @@
             <form class="form-grid" method="post" action="${pageContext.request.contextPath}/admin/memoires/enregistrer">
                 <input type="hidden" name="csrfToken" value="<c:out value='${csrfToken}'/>">
                 <input type="hidden" name="id" value="<c:out value='${element.id}'/>">
-                <div class="field"><label for="titre">Titre <span class="required-mark" aria-hidden="true">*</span></label><input id="titre" name="titre" maxlength="200" required autocomplete="off" placeholder="Ex. Plateforme de gestion des soutenances" value="<c:out value='${not empty param.titre ? param.titre : element.titre}'/>"><small class="field-hint">Titre du projet de fin d’études, 200 caractères maximum.</small></div>
-                <div class="field"><label for="encadreurId">Encadreur <span class="required-mark" aria-hidden="true">*</span></label><select id="encadreurId" name="encadreurId" required><option value="">Choisir un encadreur</option><c:forEach var="encadreur" items="${encadreurs}"><option value="<c:out value='${encadreur.id}'/>" ${encadreur.id eq selectedEncadreurId ? 'selected' : ''}><c:out value="${encadreur.prenom}"/> <c:out value="${encadreur.nom}"/> — <c:out value="${encadreur.grade.libelle}"/></option></c:forEach></select></div>
-                <div class="field"><label for="dateDepot">Date de dépôt</label><input id="dateDepot" name="dateDepot" type="date" value="<c:out value='${not empty param.dateDepot ? param.dateDepot : element.dateDepot}'/>"><small class="field-hint">Laisse vide si le mémoire n’est pas encore déposé.</small></div>
-                <div class="field field-full"><label for="description">Description</label><textarea id="description" name="description" rows="4" placeholder="Résumé du sujet, technologies utilisées…"><c:out value="${not empty param.description ? param.description : element.description}"/></textarea></div>
+                <div class="float-field">
+                    <div class="float-field-box">
+                        <input class="float-field-input" id="titre" name="titre" maxlength="200" required autocomplete="off" placeholder="Ex. Plateforme de gestion des soutenances" value="<c:out value='${not empty param.titre ? param.titre : element.titre}'/>">
+                        <label class="float-field-label" for="titre">Titre <span class="required-mark" aria-hidden="true">*</span></label>
+                    </div>
+                    <small class="float-field-hint">Titre du projet de fin d’études, 200 caractères maximum.</small>
+                </div>
+                <div class="float-field">
+                    <div class="float-field-box">
+                        <select id="encadreurId" name="encadreurId" required class="float-field-select"><option value=""></option><c:forEach var="encadreur" items="${encadreurs}"><option value="<c:out value='${encadreur.id}'/>" ${encadreur.id eq selectedEncadreurId ? 'selected' : ''}><c:out value="${encadreur.prenom}"/> <c:out value="${encadreur.nom}"/> — <c:out value="${encadreur.grade.libelle}"/></option></c:forEach></select>
+                        <label class="float-field-label" for="encadreurId">Encadreur <span class="required-mark" aria-hidden="true">*</span></label>
+                    </div>
+                </div>
+                <div class="field"><label for="dateDepot">Date de dépôt</label><input id="dateDepot" name="dateDepot" type="date" max="<c:out value='${dateDepotMax}'/>" value="<c:out value='${not empty param.dateDepot ? param.dateDepot : element.dateDepot}'/>"><small class="field-hint">Laisse vide si le mémoire n’est pas encore déposé. Une date future n’est pas acceptée.</small><small id="dateDepotError" class="field-hint" role="status" aria-live="polite"></small></div>
+                <div class="float-field field-full">
+                    <div class="float-field-box">
+                        <textarea id="description" name="description" rows="4" class="float-field-textarea" placeholder="Résumé du sujet, technologies utilisées…"><c:out value="${not empty param.description ? param.description : element.description}"/></textarea>
+                        <label class="float-field-label" for="description">Description</label>
+                    </div>
+                </div>
                 <div class="form-actions">
                     <button class="btn btn-primary" type="submit">Enregistrer</button>
                     <a class="btn btn-secondary" href="${pageContext.request.contextPath}/admin/memoires">Annuler</a>
@@ -42,5 +60,22 @@
         <%@ include file="admin-history.jspf" %>
     </main>
 </div>
+<script>
+(function () {
+    var dateInput = document.getElementById('dateDepot');
+    var dateError = document.getElementById('dateDepotError');
+    if (!dateInput || !dateError) {
+        return;
+    }
+    dateInput.addEventListener('change', function () {
+        if (dateInput.value && dateInput.max && dateInput.value > dateInput.max) {
+            dateInput.value = '';
+            dateError.textContent = 'La date de dépôt ne peut pas être postérieure à aujourd’hui.';
+            return;
+        }
+        dateError.textContent = '';
+    });
+})();
+</script>
 </body>
 </html>

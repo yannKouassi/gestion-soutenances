@@ -30,6 +30,7 @@ public class MemoireServlet extends HttpServlet {
     private static final String SCREEN = "MEMOIRE";
     private static final String LIST_VIEW = "/WEB-INF/views/admin/memoire-list.jsp";
     private static final String FORM_VIEW = "/WEB-INF/views/admin/memoire-form.jsp";
+    private static final String DETAIL_VIEW = "/WEB-INF/views/admin/memoire-detail.jsp";
     private static final int HISTORY_PAGE_SIZE = 4;
     private static final DateTimeFormatter HISTORY_DATE_FORMAT = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
 
@@ -50,7 +51,19 @@ public class MemoireServlet extends HttpServlet {
         String[] path = pathParts(request);
 
         try {
+            if (path.length == 0 && "detail".equals(request.getParameter("vue"))) {
+                Memoire element = memoireService.findById(parseId(request.getParameter("id"))).orElse(null);
+                if (element == null) {
+                    response.sendError(HttpServletResponse.SC_NOT_FOUND);
+                    return;
+                }
+                request.setAttribute("element", element);
+                request.getRequestDispatcher(DETAIL_VIEW).forward(request, response);
+                return;
+            }
+
             if (path.length == 0 && "form".equals(request.getParameter("vue"))) {
+                request.setAttribute("dateDepotMax", LocalDate.now());
                 String rawId = request.getParameter("id");
                 Memoire element = rawId == null || rawId.isBlank()
                         ? Memoire.create()
@@ -79,6 +92,7 @@ public class MemoireServlet extends HttpServlet {
             }
 
             if (path.length == 2 && "modifier".equals(path[1])) {
+                request.setAttribute("dateDepotMax", LocalDate.now());
                 Memoire element = memoireService.findById(parseId(path[0])).orElse(null);
                 if (element == null) {
                     response.sendError(HttpServletResponse.SC_NOT_FOUND);
@@ -147,6 +161,11 @@ public class MemoireServlet extends HttpServlet {
             }
             showFormError(request, response, exception.getMessage());
         } catch (EJBException exception) {
+            String validationError = findValidationError(exception);
+            if (validationError != null && !"supprimer".equals(path[0])) {
+                showFormError(request, response, validationError);
+                return;
+            }
             getServletContext().log("Échec d’une opération sur les mémoires " + TYPE, exception);
             if ("supprimer".equals(path[0])) {
                 redirect(request, response, "erreur",
@@ -184,6 +203,7 @@ public class MemoireServlet extends HttpServlet {
             throws ServletException, IOException {
         request.setAttribute("type", TYPE);
         request.setAttribute("titre", TITLE);
+        request.setAttribute("dateDepotMax", LocalDate.now());
         request.setAttribute("erreur", error);
         Memoire element = Memoire.create();
         String rawId = request.getParameter("id");
@@ -261,6 +281,20 @@ public class MemoireServlet extends HttpServlet {
 
     private static String clean(String value) {
         return value == null ? "" : value.trim();
+    }
+
+    private static String findValidationError(Throwable exception) {
+        Throwable cause = exception;
+        while (cause != null) {
+            if (cause instanceof IllegalArgumentException && cause.getMessage() != null) {
+                return cause.getMessage();
+            }
+            if (cause.getCause() == cause) {
+                break;
+            }
+            cause = cause.getCause();
+        }
+        return null;
     }
 
     private static String actionLabel(String typeAction) {

@@ -6,7 +6,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title><c:out value="${titre}"/> | PGS-PFE</title>
-    <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/admin.css?v=20261015-admin-menu">
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/theme.css?v=20261021-shell-light">
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/encadreur.css?v=20261021-shell-light">
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/sidebar-toggle.css?v=20261027-3">
 </head>
 <body>
 <div class="admin-shell">
@@ -31,14 +33,13 @@
                             <td class="primary-cell"><c:out value="${ligne.convocation.soutenance.memoire.titre}"/></td>
                             <td><c:out value="${ligne.convocation.soutenance.salle.nomSalle}"/></td>
                             <td><span class="status-badge status-${ligne.convocation.soutenance.statut}"><c:out value="${ligne.convocation.soutenance.statut}"/></span></td>
-                            <td><c:out value="${ligne.jury.taille}"/> membres <span class="history-total"><c:out value="${ligne.jury.notesSoumises}"/>/<c:out value="${ligne.jury.taille}"/> notes</span>
-                                <ul class="member-list"><c:forEach var="membre" items="${ligne.jury.membres}">
-                                    <li><c:out value="${membre.nomComplet}"/><c:if test="${membre.actuel}"> (moi)</c:if> — <c:choose><c:when test="${membre.note}">noté</c:when><c:otherwise>en attente</c:otherwise></c:choose></li>
-                                </c:forEach></ul>
-                            </td>
+                            <td><c:out value="${ligne.jury.taille}"/> membres <span class="history-total"><c:out value="${ligne.jury.notesSoumises}"/>/<c:out value="${ligne.jury.taille}"/> notes</span></td>
                             <td><c:choose><c:when test="${empty ligne.convocation.note}">—</c:when><c:otherwise><c:out value="${ligne.convocation.note}"/>/20</c:otherwise></c:choose></td>
                             <td><c:choose><c:when test="${empty ligne.jury.moyenne}">—</c:when><c:otherwise><c:out value="${ligne.jury.moyenne}"/>/20</c:otherwise></c:choose></td>
-                            <td><c:choose><c:when test="${empty ligne.convocation.note}"><a class="row-action row-action-edit" href="${pageContext.request.contextPath}/encadreur/mes-jurys?vue=note&amp;id=${ligne.convocation.soutenance.id}">Saisir ma note</a></c:when><c:otherwise><a class="row-action row-action-edit" href="${pageContext.request.contextPath}/encadreur/mes-jurys?vue=note&amp;id=${ligne.convocation.soutenance.id}">Voir ma note</a></c:otherwise></c:choose></td>
+                            <td class="actions">
+                                <a class="row-action" href="${pageContext.request.contextPath}/encadreur/mes-jurys?vue=detail&amp;id=${ligne.convocation.soutenance.id}">Détails</a>
+                                <a class="row-action row-action-edit" href="${pageContext.request.contextPath}/encadreur/mes-jurys?vue=note&amp;id=${ligne.convocation.soutenance.id}"><c:choose><c:when test="${empty ligne.convocation.note}">Saisir ma note</c:when><c:otherwise>Voir ma note</c:otherwise></c:choose></a>
+                            </td>
                         </tr>
                     </c:forEach></tbody>
                 </table></div>

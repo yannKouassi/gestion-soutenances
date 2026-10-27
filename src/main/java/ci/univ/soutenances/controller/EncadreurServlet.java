@@ -16,6 +16,7 @@ import ci.univ.soutenances.model.ConvocationVue;
 import ci.univ.soutenances.model.Encadreur;
 import ci.univ.soutenances.model.Evaluation;
 import ci.univ.soutenances.model.Etudiant;
+import ci.univ.soutenances.model.EtudiantSoutenanceVue;
 import ci.univ.soutenances.model.JuryVue;
 import ci.univ.soutenances.model.MembreJuryVue;
 import ci.univ.soutenances.model.SessionUser;
@@ -149,6 +150,37 @@ public class EncadreurServlet extends HttpServlet {
             return;
         }
         List<Evaluation> convocations = encadreurService.findEvaluationsByEncadreur(encadreur.getId());
+        if ("mes-jurys".equals(section) && "detail".equals(request.getParameter("vue"))) {
+            UUID soutenanceId = parseId(request.getParameter("id"));
+            if (convocations.stream().noneMatch(
+                    convocation -> convocation.getSoutenance().getId().equals(soutenanceId))) {
+                response.sendError(HttpServletResponse.SC_NOT_FOUND);
+                return;
+            }
+            Soutenance soutenance = encadreurService.findSoutenanceById(soutenanceId).orElse(null);
+            if (soutenance == null) {
+                response.sendError(HttpServletResponse.SC_NOT_FOUND);
+                return;
+            }
+            List<Evaluation> jury = encadreurService.findEvaluationsBySoutenance(soutenanceId);
+            Evaluation maConvocation = findMine(jury, encadreur.getId());
+            if (maConvocation == null) {
+                response.sendError(HttpServletResponse.SC_NOT_FOUND);
+                return;
+            }
+            request.setAttribute("type", section);
+            request.setAttribute("titre", TITLES.get(section));
+            request.setAttribute("encadreur", encadreur);
+            request.setAttribute("soutenance", soutenance);
+            request.setAttribute("jury", jury);
+            request.setAttribute("juryResume", buildJury(jury, encadreur.getId(), soutenanceId));
+            request.setAttribute("maConvocation", maConvocation);
+            request.setAttribute("moyenne", encadreurService.calculerMoyenne(soutenanceId).orElse(null));
+            request.setAttribute("dateAffichee", formatDate(soutenance));
+            setLogoutToken(request);
+            request.getRequestDispatcher("/WEB-INF/views/encadreur/jury-detail.jsp").forward(request, response);
+            return;
+        }
         request.setAttribute("type", section);
         request.setAttribute("titre", TITLES.get(section));
         request.setAttribute("encadreur", encadreur);
@@ -166,12 +198,48 @@ public class EncadreurServlet extends HttpServlet {
             return;
         }
         List<Etudiant> etudiants = encadreurService.findEtudiantsEncadres(encadreur.getId());
+        if ("detail".equals(request.getParameter("vue"))) {
+            UUID etudiantId = parseId(request.getParameter("id"));
+            Etudiant etudiant = etudiants.stream()
+                    .filter(value -> value.getId().equals(etudiantId))
+                    .findFirst()
+                    .orElse(null);
+            if (etudiant == null) {
+                response.sendError(HttpServletResponse.SC_NOT_FOUND);
+                return;
+            }
+            request.setAttribute("type", "mes-etudiants");
+            request.setAttribute("titre", TITLES.get("mes-etudiants"));
+            request.setAttribute("encadreur", encadreur);
+            request.setAttribute("ligne", buildEtudiantSoutenanceVue(etudiant));
+            setLogoutToken(request);
+            request.getRequestDispatcher("/WEB-INF/views/encadreur/etudiant-detail.jsp").forward(request, response);
+            return;
+        }
+        List<EtudiantSoutenanceVue> encadrements = new ArrayList<>(etudiants.size());
+        for (Etudiant etudiant : etudiants) {
+            encadrements.add(buildEtudiantSoutenanceVue(etudiant));
+        }
         request.setAttribute("type", "mes-etudiants");
         request.setAttribute("titre", TITLES.get("mes-etudiants"));
         request.setAttribute("encadreur", encadreur);
-        request.setAttribute("etudiants", etudiants);
+        request.setAttribute("encadrements", encadrements);
         setLogoutToken(request);
         request.getRequestDispatcher("/WEB-INF/views/encadreur/mes-etudiants.jsp").forward(request, response);
+    }
+
+    private EtudiantSoutenanceVue buildEtudiantSoutenanceVue(Etudiant etudiant) {
+        Soutenance soutenance = etudiant.getMemoire() == null
+                ? null
+                : encadreurService.findSoutenanceByMemoireId(etudiant.getMemoire().getId()).orElse(null);
+        List<Evaluation> membresJury = soutenance == null
+                ? List.of()
+                : encadreurService.findEvaluationsBySoutenance(soutenance.getId());
+        BigDecimal noteFinale = soutenance == null
+                ? null
+                : encadreurService.calculerMoyenne(soutenance.getId()).orElse(null);
+        return new EtudiantSoutenanceVue(etudiant, soutenance, membresJury, noteFinale,
+                soutenance == null ? null : formatDate(soutenance));
     }
 
     private void showNoteForm(HttpServletRequest request, HttpServletResponse response)

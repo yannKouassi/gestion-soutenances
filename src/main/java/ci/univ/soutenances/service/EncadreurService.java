@@ -27,6 +27,8 @@ public interface EncadreurService {
 
     Optional<Soutenance> findSoutenanceById(UUID soutenanceId);
 
+    Optional<Soutenance> findSoutenanceByMemoireId(UUID memoireId);
+
     Optional<BigDecimal> calculerMoyenne(UUID soutenanceId);
 
     Evaluation saisirNote(UUID soutenanceId, UUID encadreurId, BigDecimal note, String avis);

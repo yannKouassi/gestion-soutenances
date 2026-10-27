@@ -1,7 +1,9 @@
 <%@ page pageEncoding="UTF-8" %>
 <header class="admin-topbar">
     <div class="topbar-context">
-        <span class="topbar-mark" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><path d="M4 6h16M7 12h10m-7 6h4"/><circle cx="8" cy="6" r="2"/><circle cx="15" cy="12" r="2"/><circle cx="12" cy="18" r="2"/></svg></span>
+        <button class="sidebar-toggle" type="button" aria-controls="admin-sidebar" aria-expanded="true" aria-label="Réduire le menu" title="Réduire le menu" data-sidebar-toggle>
+            <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+        </button>
         <div>
             <span class="topbar-eyebrow">Espace administrateur</span>
             <span class="topbar-section"><c:choose><c:when test="${type eq 'historique'}">Pilotage &amp; audit</c:when><c:when test="${type eq 'memoires' or type eq 'planification' or type eq 'jury' or type eq 'soutenances'}">Académique &amp; Soutenances</c:when><c:otherwise>Paramètres généraux</c:otherwise></c:choose></span>

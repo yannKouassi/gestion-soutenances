@@ -6,7 +6,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Liste des Mémoires | PGS-PFE</title>
-    <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/admin.css?v=20261015-admin-menu">
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/theme.css?v=20261021-shell-light">
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/admin.css?v=20261021-shell-light">
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/sidebar-toggle.css?v=20261027-3">
 </head>
 <body>
 <div class="admin-shell">
@@ -51,6 +53,7 @@
                             <td data-searchable><c:out value="${memoire.encadreur.prenom}"/> <c:out value="${memoire.encadreur.nom}"/></td>
                             <td data-searchable><c:out value="${memoire.dateDepot}" default="—"/></td>
                             <td><div class="actions">
+                                <a class="row-action row-action-edit" href="${pageContext.request.contextPath}/admin/memoires?vue=detail&amp;id=${memoire.id}">Détails</a>
                                 <a class="row-action row-action-edit" href="${pageContext.request.contextPath}/admin/memoires?vue=form&amp;id=${memoire.id}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m14 5 5 5M4 20l4.5-1 10-10a2.1 2.1 0 0 0-3-3l-10 10L4 20Z"/></svg>Modifier</a>
                                 <form class="inline-form" method="post" action="${pageContext.request.contextPath}/admin/memoires/supprimer" onsubmit="return confirm('Supprimer ce mémoire ?');">
                                     <input type="hidden" name="csrfToken" value="<c:out value='${csrfToken}'/>">
