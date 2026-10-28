@@ -77,10 +77,13 @@ public class SoutenanceServiceImpl implements SoutenanceService {
         if (soutenance.getId() == null) {
             requireFutur(dateHeure);
         } else {
-            LocalDateTime dateInitiale = soutenanceRepository.findById(soutenance.getId())
-                    .map(Soutenance::getDateHeure)
-                    .orElse(null);
-            if (!dateHeure.equals(dateInitiale)) {
+            Soutenance existante = soutenanceRepository.findById(soutenance.getId())
+                    .orElseThrow(() -> new IllegalArgumentException("Soutenance introuvable."));
+            if (existante.getStatut() == StatutSoutenance.ANNULEE) {
+                throw new IllegalArgumentException(
+                        "Cette soutenance est annulée : elle ne peut plus être replanifiée.");
+            }
+            if (!dateHeure.equals(existante.getDateHeure())) {
                 requireFutur(dateHeure);
             }
         }
@@ -173,6 +176,21 @@ public class SoutenanceServiceImpl implements SoutenanceService {
                 soutenance.setStatut(StatutSoutenance.EVALUEE);
             }
         });
+    }
+
+    @Override
+    public Soutenance annuler(UUID soutenanceId) {
+        Soutenance soutenance = soutenanceRepository.findById(requireId(soutenanceId, "de la soutenance"))
+                .orElseThrow(() -> new IllegalArgumentException("Soutenance introuvable."));
+        if (soutenance.getStatut() == StatutSoutenance.ANNULEE) {
+            throw new IllegalArgumentException("Cette soutenance est déjà annulée.");
+        }
+        if (soutenance.getStatut() == StatutSoutenance.EVALUEE) {
+            throw new IllegalArgumentException(
+                    "Cette soutenance est déjà évaluée : elle ne peut plus être annulée.");
+        }
+        soutenance.setStatut(StatutSoutenance.ANNULEE);
+        return soutenanceRepository.save(soutenance);
     }
 
     private static void requirePlanifiee(Soutenance soutenance) {

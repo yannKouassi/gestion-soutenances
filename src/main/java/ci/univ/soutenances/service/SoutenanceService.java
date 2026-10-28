@@ -29,4 +29,6 @@ public interface SoutenanceService {
     Optional<BigDecimal> calculerMoyenne(UUID soutenanceId);
 
     void mettreAJourStatutApresEvaluation(UUID soutenanceId);
+
+    Soutenance annuler(UUID soutenanceId);
 }

@@ -27,8 +27,17 @@
                 <a class="btn btn-secondary" href="${pageContext.request.contextPath}/admin/soutenances">Retour à la liste</a>
                 <a class="btn btn-secondary" href="${pageContext.request.contextPath}/admin/planification?id=${vueSoutenance.soutenance.id}">Modifier la planification</a>
                 <a class="btn btn-primary" href="${pageContext.request.contextPath}/admin/jury?soutenance=${vueSoutenance.soutenance.id}">Gérer le jury</a>
+                <c:if test="${vueSoutenance.soutenance.statut eq 'PLANIFIEE'}">
+                    <form method="post" action="${pageContext.request.contextPath}/admin/soutenances/annuler" onsubmit="return confirm('Annuler cette soutenance ? Aucune note ne pourra plus être saisie.');">
+                        <input type="hidden" name="csrfToken" value="<c:out value='${csrfToken}'/>">
+                        <input type="hidden" name="id" value="<c:out value='${vueSoutenance.soutenance.id}'/>">
+                        <button class="btn btn-cancel" type="submit">Annuler la soutenance</button>
+                    </form>
+                </c:if>
             </div>
         </header>
+        <c:if test="${not empty message}"><div class="alert alert-success" role="status"><c:out value="${message}"/></div></c:if>
+        <c:if test="${not empty erreur}"><div class="alert alert-error" role="alert"><c:out value="${erreur}"/></div></c:if>
 
         <section class="card">
             <div class="card-body">
