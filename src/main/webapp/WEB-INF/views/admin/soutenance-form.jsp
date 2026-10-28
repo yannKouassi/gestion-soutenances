@@ -26,7 +26,7 @@
             <div class="form-card-heading">
                 <c:choose><c:when test="${empty element.id}"><span class="form-mode">Création</span></c:when><c:otherwise><span class="form-mode">Modification</span></c:otherwise></c:choose>
                 <h2>Informations de la soutenance</h2>
-                <p>Un mémoire ne peut être soutenu qu’une seule fois ; une salle ne peut pas accueillir deux soutenances sur le même créneau.</p>
+                <p>Un mémoire ne peut être soutenu qu’une seule fois ; la soutenance ne peut pas être planifiée avant la date de dépôt du mémoire, et une salle ne peut pas accueillir deux soutenances sur le même créneau.</p>
             </div>
             <form class="form-grid" method="post" action="${pageContext.request.contextPath}/admin/planification/enregistrer">
                 <input type="hidden" name="csrfToken" value="<c:out value='${csrfToken}'/>">
@@ -43,6 +43,7 @@
                         <input class="float-field-input" id="dateHeure" name="dateHeure" type="datetime-local" required min="<c:out value='${dateHeureMin}'/>" value="<c:out value='${dateHeureValue}'/>">
                         <label class="float-field-label" for="dateHeure">Date et heure <span class="required-mark" aria-hidden="true">*</span></label>
                     </div>
+                    <small class="float-field-hint">Le jour même du dépôt est accepté ; aucune date antérieure au dépôt n’est possible.</small>
                 </div>
                 <div class="float-field">
                     <div class="float-field-box">
@@ -82,13 +83,13 @@
         if (isNaN(borne.getTime())) {
             return null;
         }
-        borne.setDate(borne.getDate() + 1);
         return borne;
     }
     function borneMin() {
         var borne = borneMemoire();
         var now = new Date();
         now.setSeconds(0, 0);
+        now.setMinutes(now.getMinutes() + 1);
         return borne && borne > now ? borne : now;
     }
     memoireSelect.addEventListener('change', function () {

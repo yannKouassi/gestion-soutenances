@@ -131,8 +131,10 @@ public class JuryServlet extends HttpServlet {
         Set<UUID> dejaMembres = membres.stream()
                 .map(membre -> membre.getEncadreur().getId())
                 .collect(Collectors.toSet());
+        UUID encadreurMemoireId = encadreurMemoireId(soutenance);
         List<Encadreur> disponibles = encadreurRepository.findAll().stream()
                 .filter(encadreur -> !dejaMembres.contains(encadreur.getId()))
+                .filter(encadreur -> !encadreur.getId().equals(encadreurMemoireId))
                 .toList();
         request.setAttribute("soutenance", soutenance);
         request.setAttribute("etudiant", etudiant);
@@ -142,6 +144,13 @@ public class JuryServlet extends HttpServlet {
         request.setAttribute("dateAffichee", soutenance.getDateHeure() == null
                 ? "Date à confirmer"
                 : soutenance.getDateHeure().format(DATE_FORMAT));
+    }
+
+    private static UUID encadreurMemoireId(Soutenance soutenance) {
+        if (soutenance == null || soutenance.getMemoire() == null || soutenance.getMemoire().getEncadreur() == null) {
+            return null;
+        }
+        return soutenance.getMemoire().getEncadreur().getId();
     }
 
     private Etudiant findEtudiant(UUID soutenanceId) {

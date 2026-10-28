@@ -18,7 +18,7 @@
         <header class="page-heading"><div class="page-heading-copy">
             <span class="page-eyebrow">Académique &amp; Soutenances / Soutenances / Jury</span>
             <div><h1>Composition du jury</h1>
-            <p>Un jury comporte au moins deux membres ; chaque membre ne peut être ajouté qu’une fois.</p></div>
+            <p>Un jury comporte au moins deux membres ; chaque membre ne peut être ajouté qu’une fois. L’encadreur du mémoire est déjà rattaché à la soutenance : il n’est donc pas proposé à l’ajout.</p></div>
         </div></header>
         <c:if test="${not empty message}"><div class="alert alert-success" role="status"><c:out value="${message}"/></div></c:if>
         <c:if test="${not empty erreur}"><div class="alert alert-error" role="alert"><c:out value="${erreur}"/></div></c:if>
@@ -62,10 +62,10 @@
             <div class="form-card-heading">
                 <span class="form-mode">Ajout</span>
                 <h2>Ajouter un membre</h2>
-                <p>Seuls les encadreurs qui ne sont pas encore membres sont proposés.</p>
+                <p>Seuls les encadreurs qui ne sont pas encore membres sont proposés ; l’encadreur du mémoire est exclu puisqu’il est déjà rattaché à cette soutenance.</p>
             </div>
             <c:choose><c:when test="${empty encadreurs}">
-                <p class="form-history-empty">Tous les encadreurs disponibles sont déjà membres de ce jury.</p>
+                <p class="form-history-empty">Aucun encadreur à proposer : l’encadreur du mémoire est déjà rattaché et les autres sont déjà membres de ce jury.</p>
             </c:when><c:otherwise>
                 <form class="form-grid" method="post" action="${pageContext.request.contextPath}/admin/jury/ajouter">
                     <input type="hidden" name="csrfToken" value="<c:out value='${csrfToken}'/>">

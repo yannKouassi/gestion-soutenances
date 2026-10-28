@@ -86,9 +86,9 @@ public class SoutenanceServiceImpl implements SoutenanceService {
         }
         Memoire memoire = memoireRepository.findById(requireId(memoireId, "du mémoire"))
                 .orElseThrow(() -> new IllegalArgumentException("Mémoire introuvable."));
-        if (memoire.getDateDepot() != null && !dateHeure.toLocalDate().isAfter(memoire.getDateDepot())) {
+        if (memoire.getDateDepot() != null && dateHeure.toLocalDate().isBefore(memoire.getDateDepot())) {
             throw new IllegalArgumentException(
-                    "La date de la soutenance doit être postérieure à la date de dépôt du mémoire.");
+                    "La date de la soutenance ne peut pas être antérieure à la date de dépôt du mémoire.");
         }
         Salle salle = salleRepository.findById(requireId(salleId, "de la salle"))
                 .orElseThrow(() -> new IllegalArgumentException("Salle introuvable."));
@@ -117,6 +117,11 @@ public class SoutenanceServiceImpl implements SoutenanceService {
                 .orElseThrow(() -> new IllegalArgumentException("Encadreur introuvable."));
         if (evaluationRepository.findBySoutenanceAndEncadreur(soutenance.getId(), encadreur.getId()).isPresent()) {
             throw new IllegalArgumentException("Cet encadreur est déjà membre du jury de cette soutenance.");
+        }
+        if (soutenance.getMemoire() != null && soutenance.getMemoire().getEncadreur() != null
+                && encadreur.getId().equals(soutenance.getMemoire().getEncadreur().getId())) {
+            throw new IllegalArgumentException(
+                    "Cet encadreur encadre déjà ce mémoire : il ne peut pas être ajouté au jury.");
         }
         Evaluation evaluation = Evaluation.create();
         evaluation.setSoutenance(soutenance);
