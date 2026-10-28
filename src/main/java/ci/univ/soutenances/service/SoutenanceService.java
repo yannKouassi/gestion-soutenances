@@ -2,11 +2,14 @@ package ci.univ.soutenances.service;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
 import ci.univ.soutenances.model.Evaluation;
+import ci.univ.soutenances.model.JuryResume;
 import ci.univ.soutenances.model.Soutenance;
 import ci.univ.soutenances.model.SoutenanceVue;
 import ci.univ.soutenances.model.StatutSoutenance;
@@ -21,6 +24,8 @@ public interface SoutenanceService {
     Soutenance save(Soutenance soutenance, UUID memoireId, UUID salleId);
 
     List<Evaluation> findMembres(UUID soutenanceId);
+
+    Map<UUID, JuryResume> resumerJurys(Collection<UUID> soutenanceIds);
 
     Evaluation ajouterMembre(UUID soutenanceId, UUID encadreurId);
 

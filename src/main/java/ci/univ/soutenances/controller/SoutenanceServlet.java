@@ -10,9 +10,11 @@ import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.UUID;
 
 import ci.univ.soutenances.config.AdminAuthorizationFilter;
+import ci.univ.soutenances.model.JuryResume;
 import ci.univ.soutenances.model.SessionUser;
 import ci.univ.soutenances.model.Soutenance;
 import ci.univ.soutenances.model.SoutenanceListeEntry;
@@ -160,13 +162,17 @@ public class SoutenanceServlet extends HttpServlet {
     }
 
     private List<SoutenanceListeEntry> assembler(List<SoutenanceVue> soutenances) {
+        List<UUID> ids = soutenances.stream()
+                .map(vue -> vue.getSoutenance().getId())
+                .toList();
+        Map<UUID, JuryResume> jurys = soutenanceService.resumerJurys(ids);
         List<SoutenanceListeEntry> entries = new ArrayList<>(soutenances.size());
         for (SoutenanceVue vue : soutenances) {
-            UUID id = vue.getSoutenance().getId();
-            int tailleJury = soutenanceService.findMembres(id).size();
-            String noteAffichee = soutenanceService.calculerMoyenne(id)
-                    .map(SoutenanceServlet::formatNote)
-                    .orElse(null);
+            JuryResume resume = jurys.get(vue.getSoutenance().getId());
+            int tailleJury = resume == null ? 0 : resume.getNombreMembres();
+            String noteAffichee = resume == null || resume.getMoyenne() == null
+                    ? null
+                    : formatNote(resume.getMoyenne());
             entries.add(new SoutenanceListeEntry(vue, formatDate(vue), tailleJury, noteAffichee));
         }
         return entries;

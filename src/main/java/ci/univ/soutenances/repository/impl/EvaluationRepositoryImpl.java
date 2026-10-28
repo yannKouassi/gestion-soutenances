@@ -37,6 +37,18 @@ public class EvaluationRepositoryImpl implements EvaluationRepository {
     }
 
     @Override
+    public List<Evaluation> findBySoutenanceIds(List<UUID> soutenanceIds) {
+        if (soutenanceIds == null || soutenanceIds.isEmpty()) {
+            return List.of();
+        }
+        return entityManager.createQuery(
+                "SELECT e FROM Evaluation e WHERE e.soutenance.id IN :soutenanceIds",
+                Evaluation.class)
+                .setParameter("soutenanceIds", soutenanceIds)
+                .getResultList();
+    }
+
+    @Override
     public List<Evaluation> findJuryBySoutenanceId(UUID soutenanceId) {
         return entityManager.createQuery(
                 "SELECT e FROM Evaluation e "

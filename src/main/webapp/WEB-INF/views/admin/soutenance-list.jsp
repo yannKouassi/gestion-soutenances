@@ -78,13 +78,15 @@
                 </div>
             </c:when><c:otherwise>
                 <div class="table-wrap"><table class="journal-table">
-                    <thead><tr><th>Mémoire</th><th>Étudiant</th><th>Date</th><th>Statut</th><th>Actions</th></tr></thead>
+                    <thead><tr><th>Mémoire</th><th>Étudiant</th><th>Date</th><th>Statut</th><th>Jury</th><th>Note finale</th><th>Actions</th></tr></thead>
                     <tbody><c:forEach var="entry" items="${entries}">
                         <tr>
                             <td class="primary-cell"><c:out value="${entry.soutenance.memoire.titre}"/></td>
                             <td><c:choose><c:when test="${empty entry.etudiant}">Non rattaché</c:when><c:otherwise><c:out value="${entry.etudiant.prenom}"/> <c:out value="${entry.etudiant.nom}"/></c:otherwise></c:choose></td>
                             <td class="history-date"><c:out value="${entry.dateAffichee}" default="—"/></td>
                             <td><span class="status-badge status-${entry.soutenance.statut}"><c:out value="${entry.soutenance.statut}"/></span></td>
+                            <td><c:choose><c:when test="${entry.tailleJury gt 0}"><c:out value="${entry.tailleJury}"/> membre<c:if test="${entry.tailleJury ne 1}">s</c:if></c:when><c:otherwise>—</c:otherwise></c:choose></td>
+                            <td><c:choose><c:when test="${empty entry.noteAffichee}">—</c:when><c:otherwise><c:out value="${entry.noteAffichee}"/> / 20</c:otherwise></c:choose></td>
                             <td><div class="actions">
                                 <a class="row-action row-action-edit" href="${pageContext.request.contextPath}/admin/soutenances?vue=detail&amp;id=${entry.soutenance.id}">Détails</a>
                                 <a class="row-action row-action-edit" href="${pageContext.request.contextPath}/admin/jury?soutenance=${entry.soutenance.id}">Gérer le jury</a>

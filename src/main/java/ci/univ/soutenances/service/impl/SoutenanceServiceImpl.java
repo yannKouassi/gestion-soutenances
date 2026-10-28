@@ -4,12 +4,17 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import ci.univ.soutenances.model.Encadreur;
 import ci.univ.soutenances.model.Evaluation;
+import ci.univ.soutenances.model.JuryResume;
 import ci.univ.soutenances.model.Memoire;
 import ci.univ.soutenances.model.Salle;
 import ci.univ.soutenances.model.Soutenance;
@@ -150,7 +155,26 @@ public class SoutenanceServiceImpl implements SoutenanceService {
 
     @Override
     public Optional<BigDecimal> calculerMoyenne(UUID soutenanceId) {
-        List<Evaluation> jury = evaluationRepository.findBySoutenanceId(requireId(soutenanceId, "de la soutenance"));
+        return moyenne(evaluationRepository.findBySoutenanceId(requireId(soutenanceId, "de la soutenance")));
+    }
+
+    @Override
+    public Map<UUID, JuryResume> resumerJurys(Collection<UUID> soutenanceIds) {
+        if (soutenanceIds == null || soutenanceIds.isEmpty()) {
+            return Map.of();
+        }
+        List<UUID> ids = soutenanceIds.stream().filter(id -> id != null).distinct().toList();
+        Map<UUID, List<Evaluation>> parSoutenance = evaluationRepository.findBySoutenanceIds(ids).stream()
+                .collect(Collectors.groupingBy(evaluation -> evaluation.getSoutenance().getId()));
+        Map<UUID, JuryResume> resumes = new HashMap<>();
+        for (UUID id : ids) {
+            List<Evaluation> jury = parSoutenance.getOrDefault(id, List.of());
+            resumes.put(id, new JuryResume(jury.size(), moyenne(jury).orElse(null)));
+        }
+        return resumes;
+    }
+
+    private static Optional<BigDecimal> moyenne(List<Evaluation> jury) {
         if (jury.isEmpty()) {
             return Optional.empty();
         }
