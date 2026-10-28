@@ -161,7 +161,7 @@ public class MemoireServlet extends HttpServlet {
             }
             showFormError(request, response, exception.getMessage());
         } catch (EJBException exception) {
-            String validationError = findValidationError(exception);
+            String validationError = ValidationErrors.find(exception);
             if (validationError != null && !"supprimer".equals(path[0])) {
                 showFormError(request, response, validationError);
                 return;
@@ -281,20 +281,6 @@ public class MemoireServlet extends HttpServlet {
 
     private static String clean(String value) {
         return value == null ? "" : value.trim();
-    }
-
-    private static String findValidationError(Throwable exception) {
-        Throwable cause = exception;
-        while (cause != null) {
-            if (cause instanceof IllegalArgumentException && cause.getMessage() != null) {
-                return cause.getMessage();
-            }
-            if (cause.getCause() == cause) {
-                break;
-            }
-            cause = cause.getCause();
-        }
-        return null;
     }
 
     private static String actionLabel(String typeAction) {

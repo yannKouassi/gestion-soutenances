@@ -4,12 +4,17 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import ci.univ.soutenances.model.Encadreur;
 import ci.univ.soutenances.model.Evaluation;
+import ci.univ.soutenances.model.JuryResume;
 import ci.univ.soutenances.model.Memoire;
 import ci.univ.soutenances.model.Salle;
 import ci.univ.soutenances.model.Soutenance;
@@ -77,10 +82,13 @@ public class SoutenanceServiceImpl implements SoutenanceService {
         if (soutenance.getId() == null) {
             requireFutur(dateHeure);
         } else {
-            LocalDateTime dateInitiale = soutenanceRepository.findById(soutenance.getId())
-                    .map(Soutenance::getDateHeure)
-                    .orElse(null);
-            if (!dateHeure.equals(dateInitiale)) {
+            Soutenance existante = soutenanceRepository.findById(soutenance.getId())
+                    .orElseThrow(() -> new IllegalArgumentException("Soutenance introuvable."));
+            if (existante.getStatut() == StatutSoutenance.ANNULEE) {
+                throw new IllegalArgumentException(
+                        "Cette soutenance est annulée : elle ne peut plus être replanifiée.");
+            }
+            if (!dateHeure.equals(existante.getDateHeure())) {
                 requireFutur(dateHeure);
             }
         }
@@ -113,6 +121,7 @@ public class SoutenanceServiceImpl implements SoutenanceService {
     public Evaluation ajouterMembre(UUID soutenanceId, UUID encadreurId) {
         Soutenance soutenance = soutenanceRepository.findById(requireId(soutenanceId, "de la soutenance"))
                 .orElseThrow(() -> new IllegalArgumentException("Soutenance introuvable."));
+        requirePlanifiee(soutenance);
         Encadreur encadreur = encadreurRepository.findById(requireId(encadreurId, "de l'encadreur"))
                 .orElseThrow(() -> new IllegalArgumentException("Encadreur introuvable."));
         if (evaluationRepository.findBySoutenanceAndEncadreur(soutenance.getId(), encadreur.getId()).isPresent()) {
@@ -136,6 +145,7 @@ public class SoutenanceServiceImpl implements SoutenanceService {
         Evaluation evaluation = evaluationRepository.findBySoutenanceAndEncadreur(soutenance, encadreur)
                 .orElseThrow(() -> new IllegalArgumentException(
                         "Cet encadreur n'est pas membre du jury de cette soutenance."));
+        requirePlanifiee(evaluation.getSoutenance());
         if (evaluationRepository.findBySoutenanceId(soutenance).size() <= JURY_MINIMUM) {
             throw new IllegalArgumentException("Un jury doit comporter au moins deux membres.");
         }
@@ -145,7 +155,26 @@ public class SoutenanceServiceImpl implements SoutenanceService {
 
     @Override
     public Optional<BigDecimal> calculerMoyenne(UUID soutenanceId) {
-        List<Evaluation> jury = evaluationRepository.findBySoutenanceId(requireId(soutenanceId, "de la soutenance"));
+        return moyenne(evaluationRepository.findBySoutenanceId(requireId(soutenanceId, "de la soutenance")));
+    }
+
+    @Override
+    public Map<UUID, JuryResume> resumerJurys(Collection<UUID> soutenanceIds) {
+        if (soutenanceIds == null || soutenanceIds.isEmpty()) {
+            return Map.of();
+        }
+        List<UUID> ids = soutenanceIds.stream().filter(id -> id != null).distinct().toList();
+        Map<UUID, List<Evaluation>> parSoutenance = evaluationRepository.findBySoutenanceIds(ids).stream()
+                .collect(Collectors.groupingBy(evaluation -> evaluation.getSoutenance().getId()));
+        Map<UUID, JuryResume> resumes = new HashMap<>();
+        for (UUID id : ids) {
+            List<Evaluation> jury = parSoutenance.getOrDefault(id, List.of());
+            resumes.put(id, new JuryResume(jury.size(), moyenne(jury).orElse(null)));
+        }
+        return resumes;
+    }
+
+    private static Optional<BigDecimal> moyenne(List<Evaluation> jury) {
         if (jury.isEmpty()) {
             return Optional.empty();
         }
@@ -171,6 +200,28 @@ public class SoutenanceServiceImpl implements SoutenanceService {
                 soutenance.setStatut(StatutSoutenance.EVALUEE);
             }
         });
+    }
+
+    @Override
+    public Soutenance annuler(UUID soutenanceId) {
+        Soutenance soutenance = soutenanceRepository.findById(requireId(soutenanceId, "de la soutenance"))
+                .orElseThrow(() -> new IllegalArgumentException("Soutenance introuvable."));
+        if (soutenance.getStatut() == StatutSoutenance.ANNULEE) {
+            throw new IllegalArgumentException("Cette soutenance est déjà annulée.");
+        }
+        if (soutenance.getStatut() == StatutSoutenance.EVALUEE) {
+            throw new IllegalArgumentException(
+                    "Cette soutenance est déjà évaluée : elle ne peut plus être annulée.");
+        }
+        soutenance.setStatut(StatutSoutenance.ANNULEE);
+        return soutenanceRepository.save(soutenance);
+    }
+
+    private static void requirePlanifiee(Soutenance soutenance) {
+        if (soutenance.getStatut() != StatutSoutenance.PLANIFIEE) {
+            throw new IllegalArgumentException(
+                    "La composition du jury est figée : la soutenance n'est plus au statut PLANIFIEE.");
+        }
     }
 
     private static void requireFutur(LocalDateTime dateHeure) {

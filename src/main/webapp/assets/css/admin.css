@@ -419,6 +419,21 @@
     box-shadow: none;
 }
 
+.actions form {
+    margin: 0;
+}
+
+.btn-cancel {
+    border-color: var(--c-danger);
+    color: var(--c-danger);
+    background: var(--c-danger-soft);
+}
+
+.btn-cancel:hover {
+    border-color: var(--c-danger-strong);
+    background: var(--c-danger-soft);
+}
+
 .admin-form-page .field-full {
     grid-column: 1 / -1;
 }

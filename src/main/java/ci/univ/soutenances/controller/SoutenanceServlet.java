@@ -2,19 +2,27 @@ package ci.univ.soutenances.controller;
 
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.UUID;
 
+import ci.univ.soutenances.config.AdminAuthorizationFilter;
+import ci.univ.soutenances.model.JuryResume;
+import ci.univ.soutenances.model.SessionUser;
+import ci.univ.soutenances.model.Soutenance;
 import ci.univ.soutenances.model.SoutenanceListeEntry;
 import ci.univ.soutenances.model.SoutenanceVue;
 import ci.univ.soutenances.model.StatutSoutenance;
 import ci.univ.soutenances.repository.EtudiantRepository;
 import ci.univ.soutenances.repository.FiliereRepository;
+import ci.univ.soutenances.service.HistoriqueActionService;
 import ci.univ.soutenances.service.SoutenanceService;
 import jakarta.ejb.EJB;
 import jakarta.ejb.EJBException;
@@ -24,16 +32,20 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
-@WebServlet("/admin/soutenances")
+@WebServlet(urlPatterns = { "/admin/soutenances", "/admin/soutenances/*" })
 public class SoutenanceServlet extends HttpServlet {
     private static final String TYPE = "soutenances";
     private static final String TITLE = "Gestion Globale des Soutenances";
+    private static final String SCREEN = "SOUTENANCE";
     private static final String LIST_VIEW = "/WEB-INF/views/admin/soutenance-list.jsp";
     private static final String DETAIL_VIEW = "/WEB-INF/views/admin/soutenance-detail.jsp";
     private static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
 
     @EJB
     private SoutenanceService soutenanceService;
+
+    @EJB
+    private HistoriqueActionService historiqueActionService;
 
     @EJB
     private EtudiantRepository etudiantRepository;
@@ -80,6 +92,50 @@ public class SoutenanceServlet extends HttpServlet {
         }
     }
 
+    @Override
+    protected void doPost(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        request.setCharacterEncoding("UTF-8");
+        String[] path = pathParts(request);
+        if (path.length != 1 || !"annuler".equals(path[0])) {
+            response.sendError(HttpServletResponse.SC_NOT_FOUND);
+            return;
+        }
+
+        UUID soutenanceId;
+        try {
+            soutenanceId = parseOptionalId(request.getParameter("id"));
+            if (soutenanceId == null) {
+                throw new IllegalArgumentException("Soutenance non précisée.");
+            }
+            Soutenance soutenance = soutenanceService.annuler(soutenanceId);
+            String label = "Annulation de la soutenance : " + clean(soutenance.getMemoire().getTitre());
+            boolean recorded = recordAction(request, "MODIFICATION", label);
+            String message = "Soutenance annulée.";
+            if (!recorded) {
+                message = message + " L’historique de l’action n’a pas pu être enregistré.";
+            }
+            redirectDetail(request, response, soutenanceId, recorded ? "message" : "erreur", message);
+        } catch (IllegalArgumentException exception) {
+            UUID id = parseOptionalId(request.getParameter("id"));
+            if (id == null) {
+                response.sendError(HttpServletResponse.SC_BAD_REQUEST, exception.getMessage());
+                return;
+            }
+            redirectDetail(request, response, id, "erreur", exception.getMessage());
+        } catch (EJBException exception) {
+            getServletContext().log("Échec de l’annulation d’une soutenance.", exception);
+            UUID id = parseOptionalId(request.getParameter("id"));
+            if (id == null) {
+                response.sendError(HttpServletResponse.SC_SERVICE_UNAVAILABLE,
+                        "Annulation impossible pour le moment.");
+                return;
+            }
+            redirectDetail(request, response, id, "erreur",
+                    "Annulation impossible pour le moment.");
+        }
+    }
+
     private void afficherDetail(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         UUID soutenanceId = parseOptionalId(request.getParameter("id"));
@@ -93,6 +149,8 @@ public class SoutenanceServlet extends HttpServlet {
             return;
         }
         request.setAttribute("vueSoutenance", vue);
+        request.setAttribute("message", request.getParameter("message"));
+        request.setAttribute("erreur", request.getParameter("erreur"));
         request.setAttribute("membres", soutenanceService.findMembres(soutenanceId));
         request.setAttribute("noteFinale", soutenanceService.calculerMoyenne(soutenanceId)
                 .map(SoutenanceServlet::formatNote)
@@ -104,13 +162,17 @@ public class SoutenanceServlet extends HttpServlet {
     }
 
     private List<SoutenanceListeEntry> assembler(List<SoutenanceVue> soutenances) {
+        List<UUID> ids = soutenances.stream()
+                .map(vue -> vue.getSoutenance().getId())
+                .toList();
+        Map<UUID, JuryResume> jurys = soutenanceService.resumerJurys(ids);
         List<SoutenanceListeEntry> entries = new ArrayList<>(soutenances.size());
         for (SoutenanceVue vue : soutenances) {
-            UUID id = vue.getSoutenance().getId();
-            int tailleJury = soutenanceService.findMembres(id).size();
-            String noteAffichee = soutenanceService.calculerMoyenne(id)
-                    .map(SoutenanceServlet::formatNote)
-                    .orElse(null);
+            JuryResume resume = jurys.get(vue.getSoutenance().getId());
+            int tailleJury = resume == null ? 0 : resume.getNombreMembres();
+            String noteAffichee = resume == null || resume.getMoyenne() == null
+                    ? null
+                    : formatNote(resume.getMoyenne());
             entries.add(new SoutenanceListeEntry(vue, formatDate(vue), tailleJury, noteAffichee));
         }
         return entries;
@@ -124,6 +186,40 @@ public class SoutenanceServlet extends HttpServlet {
 
     private static String formatNote(BigDecimal note) {
         return String.format(Locale.FRANCE, "%.2f", note);
+    }
+
+    private boolean recordAction(HttpServletRequest request, String action, String label) {
+        Object user = request.getSession(false).getAttribute(AdminAuthorizationFilter.SESSION_USER_ATTRIBUTE);
+        if (!(user instanceof SessionUser sessionUser)) {
+            getServletContext().log("Impossible d’enregistrer l’historique : utilisateur de session absent.");
+            return false;
+        }
+        try {
+            historiqueActionService.record(SCREEN, action, label, sessionUser.id());
+            return true;
+        } catch (EJBException | IllegalArgumentException exception) {
+            getServletContext().log("Impossible d’enregistrer l’action " + action + " sur " + SCREEN, exception);
+            return false;
+        }
+    }
+
+    private static void redirectDetail(HttpServletRequest request, HttpServletResponse response,
+            UUID soutenanceId, String parameter, String message) throws IOException {
+        response.sendRedirect(request.getContextPath() + "/admin/soutenances?vue=detail&id=" + soutenanceId
+                + "&" + parameter + "=" + encode(message));
+    }
+
+    private static String clean(String value) {
+        return value == null ? "" : value.trim();
+    }
+
+    private static String encode(String value) {
+        return URLEncoder.encode(value, StandardCharsets.UTF_8);
+    }
+
+    private static String[] pathParts(HttpServletRequest request) {
+        String path = request.getPathInfo();
+        return path == null || path.equals("/") ? new String[0] : path.substring(1).split("/");
     }
 
     private static StatutSoutenance parseStatut(String value) {

@@ -41,19 +41,21 @@
             <div class="form-card-heading">
                 <span class="form-mode">Membres du jury</span>
                 <h2>Jury en place</h2>
-                <p>Le retrait est refusé si le jury devait descendre sous deux membres.</p>
+                <p>Le retrait est refusé si le jury devait descendre sous deux membres. Une fois la soutenance évaluée ou annulée, la composition du jury est figée.</p>
             </div>
             <c:choose><c:when test="${empty membres}">
                 <p class="form-history-empty">Aucun membre pour le moment. Ajoute au moins deux encadreurs.</p>
             </c:when><c:otherwise>
                 <ul class="member-list"><c:forEach var="membre" items="${membres}">
                     <li><c:out value="${membre.encadreur.prenom}"/> <c:out value="${membre.encadreur.nom}"/> — <c:choose><c:when test="${not empty membre.note}">note <c:out value="${membre.note}"/>/20</c:when><c:otherwise>note en attente</c:otherwise></c:choose>
+                        <c:if test="${soutenance.statut eq 'PLANIFIEE'}">
                         <form class="inline-form" method="post" action="${pageContext.request.contextPath}/admin/jury/retirer" onsubmit="return confirm('Retirer ce membre du jury ?');">
                             <input type="hidden" name="csrfToken" value="<c:out value='${csrfToken}'/>">
                             <input type="hidden" name="soutenance" value="<c:out value='${soutenance.id}'/>">
                             <input type="hidden" name="encadreurId" value="<c:out value='${membre.encadreur.id}'/>">
                             <button class="btn-danger-link" type="submit">Retirer</button>
                         </form>
+                        </c:if>
                     </li>
                 </c:forEach></ul>
             </c:otherwise></c:choose>
@@ -64,7 +66,9 @@
                 <h2>Ajouter un membre</h2>
                 <p>Seuls les encadreurs qui ne sont pas encore membres sont proposés ; l’encadreur du mémoire est exclu puisqu’il est déjà rattaché à cette soutenance.</p>
             </div>
-            <c:choose><c:when test="${empty encadreurs}">
+            <c:choose><c:when test="${soutenance.statut ne 'PLANIFIEE'}">
+                <p class="form-history-empty">La soutenance n’est plus au statut PLANIFIEE : le jury ne peut plus être modifié.</p>
+            </c:when><c:when test="${empty encadreurs}">
                 <p class="form-history-empty">Aucun encadreur à proposer : l’encadreur du mémoire est déjà rattaché et les autres sont déjà membres de ce jury.</p>
             </c:when><c:otherwise>
                 <form class="form-grid" method="post" action="${pageContext.request.contextPath}/admin/jury/ajouter">
