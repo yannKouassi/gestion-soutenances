@@ -118,6 +118,11 @@ public class PlanificationServlet extends HttpServlet {
         } catch (IllegalArgumentException exception) {
             showFormError(request, response, exception.getMessage());
         } catch (EJBException exception) {
+            String validationError = ValidationErrors.find(exception);
+            if (validationError != null) {
+                showFormError(request, response, validationError);
+                return;
+            }
             getServletContext().log("Échec de la planification d’une soutenance.", exception);
             showFormError(request, response,
                     "Enregistrement impossible. Vérifie la mémoire, la salle et le créneau choisis.");

@@ -120,6 +120,11 @@ public class JuryServlet extends HttpServlet {
         } catch (IllegalArgumentException exception) {
             showJuryError(request, response, request.getParameter("soutenance"), exception.getMessage());
         } catch (EJBException exception) {
+            String validationError = ValidationErrors.find(exception);
+            if (validationError != null) {
+                showJuryError(request, response, request.getParameter("soutenance"), validationError);
+                return;
+            }
             getServletContext().log("Échec d’une opération sur la composition du jury.", exception);
             showJuryError(request, response, request.getParameter("soutenance"),
                     "Opération impossible. Vérifie la composition du jury.");
