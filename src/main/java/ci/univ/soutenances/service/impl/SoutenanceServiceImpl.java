@@ -113,6 +113,7 @@ public class SoutenanceServiceImpl implements SoutenanceService {
     public Evaluation ajouterMembre(UUID soutenanceId, UUID encadreurId) {
         Soutenance soutenance = soutenanceRepository.findById(requireId(soutenanceId, "de la soutenance"))
                 .orElseThrow(() -> new IllegalArgumentException("Soutenance introuvable."));
+        requirePlanifiee(soutenance);
         Encadreur encadreur = encadreurRepository.findById(requireId(encadreurId, "de l'encadreur"))
                 .orElseThrow(() -> new IllegalArgumentException("Encadreur introuvable."));
         if (evaluationRepository.findBySoutenanceAndEncadreur(soutenance.getId(), encadreur.getId()).isPresent()) {
@@ -136,6 +137,7 @@ public class SoutenanceServiceImpl implements SoutenanceService {
         Evaluation evaluation = evaluationRepository.findBySoutenanceAndEncadreur(soutenance, encadreur)
                 .orElseThrow(() -> new IllegalArgumentException(
                         "Cet encadreur n'est pas membre du jury de cette soutenance."));
+        requirePlanifiee(evaluation.getSoutenance());
         if (evaluationRepository.findBySoutenanceId(soutenance).size() <= JURY_MINIMUM) {
             throw new IllegalArgumentException("Un jury doit comporter au moins deux membres.");
         }
@@ -171,6 +173,13 @@ public class SoutenanceServiceImpl implements SoutenanceService {
                 soutenance.setStatut(StatutSoutenance.EVALUEE);
             }
         });
+    }
+
+    private static void requirePlanifiee(Soutenance soutenance) {
+        if (soutenance.getStatut() != StatutSoutenance.PLANIFIEE) {
+            throw new IllegalArgumentException(
+                    "La composition du jury est figée : la soutenance n'est plus au statut PLANIFIEE.");
+        }
     }
 
     private static void requireFutur(LocalDateTime dateHeure) {
