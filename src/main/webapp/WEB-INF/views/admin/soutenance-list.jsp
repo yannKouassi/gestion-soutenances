@@ -18,7 +18,7 @@
         <header class="page-heading">
             <div class="page-heading-copy">
                 <span class="page-eyebrow">Académique &amp; Soutenances / Soutenances</span>
-                <div><h1><c:choose><c:when test="${param.vue eq 'jurys'}">Planification &amp; Jurys</c:when><c:otherwise>Gestion Globale des Soutenances</c:otherwise></c:choose></h1><p>Filtre les soutenances par statut, date, étudiant ou filière, puis accède à leur planification et à leur jury.</p></div>
+                <div><h1><c:choose><c:when test="${param.vue eq 'jurys'}">Planification &amp; Jurys</c:when><c:otherwise>Gestion Globale des Soutenances</c:otherwise></c:choose></h1><p><c:choose><c:when test="${param.vue eq 'jurys'}">Choisis une soutenance dans la liste puis « Gérer le jury » pour composer son jury ; le lien mène directement à l’écran de composition.</c:when><c:otherwise>Filtre les soutenances par statut, date, étudiant ou filière, puis accède à leur planification et à leur jury.</c:otherwise></c:choose></p></div>
             </div>
             <a class="btn btn-primary" href="${pageContext.request.contextPath}/admin/planification"><span class="button-icon" aria-hidden="true">+</span> Planifier une soutenance</a>
         </header>
@@ -87,6 +87,7 @@
                             <td><span class="status-badge status-${entry.soutenance.statut}"><c:out value="${entry.soutenance.statut}"/></span></td>
                             <td><div class="actions">
                                 <a class="row-action row-action-edit" href="${pageContext.request.contextPath}/admin/soutenances?vue=detail&amp;id=${entry.soutenance.id}">Détails</a>
+                                <a class="row-action row-action-edit" href="${pageContext.request.contextPath}/admin/jury?soutenance=${entry.soutenance.id}">Gérer le jury</a>
                             </div></td>
                         </tr>
                     </c:forEach></tbody>
