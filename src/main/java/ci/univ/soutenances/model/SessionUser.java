@@ -9,4 +9,9 @@ public record SessionUser(UUID id, String login, RoleUtilisateur role) implement
     public static SessionUser from(Utilisateur utilisateur) {
         return new SessionUser(utilisateur.getId(), utilisateur.getLogin(), utilisateur.getRole());
     }
+
+    // Compatibilité EL (JSP) : les propriétés sont lues via getLogin()/getRole().
+    public String getLogin() { return login(); }
+    public RoleUtilisateur getRole() { return role(); }
+    public UUID getId() { return id(); }
 }
