@@ -12,6 +12,68 @@ commande opencode `/nouvelle-changelog` rédige ensuite la partie « Détail » 
 partir du diff, des corps de commit et de l'intention de la feature.
 
 ---
+
+feature: Audit module C — Académique & Soutenances
+branche: fix/module-c-audit-suite
+base: main
+date: 2026-10-29
+auteurs:
+  - Yannick Kouassi
+  - thangrace15
+  - xxvByMe
+commits: 8
+
+## Audit module C — Académique & Soutenances
+
+### Détail
+
+Cette section décrit la suite du plan d'audit du module C (Académique &
+Soutenances) sur la branche `fix/module-c-audit-suite` : la résolution des points
+2.1 à 2.13 du rapport d'audit du 28 octobre 2026, en garde-fous métier côté
+service, formats de vue unifiés, messages en flash et tableau de bord.
+
+#### Planification et jury
+
+- Interdiction du changement de mémoire dès qu'une évaluation existe pour la
+  soutenance déjà planifiée ; le sélecteur de mémoire du formulaire est verrouillé
+  et l'identifiant est transmis en champ caché.
+- Durée de créneau fixe d'une heure appliquée aux contrôles de chevauchement :
+  la salle et l'encadré (membre du jury ou responsable du mémoire) ne peuvent plus
+  être mobilisés deux fois sur des créneaux qui se chevauchent ; les soutenances
+  annulées ne bloquent plus.
+
+#### Affichage
+
+- Formatage des dates de dépôt en français (`dd/MM/yyyy`) via un TLD EL dédié
+  (`fmt2:date`) et des notes en deux décimales avec virgule (`15,50`) via
+  `fmt2:note`.
+
+#### Flux et architecture
+
+- Les messages de succès / d'erreur passent en flash de session
+  (`FlashMessages`), plus en query-string.
+- La pagination de l'historique est centralisée (`HistoryPagination`), un seul
+  code pour les attributs de pagination.
+
+#### Pilotage
+
+- Création du `/admin/dashboard` avec compteurs de soutenances, jurys incomplets
+  et liste des prochaines soutenances planifiées.
+
+### Commits
+
+| Commit | Sujet |
+|---|---|
+| `d6296f4` | feat(admin) : creation du tableau de bord administrateur |
+| `51452aa` | fix(planification) : controler les chevauchements de salle et d'encadreur |
+| `0c0b364` | refactor(admin) : centraliser la pagination de l'historique |
+| `64c6a49` | refactor(web) : passer les messages de succes et d'erreur en flash de session |
+| `9ade38a` | feat(ui) : uniformiser l'affichage des notes avec deux decimales |
+| `1cf0b60` | feat(ui) : formater les dates de depot au format francais |
+| `642208b` | fix(soutenance) : interdire le changement de memoire sous un jury existant |
+| `914d214` | fix(session) : rediriger vers la page de connexion lors de l'expiration |
+
+---
 feature: Espace étudiant
 branche: feature/etudiant
 base: main
