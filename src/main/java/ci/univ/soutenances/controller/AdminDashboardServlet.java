@@ -1,19 +1,27 @@
 package ci.univ.soutenances.controller;
 
 import java.io.IOException;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
-import java.util.UUID;
 
-import ci.univ.soutenances.model.JuryResume;
+import ci.univ.soutenances.model.HistoriqueFiltre;
+import ci.univ.soutenances.model.HistoriqueJournalEntry;
+import ci.univ.soutenances.model.SoutenanceAgenda;
 import ci.univ.soutenances.model.SoutenanceVue;
 import ci.univ.soutenances.model.StatutSoutenance;
-import ci.univ.soutenances.repository.EncadreurRepository;
-import ci.univ.soutenances.repository.EtudiantRepository;
-import ci.univ.soutenances.repository.MemoireRepository;
-import ci.univ.soutenances.repository.SalleRepository;
+import ci.univ.soutenances.service.CompteService;
+import ci.univ.soutenances.service.DepartementService;
+import ci.univ.soutenances.service.EncadreurService;
+import ci.univ.soutenances.service.EtudiantService;
+import ci.univ.soutenances.service.FiliereService;
+import ci.univ.soutenances.service.HistoriqueActionService;
+import ci.univ.soutenances.service.MemoireService;
+import ci.univ.soutenances.service.SalleService;
 import ci.univ.soutenances.service.SoutenanceService;
 import jakarta.ejb.EJB;
 import jakarta.ejb.EJBException;
@@ -25,68 +33,107 @@ import jakarta.servlet.http.HttpServletResponse;
 
 @WebServlet("/admin/dashboard")
 public class AdminDashboardServlet extends HttpServlet {
-    private static final String TYPE = "dashboard";
-    private static final String TITLE = "Tableau de bord";
-    private static final String VIEW = "/WEB-INF/views/admin/dashboard.jsp";
-    private static final int PROCHAINES_MAX = 5;
+    private static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
+    private static final DateTimeFormatter JOUR_FORMAT = DateTimeFormatter.ofPattern("EEEE d MMMM yyyy", Locale.FRENCH);
+    private static final Map<String, String> ACTIONS = Map.of(
+            "CREATION", "Création",
+            "MODIFICATION", "Modification",
+            "SUPPRESSION", "Suppression");
+    private static final int LIMITE_PROCHAINES = 5;
+    private static final int LIMITE_ACTIVITES = 6;
 
+    @EJB
+    private DepartementService departementService;
+    @EJB
+    private FiliereService filiereService;
+    @EJB
+    private SalleService salleService;
+    @EJB
+    private EncadreurService encadreurService;
+    @EJB
+    private EtudiantService etudiantService;
+    @EJB
+    private MemoireService memoireService;
     @EJB
     private SoutenanceService soutenanceService;
-
     @EJB
-    private MemoireRepository memoireRepository;
-
+    private CompteService compteService;
     @EJB
-    private EtudiantRepository etudiantRepository;
-
-    @EJB
-    private EncadreurRepository encadreurRepository;
-
-    @EJB
-    private SalleRepository salleRepository;
+    private HistoriqueActionService historiqueActionService;
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        request.setAttribute("type", TYPE);
-        request.setAttribute("titre", TITLE);
-
         try {
             List<SoutenanceVue> soutenances = soutenanceService.lister(null, null, null, null);
-            List<UUID> ids = soutenances.stream()
-                    .map(vue -> vue.getSoutenance().getId())
-                    .toList();
-            Map<UUID, JuryResume> jurys = soutenanceService.resumerJurys(ids);
-
             long planifiees = compter(soutenances, StatutSoutenance.PLANIFIEE);
             long evaluees = compter(soutenances, StatutSoutenance.EVALUEE);
             long annulees = compter(soutenances, StatutSoutenance.ANNULEE);
-            long jurysIncomplets = soutenances.stream()
-                    .filter(vue -> vue.getSoutenance().getStatut() == StatutSoutenance.PLANIFIEE)
-                    .filter(vue -> {
-                        JuryResume resume = jurys.get(vue.getSoutenance().getId());
-                        return resume == null || resume.getNombreMembres() < 2;
-                    })
-                    .count();
+            long total = soutenances.size();
 
-            request.setAttribute("totalSoutenances", soutenances.size());
+            LocalDateTime maintenant = LocalDateTime.now();
+            List<SoutenanceAgenda> prochaines = soutenances.stream()
+                    .filter(vue -> vue.getSoutenance().getStatut() == StatutSoutenance.PLANIFIEE)
+                    .filter(vue -> vue.getSoutenance().getDateHeure() != null)
+                    .filter(vue -> !vue.getSoutenance().getDateHeure().isBefore(maintenant))
+                    .sorted(Comparator.comparing(vue -> vue.getSoutenance().getDateHeure()))
+                    .limit(LIMITE_PROCHAINES)
+                    .map(AdminDashboardServlet::versAgenda)
+                    .toList();
+
+            Map<String, String> ecrans = historiqueActionService.screens();
+            List<HistoriqueJournalEntry> activites = historiqueActionService
+                    .search(new HistoriqueFiltre(null, null, null, null, null), 0, LIMITE_ACTIVITES)
+                    .stream()
+                    .map(action -> new HistoriqueJournalEntry(
+                            action.getDateAction().format(DATE_FORMAT),
+                            action.getDescription(),
+                            ACTIONS.getOrDefault(action.getAction(), action.getAction()),
+                            action.getUtilisateur().getLogin(),
+                            action.getUtilisateur().getRole().name(),
+                            ecrans.getOrDefault(action.getEcran(), action.getEcran())))
+                    .toList();
+
+            request.setAttribute("type", "dashboard");
+            request.setAttribute("titre", "Tableau de bord");
+            request.setAttribute("dateDuJour", jourDuJour());
+            request.setAttribute("totalSoutenances", total);
             request.setAttribute("soutenancesPlanifiees", planifiees);
             request.setAttribute("soutenancesEvaluees", evaluees);
             request.setAttribute("soutenancesAnnulees", annulees);
-            request.setAttribute("jurysIncomplets", jurysIncomplets);
-            request.setAttribute("totalMemoires", memoireRepository.findAll().size());
-            request.setAttribute("totalEtudiants", etudiantRepository.findAll().size());
-            request.setAttribute("totalEncadreurs", encadreurRepository.findAll().size());
-            request.setAttribute("totalSalles", salleRepository.findAll().size());
-            request.setAttribute("prochaines", prochaines(soutenances));
-            request.getRequestDispatcher(VIEW).forward(request, response);
-        } catch (IllegalArgumentException exception) {
-            response.sendError(HttpServletResponse.SC_BAD_REQUEST, exception.getMessage());
+            request.setAttribute("pctPlanifiees", pourcentage(planifiees, total));
+            request.setAttribute("pctEvaluees", pourcentage(evaluees, total));
+            request.setAttribute("pctAnnulees", pourcentage(annulees, total));
+            request.setAttribute("totalEtudiants", etudiantService.findAll().size());
+            request.setAttribute("totalEncadreurs", encadreurService.findAll().size());
+            request.setAttribute("totalDepartements", departementService.findAll().size());
+            request.setAttribute("totalFilieres", filiereService.findAll().size());
+            request.setAttribute("totalSalles", salleService.findAll().size());
+            request.setAttribute("totalMemoires", memoireService.findAll().size());
+            request.setAttribute("totalComptes", compteService.findAll().size());
+            request.setAttribute("prochaines", prochaines);
+            request.setAttribute("activites", activites);
+            request.getRequestDispatcher("/WEB-INF/views/admin/dashboard.jsp").forward(request, response);
         } catch (EJBException exception) {
             getServletContext().log("Impossible de charger le tableau de bord administrateur.", exception);
             response.sendError(HttpServletResponse.SC_SERVICE_UNAVAILABLE,
                     "Impossible de charger cette page pour le moment.");
         }
+    }
+
+    private static SoutenanceAgenda versAgenda(SoutenanceVue vue) {
+        String memoire = vue.getSoutenance().getMemoire() == null
+                ? "—"
+                : vue.getSoutenance().getMemoire().getTitre();
+        String etudiant = vue.getEtudiant() == null
+                ? "Non rattaché"
+                : (vue.getEtudiant().getPrenom() + " " + vue.getEtudiant().getNom()).trim();
+        String salle = vue.getSoutenance().getSalle() == null
+                ? "—"
+                : vue.getSoutenance().getSalle().getNomSalle();
+        return new SoutenanceAgenda(
+                vue.getSoutenance().getDateHeure().format(DATE_FORMAT),
+                memoire, etudiant, salle, vue.getSoutenance().getStatut());
     }
 
     private static long compter(List<SoutenanceVue> soutenances, StatutSoutenance statut) {
@@ -95,14 +142,13 @@ public class AdminDashboardServlet extends HttpServlet {
                 .count();
     }
 
-    private static List<SoutenanceVue> prochaines(List<SoutenanceVue> soutenances) {
-        LocalDateTime maintenant = LocalDateTime.now();
-        return soutenances.stream()
-                .filter(vue -> vue.getSoutenance().getStatut() == StatutSoutenance.PLANIFIEE)
-                .filter(vue -> vue.getSoutenance().getDateHeure() != null
-                        && vue.getSoutenance().getDateHeure().isAfter(maintenant))
-                .sorted(Comparator.comparing(vue -> vue.getSoutenance().getDateHeure()))
-                .limit(PROCHAINES_MAX)
-                .toList();
+    private static int pourcentage(long valeur, long total) {
+        return total == 0 ? 0 : (int) Math.round(valeur * 100.0 / total);
     }
+
+    private static String jourDuJour() {
+        String jour = LocalDate.now().format(JOUR_FORMAT);
+        return Character.toUpperCase(jour.charAt(0)) + jour.substring(1);
+    }
+
 }

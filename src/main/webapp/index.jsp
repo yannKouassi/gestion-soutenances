@@ -7,13 +7,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Gestion des soutenances | PGS-PFE</title>
     <!-- Socle commun de tokens et primitives -->
-    <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/theme.css?v=20261028">
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/theme.css?v=20261032">
     <!-- Feuille de styles dédiée à la page d'accueil plein écran -->
-    <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/index.css?v=20261028">
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/index.css?v=20261032">
 </head>
 <body>
 
-    <main class="index-screen">
+<a class="skip-link" href="#main-content">Aller au contenu principal</a>
+    <main id="main-content" class="index-screen">
         
         <!-- En-tête discret supérieur -->
         <header class="index-topbar">
@@ -51,7 +52,10 @@
                             <span class="index-session-chip">
                                 Connecté : <strong><c:out value="${sessionScope.utilisateurConnecte.login}"/></strong>
                                 (<c:out value="${sessionScope.utilisateurConnecte.role}"/>) &middot;
-                                <a href="${pageContext.request.contextPath}/logout" style="color:var(--c-accent); text-decoration:underline;">Quitter</a>
+                                <form class="inline-form" method="post" action="${pageContext.request.contextPath}/logout" style="display:inline;">
+                                    <input type="hidden" name="csrfToken" value="<c:out value='${sessionScope.adminCsrfToken != null ? sessionScope.adminCsrfToken : (sessionScope.encadreurCsrfToken != null ? sessionScope.encadreurCsrfToken : sessionScope.etudiantCsrfToken)}'/>">
+                                    <button type="submit" style="background:none;border:0;padding:0;color:var(--c-accent);text-decoration:underline;cursor:pointer;font:inherit;">Quitter</button>
+                                </form>
                             </span>
                         </c:when>
                         <c:otherwise>
@@ -88,5 +92,6 @@
 
     </main>
 
+<script src="${pageContext.request.contextPath}/assets/js/prevent-double-submit.js" defer></script>
 </body>
 </html>

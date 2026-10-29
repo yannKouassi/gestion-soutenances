@@ -26,7 +26,7 @@ public class DashboardServlet extends HttpServlet {
         }
 
         if (utilisateur.role() == RoleUtilisateur.ADMIN) {
-            response.sendRedirect(request.getContextPath() + "/admin/departements");
+            response.sendRedirect(request.getContextPath() + "/admin/dashboard");
             return;
         }
 

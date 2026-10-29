@@ -6,9 +6,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Planification des soutenances | PGS-PFE</title>
-    <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/theme.css?v=20261021-shell-light">
-    <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/admin.css?v=20261021-shell-light">
-    <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/sidebar-toggle.css?v=20261027-3">
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/theme.css?v=20261032">
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/admin.css?v=20261032">
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/sidebar-toggle.css?v=20261032">
 </head>
 <body>
 <div class="admin-shell">
@@ -100,6 +100,10 @@
     memoireSelect.addEventListener('change', function () {
         dateInput.min = formatLocal(borneMin());
     });
+    // Calcul initial au chargement (cas modification / mémoire déjà sélectionné)
+    if (memoireSelect.value) {
+        dateInput.min = formatLocal(borneMin());
+    }
 })();
 </script>
 </body>

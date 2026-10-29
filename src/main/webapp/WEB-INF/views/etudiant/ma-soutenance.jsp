@@ -6,14 +6,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Ma soutenance | PGS-PFE</title>
-    <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/theme.css?v=20261021-shell-light">
-    <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/etudiant.css?v=20261021-shell-light">
-    <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/sidebar-toggle.css?v=20261027-3">
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/theme.css?v=20261032">
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/etudiant.css?v=20261032">
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/sidebar-toggle.css?v=20261032">
 </head>
 <body>
 <div class="admin-shell">
     <%@ include file="etudiant-layout.jspf" %>
-    <main class="admin-main">
+    <main id="main-content" class="admin-main">
         <%@ include file="etudiant-topbar.jspf" %>
         <header class="page-heading">
             <div class="page-heading-copy"><span class="page-eyebrow">Espace étudiant / Ma soutenance</span>
