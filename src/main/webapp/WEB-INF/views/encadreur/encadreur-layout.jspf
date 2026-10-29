@@ -35,7 +35,7 @@
             <div class="nav-submenu">
                 <a class="${type eq 'profil' ? 'active' : ''}" href="${pageContext.request.contextPath}/encadreur/profil">Édition Profil</a>
             </div>
-            <script src="${pageContext.request.contextPath}/assets/js/sidebar-toggle.js?v=20261029" defer></script>
+            <script src="${pageContext.request.contextPath}/assets/js/sidebar-toggle.js?v=20261030" defer></script>
         </details>
     </nav>
     <form class="sidebar-logout" method="post" action="${pageContext.request.contextPath}/logout">

@@ -1,65 +1,26 @@
-.admin-shell {
-  transition: grid-template-columns 160ms ease;
-}
-
-.admin-shell.sidebar-collapsed {
-  --sidebar-width: 76px;
-}
-
-.admin-shell.sidebar-collapsed .brand {
-  justify-content: center;
-  padding-right: 8px;
-  padding-left: 8px;
-}
-
-.admin-shell.sidebar-collapsed .brand-copy,
-.admin-shell.sidebar-collapsed .nav-heading,
-.admin-shell.sidebar-collapsed .nav-group summary::after,
-.admin-shell.sidebar-collapsed .nav-submenu,
-.admin-shell.sidebar-collapsed .sidebar-logout button span {
-  display: none;
-}
-
-.admin-shell.sidebar-collapsed .admin-nav {
-  padding-right: 8px;
-  padding-left: 8px;
-}
-
-.admin-shell.sidebar-collapsed .nav-group summary {
-  justify-content: center;
-  gap: 0;
-  padding: 7px;
-  font-size: 0;
-}
-
-.admin-shell.sidebar-collapsed .sidebar-logout {
-  padding-right: 8px;
-  padding-left: 8px;
-}
-
-.admin-shell.sidebar-collapsed .sidebar-logout button {
-  justify-content: center;
-  padding-right: 8px;
-  padding-left: 8px;
-  font-size: 0;
-}
+/* ==========================================================================
+   BOUTON DE MENU, REPLI EN RAIL ET TIROIR MOBILE
+   Chargé après theme.css par toutes les pages de la coquille.
+   ========================================================================== */
 
 .sidebar-toggle {
   display: grid;
-  width: 28px;
-  height: 36px;
+  width: 34px;
+  height: 34px;
   flex: 0 0 auto;
   place-items: center;
   padding: 0;
-  border: 0;
-  border-radius: 0;
+  border: var(--border-w) solid var(--c-line-strong);
+  border-radius: var(--radius-sm);
   color: var(--c-primary);
-  background: transparent;
-  cursor: pointer;
+  background: var(--c-surface);
+  transition: background-color 120ms ease, border-color 120ms ease;
 }
 
 .sidebar-toggle:hover {
-  color: var(--c-accent-ink);
+  border-color: var(--c-accent);
+  color: var(--c-primary);
+  background: var(--c-accent-wash);
 }
 
 .sidebar-toggle:focus-visible {
@@ -69,8 +30,8 @@
 
 .sidebar-toggle svg {
   display: block;
-  width: 22px;
-  height: 22px;
+  width: 18px;
+  height: 18px;
   fill: none;
   stroke: currentColor;
   stroke-linecap: round;
@@ -78,12 +39,109 @@
   stroke-width: 2;
 }
 
-@media (max-width: 760px) {
-  .admin-shell.sidebar-collapsed {
-    grid-template-columns: 1fr;
+/* ---- Rail d'icônes (grands écrans) -------------------------------------- */
+@media (min-width: 901px) {
+  .admin-shell {
+    transition: grid-template-columns 160ms ease;
   }
 
-  .admin-shell.sidebar-collapsed .admin-rail {
+  .admin-shell.sidebar-collapsed {
+    --sidebar-width: 76px;
+  }
+
+  .admin-shell.sidebar-collapsed .brand {
+    justify-content: center;
+    padding-right: 8px;
+    padding-left: 8px;
+  }
+
+  .admin-shell.sidebar-collapsed .brand-copy,
+  .admin-shell.sidebar-collapsed .nav-heading,
+  .admin-shell.sidebar-collapsed .nav-group summary::after,
+  .admin-shell.sidebar-collapsed .nav-submenu {
     display: none;
+  }
+
+  .admin-shell.sidebar-collapsed .admin-nav {
+    padding-right: 8px;
+    padding-left: 8px;
+  }
+
+  .admin-shell.sidebar-collapsed .nav-group summary {
+    justify-content: center;
+    gap: 0;
+    padding: 7px;
+    font-size: 0;
+  }
+
+  .admin-shell.sidebar-collapsed .sidebar-logout {
+    padding-right: 8px;
+    padding-left: 8px;
+  }
+
+  .admin-shell.sidebar-collapsed .sidebar-logout button {
+    justify-content: center;
+    gap: 0;
+    padding-right: 8px;
+    padding-left: 8px;
+    font-size: 0;
+  }
+}
+
+/* ---- Tiroir mobile ------------------------------------------------------ */
+.admin-shell.js-nav .admin-sidebar-backdrop {
+  display: none;
+}
+
+@media (max-width: 900px) {
+  .admin-shell.js-nav .admin-rail {
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 60;
+    width: min(86vw, 304px);
+    height: 100vh;
+    overflow-y: auto;
+    background: var(--c-primary);
+    border-right: var(--border-w) solid var(--c-ink);
+    box-shadow: 8px 0 24px rgb(15 23 42 / 24%);
+    transform: translateX(-100%);
+    transition: transform 180ms ease;
+  }
+
+  .admin-shell.js-nav .admin-sidebar {
+    position: static;
+    height: auto;
+    min-height: 100%;
+    max-height: none;
+    overflow: visible;
+    border-bottom: 0;
+  }
+
+  .admin-shell.js-nav .admin-sidebar-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 55;
+    display: block;
+    padding: 0;
+    border: 0;
+    background: rgb(15 23 42 / 45%);
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 180ms ease, visibility 180ms;
+  }
+
+  .admin-shell.js-nav.sidebar-open .admin-rail {
+    transform: none;
+  }
+
+  .admin-shell.js-nav.sidebar-open .admin-sidebar-backdrop {
+    opacity: 1;
+    visibility: visible;
+  }
+
+  body.sidebar-lock {
+    overflow: hidden;
   }
 }

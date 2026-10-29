@@ -6,9 +6,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title><c:out value="${titre}"/> | PGS-PFE</title>
-    <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/theme.css?v=20261029">
-    <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/encadreur.css?v=20261029">
-    <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/sidebar-toggle.css?v=20261029">
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/theme.css?v=20261030">
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/encadreur.css?v=20261030">
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/sidebar-toggle.css?v=20261030">
 </head>
 <body>
 <div class="admin-shell">
