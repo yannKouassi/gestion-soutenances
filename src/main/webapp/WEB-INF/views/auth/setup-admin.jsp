@@ -47,5 +47,6 @@
     </form>
     <p class="auth-setup-link"><a href="${pageContext.request.contextPath}/login">Retour à la connexion</a></p>
 </main>
+<script src="${pageContext.request.contextPath}/assets/js/prevent-double-submit.js" defer></script>
 </body>
 </html>

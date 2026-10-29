@@ -91,5 +91,6 @@
 
     </main>
 
+<script src="${pageContext.request.contextPath}/assets/js/prevent-double-submit.js" defer></script>
 </body>
 </html>

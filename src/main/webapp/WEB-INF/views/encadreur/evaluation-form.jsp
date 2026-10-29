@@ -40,7 +40,7 @@
             <div class="form-card-heading"><c:choose><c:when test="${dejaNote}"><span class="form-mode">Note soumise</span></c:when><c:otherwise><span class="form-mode">Saisie</span></c:otherwise></c:choose>
                 <h2>Ma note</h2><p>Note entre 0 et 20, arrondie à deux décimales à l’affichage.</p>
             </div>
-            <form class="form-grid" method="post" action="${pageContext.request.contextPath}/encadreur/mes-jurys/noter">
+            <form class="form-grid" method="post" action="${pageContext.request.contextPath}/encadreur/mes-jurys/noter" onsubmit="return confirm('Confirmer la soumission de la note ? Cette action est irréversible.');">
                 <input type="hidden" name="csrfToken" value="<c:out value='${csrfToken}'/>"><input type="hidden" name="soutenanceId" value="<c:out value='${soutenance.id}'/>">
                 <div class="float-field">
                     <div class="float-field-box">

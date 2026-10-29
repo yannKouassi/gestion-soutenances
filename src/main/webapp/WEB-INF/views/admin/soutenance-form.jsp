@@ -95,6 +95,10 @@
     memoireSelect.addEventListener('change', function () {
         dateInput.min = formatLocal(borneMin());
     });
+    // Calcul initial au chargement (cas modification / mémoire déjà sélectionné)
+    if (memoireSelect.value) {
+        dateInput.min = formatLocal(borneMin());
+    }
 })();
 </script>
 </body>

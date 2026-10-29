@@ -41,5 +41,6 @@
         <input type="hidden" name="csrfToken" value="<c:out value='${csrfToken}'/>">
         <button type="submit" title="Se déconnecter"><svg class="logout-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M10 17l5-5-5-5M15 12H3M12 3h6a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-6"/></svg><span>Se déconnecter</span></button>
     </form>
+<script src="${pageContext.request.contextPath}/assets/js/prevent-double-submit.js" defer></script>
 </aside>
 </div>
