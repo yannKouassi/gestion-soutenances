@@ -2,8 +2,6 @@ package ci.univ.soutenances.controller;
 
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -23,6 +21,7 @@ import ci.univ.soutenances.model.SessionUser;
 import ci.univ.soutenances.model.Soutenance;
 import ci.univ.soutenances.model.StatutSoutenance;
 import ci.univ.soutenances.service.EncadreurService;
+import ci.univ.soutenances.util.FlashMessages;
 import ci.univ.soutenances.service.HistoriqueActionService;
 import jakarta.ejb.EJB;
 import jakarta.ejb.EJBException;
@@ -185,8 +184,7 @@ public class EncadreurServlet extends HttpServlet {
         request.setAttribute("titre", TITLES.get(section));
         request.setAttribute("encadreur", encadreur);
         request.setAttribute("lignes", buildLignes(convocations, encadreur.getId()));
-        request.setAttribute("message", request.getParameter("message"));
-        request.setAttribute("erreur", request.getParameter("erreur"));
+        FlashMessages.exposer(request);
         setLogoutToken(request);
         request.getRequestDispatcher("/WEB-INF/views/encadreur/mes-jurys.jsp").forward(request, response);
     }
@@ -271,8 +269,7 @@ public class EncadreurServlet extends HttpServlet {
         request.setAttribute("dejaNote", maConvocation.getNote() != null);
         request.setAttribute("dateAffichee", formatDate(soutenance));
         setSaisieAuthorization(request, soutenance, jury.size());
-        request.setAttribute("message", request.getParameter("message"));
-        request.setAttribute("erreur", request.getParameter("erreur"));
+        FlashMessages.exposer(request);
         setLogoutToken(request);
         request.getRequestDispatcher("/WEB-INF/views/encadreur/evaluation-form.jsp").forward(request, response);
     }
@@ -490,7 +487,11 @@ public class EncadreurServlet extends HttpServlet {
 
     private static void redirectJurys(HttpServletRequest request, HttpServletResponse response,
             String parameter, String message) throws IOException {
-        response.sendRedirect(request.getContextPath() + "/encadreur/mes-jurys?"
-                + parameter + "=" + URLEncoder.encode(message, StandardCharsets.UTF_8));
+        if ("erreur".equals(parameter)) {
+            FlashMessages.erreur(request, message);
+        } else {
+            FlashMessages.succes(request, message);
+        }
+        response.sendRedirect(request.getContextPath() + "/encadreur/mes-jurys");
     }
 }

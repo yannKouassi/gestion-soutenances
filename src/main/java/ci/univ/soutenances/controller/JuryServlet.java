@@ -1,8 +1,6 @@
 package ci.univ.soutenances.controller;
 
 import java.io.IOException;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Set;
@@ -20,6 +18,7 @@ import ci.univ.soutenances.model.SoutenanceVue;
 import ci.univ.soutenances.repository.EncadreurRepository;
 import ci.univ.soutenances.service.HistoriqueActionService;
 import ci.univ.soutenances.service.SoutenanceService;
+import ci.univ.soutenances.util.FlashMessages;
 import jakarta.ejb.EJB;
 import jakarta.ejb.EJBException;
 import jakarta.servlet.ServletException;
@@ -69,8 +68,7 @@ public class JuryServlet extends HttpServlet {
                 response.sendError(HttpServletResponse.SC_NOT_FOUND);
                 return;
             }
-            request.setAttribute("message", request.getParameter("message"));
-            request.setAttribute("erreur", request.getParameter("erreur"));
+            FlashMessages.exposer(request);
             setJuryAttributes(request, soutenance, findEtudiant(soutenanceId));
             if (!setHistoryPage(request, response)) {
                 return;
@@ -115,8 +113,12 @@ public class JuryServlet extends HttpServlet {
             if (!recorded) {
                 message = message + " L’historique de l’action n’a pas pu être enregistré.";
             }
-            response.sendRedirect(request.getContextPath() + "/admin/jury?soutenance=" + soutenanceId
-                    + (recorded ? "&message=" : "&erreur=") + encode(message));
+            if (recorded) {
+                FlashMessages.succes(request, message);
+            } else {
+                FlashMessages.erreur(request, message);
+            }
+            response.sendRedirect(request.getContextPath() + "/admin/jury?soutenance=" + soutenanceId);
         } catch (IllegalArgumentException exception) {
             showJuryError(request, response, request.getParameter("soutenance"), exception.getMessage());
         } catch (EJBException exception) {
@@ -294,10 +296,6 @@ public class JuryServlet extends HttpServlet {
         } catch (NumberFormatException exception) {
             throw new IllegalArgumentException("Numéro de page invalide.");
         }
-    }
-
-    private static String encode(String value) {
-        return URLEncoder.encode(value, StandardCharsets.UTF_8);
     }
 
     private static void forwardForm(HttpServletRequest request, HttpServletResponse response)

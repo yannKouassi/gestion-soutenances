@@ -1,8 +1,6 @@
 package ci.univ.soutenances.controller;
 
 import java.io.IOException;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
 import java.time.format.DateTimeFormatter;
 import java.util.Map;
 import java.util.UUID;
@@ -16,6 +14,7 @@ import ci.univ.soutenances.model.Grade;
 import ci.univ.soutenances.model.Salle;
 import ci.univ.soutenances.model.SessionUser;
 import ci.univ.soutenances.service.DepartementService;
+import ci.univ.soutenances.util.FlashMessages;
 import ci.univ.soutenances.service.FiliereService;
 import ci.univ.soutenances.service.GradeService;
 import ci.univ.soutenances.service.HistoriqueActionService;
@@ -90,8 +89,7 @@ public class ReferentielServlet extends HttpServlet {
                 if (!setHistoryPage(request, response, type)) {
                     return;
                 }
-                request.setAttribute("message", request.getParameter("message"));
-                request.setAttribute("erreur", request.getParameter("erreur"));
+                FlashMessages.exposer(request);
                 request.getRequestDispatcher(listView(type)).forward(request, response);
                 return;
             }
@@ -493,7 +491,11 @@ public class ReferentielServlet extends HttpServlet {
 
     private static void redirect(HttpServletRequest request, HttpServletResponse response,
             String type, String parameter, String message) throws IOException {
-        response.sendRedirect(request.getContextPath() + "/admin/" + type + "?"
-                + parameter + "=" + URLEncoder.encode(message, StandardCharsets.UTF_8));
+        if ("erreur".equals(parameter)) {
+            FlashMessages.erreur(request, message);
+        } else {
+            FlashMessages.succes(request, message);
+        }
+        response.sendRedirect(request.getContextPath() + "/admin/" + type);
     }
 }

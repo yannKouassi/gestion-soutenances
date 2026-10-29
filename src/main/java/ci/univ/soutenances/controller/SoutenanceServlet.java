@@ -1,8 +1,6 @@
 package ci.univ.soutenances.controller;
 
 import java.io.IOException;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
@@ -23,6 +21,7 @@ import ci.univ.soutenances.repository.EtudiantRepository;
 import ci.univ.soutenances.repository.FiliereRepository;
 import ci.univ.soutenances.service.HistoriqueActionService;
 import ci.univ.soutenances.service.SoutenanceService;
+import ci.univ.soutenances.util.FlashMessages;
 import ci.univ.soutenances.util.Format;
 import jakarta.ejb.EJB;
 import jakarta.ejb.EJBException;
@@ -58,6 +57,7 @@ public class SoutenanceServlet extends HttpServlet {
             throws ServletException, IOException {
         request.setAttribute("type", TYPE);
         request.setAttribute("titre", TITLE);
+        FlashMessages.exposer(request);
 
         try {
             if ("detail".equals(request.getParameter("vue"))) {
@@ -80,8 +80,6 @@ public class SoutenanceServlet extends HttpServlet {
             request.setAttribute("filtreDate", date == null ? "" : date.toString());
             request.setAttribute("filtreEtudiant", etudiantId == null ? "" : etudiantId.toString());
             request.setAttribute("filtreFiliere", filiereId == null ? "" : filiereId.toString());
-            request.setAttribute("message", request.getParameter("message"));
-            request.setAttribute("erreur", request.getParameter("erreur"));
             request.getRequestDispatcher(LIST_VIEW).forward(request, response);
         } catch (IllegalArgumentException exception) {
             response.sendError(HttpServletResponse.SC_BAD_REQUEST, exception.getMessage());
@@ -115,14 +113,16 @@ public class SoutenanceServlet extends HttpServlet {
             if (!recorded) {
                 message = message + " L’historique de l’action n’a pas pu être enregistré.";
             }
-            redirectDetail(request, response, soutenanceId, recorded ? "message" : "erreur", message);
+            flash(request, recorded, message);
+            redirectDetail(request, response, soutenanceId);
         } catch (IllegalArgumentException exception) {
             UUID id = parseOptionalId(request.getParameter("id"));
             if (id == null) {
                 response.sendError(HttpServletResponse.SC_BAD_REQUEST, exception.getMessage());
                 return;
             }
-            redirectDetail(request, response, id, "erreur", exception.getMessage());
+            FlashMessages.erreur(request, exception.getMessage());
+            redirectDetail(request, response, id);
         } catch (EJBException exception) {
             getServletContext().log("Échec de l’annulation d’une soutenance.", exception);
             UUID id = parseOptionalId(request.getParameter("id"));
@@ -131,8 +131,8 @@ public class SoutenanceServlet extends HttpServlet {
                         "Annulation impossible pour le moment.");
                 return;
             }
-            redirectDetail(request, response, id, "erreur",
-                    "Annulation impossible pour le moment.");
+            FlashMessages.erreur(request, "Annulation impossible pour le moment.");
+            redirectDetail(request, response, id);
         }
     }
 
@@ -149,8 +149,6 @@ public class SoutenanceServlet extends HttpServlet {
             return;
         }
         request.setAttribute("vueSoutenance", vue);
-        request.setAttribute("message", request.getParameter("message"));
-        request.setAttribute("erreur", request.getParameter("erreur"));
         request.setAttribute("membres", soutenanceService.findMembres(soutenanceId));
         request.setAttribute("noteFinale", soutenanceService.calculerMoyenne(soutenanceId)
                 .map(Format::note)
@@ -200,17 +198,20 @@ public class SoutenanceServlet extends HttpServlet {
     }
 
     private static void redirectDetail(HttpServletRequest request, HttpServletResponse response,
-            UUID soutenanceId, String parameter, String message) throws IOException {
-        response.sendRedirect(request.getContextPath() + "/admin/soutenances?vue=detail&id=" + soutenanceId
-                + "&" + parameter + "=" + encode(message));
+            UUID soutenanceId) throws IOException {
+        response.sendRedirect(request.getContextPath() + "/admin/soutenances?vue=detail&id=" + soutenanceId);
+    }
+
+    private static void flash(HttpServletRequest request, boolean recorded, String message) {
+        if (recorded) {
+            FlashMessages.succes(request, message);
+        } else {
+            FlashMessages.erreur(request, message);
+        }
     }
 
     private static String clean(String value) {
         return value == null ? "" : value.trim();
-    }
-
-    private static String encode(String value) {
-        return URLEncoder.encode(value, StandardCharsets.UTF_8);
     }
 
     private static String[] pathParts(HttpServletRequest request) {

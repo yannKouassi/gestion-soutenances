@@ -1,8 +1,6 @@
 package ci.univ.soutenances.controller;
 
 import java.io.IOException;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
@@ -15,6 +13,7 @@ import ci.univ.soutenances.model.SessionUser;
 import ci.univ.soutenances.repository.EncadreurRepository;
 import ci.univ.soutenances.service.HistoriqueActionService;
 import ci.univ.soutenances.service.MemoireService;
+import ci.univ.soutenances.util.FlashMessages;
 import jakarta.ejb.EJB;
 import jakarta.ejb.EJBException;
 import jakarta.servlet.ServletException;
@@ -73,7 +72,7 @@ public class MemoireServlet extends HttpServlet {
                     return;
                 }
                 request.setAttribute("element", element);
-                request.setAttribute("message", request.getParameter("message"));
+                FlashMessages.exposer(request);
                 setFormOptions(request);
                 if (!setHistoryPage(request, response)) {
                     return;
@@ -85,8 +84,7 @@ public class MemoireServlet extends HttpServlet {
             if (path.length == 0) {
                 request.setAttribute("elements", memoireService.findAll());
                 request.setAttribute("encadreurs", encadreurRepository.findAll());
-                request.setAttribute("message", request.getParameter("message"));
-                request.setAttribute("erreur", request.getParameter("erreur"));
+                FlashMessages.exposer(request);
                 request.getRequestDispatcher(LIST_VIEW).forward(request, response);
                 return;
             }
@@ -353,7 +351,11 @@ public class MemoireServlet extends HttpServlet {
 
     private static void redirect(HttpServletRequest request, HttpServletResponse response,
             String parameter, String message) throws IOException {
-        response.sendRedirect(request.getContextPath() + "/admin/" + TYPE + "?"
-                + parameter + "=" + URLEncoder.encode(message, StandardCharsets.UTF_8));
+        if ("erreur".equals(parameter)) {
+            FlashMessages.erreur(request, message);
+        } else {
+            FlashMessages.succes(request, message);
+        }
+        response.sendRedirect(request.getContextPath() + "/admin/" + TYPE);
     }
 }

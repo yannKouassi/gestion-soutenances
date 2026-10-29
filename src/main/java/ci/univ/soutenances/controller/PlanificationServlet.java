@@ -1,8 +1,6 @@
 package ci.univ.soutenances.controller;
 
 import java.io.IOException;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
@@ -20,6 +18,7 @@ import ci.univ.soutenances.repository.SalleRepository;
 import ci.univ.soutenances.service.HistoriqueActionService;
 import ci.univ.soutenances.service.MemoireService;
 import ci.univ.soutenances.service.SoutenanceService;
+import ci.univ.soutenances.util.FlashMessages;
 import jakarta.ejb.EJB;
 import jakarta.ejb.EJBException;
 import jakarta.servlet.ServletException;
@@ -72,8 +71,7 @@ public class PlanificationServlet extends HttpServlet {
                 return;
             }
             request.setAttribute("element", element);
-            request.setAttribute("message", request.getParameter("message"));
-            request.setAttribute("erreur", request.getParameter("erreur"));
+            FlashMessages.exposer(request);
             setFormOptions(request);
             if (!setHistoryPage(request, response)) {
                 return;
@@ -110,10 +108,11 @@ public class PlanificationServlet extends HttpServlet {
                 message = message + " L’historique de l’action n’a pas pu être enregistré.";
             }
             if (creation) {
-                redirectJury(request, response, soutenance.getId(), recorded, message);
+                flash(request, recorded, message);
+                redirectJury(request, response, soutenance.getId());
             } else {
-                response.sendRedirect(request.getContextPath() + "/admin/planification?id=" + soutenance.getId()
-                        + (recorded ? "&message=" : "&erreur=") + encode(message));
+                flash(request, recorded, message);
+                response.sendRedirect(request.getContextPath() + "/admin/planification?id=" + soutenance.getId());
             }
         } catch (IllegalArgumentException exception) {
             showFormError(request, response, exception.getMessage());
@@ -332,18 +331,21 @@ public class PlanificationServlet extends HttpServlet {
         }
     }
 
-    private static String encode(String value) {
-        return URLEncoder.encode(value, StandardCharsets.UTF_8);
+    private static void redirectJury(HttpServletRequest request, HttpServletResponse response,
+            UUID soutenanceId) throws IOException {
+        response.sendRedirect(request.getContextPath() + "/admin/jury?soutenance=" + soutenanceId);
+    }
+
+    private static void flash(HttpServletRequest request, boolean recorded, String message) {
+        if (recorded) {
+            FlashMessages.succes(request, message);
+        } else {
+            FlashMessages.erreur(request, message);
+        }
     }
 
     private static void forwardForm(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         request.getRequestDispatcher(FORM_VIEW).forward(request, response);
-    }
-
-    private static void redirectJury(HttpServletRequest request, HttpServletResponse response,
-            UUID soutenanceId, boolean recorded, String message) throws IOException {
-        response.sendRedirect(request.getContextPath() + "/admin/jury?soutenance=" + soutenanceId
-                + (recorded ? "&message=" : "&erreur=") + encode(message));
     }
 }

@@ -1,8 +1,6 @@
 package ci.univ.soutenances.controller;
 
 import java.io.IOException;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
 import java.time.format.DateTimeFormatter;
 import java.util.Map;
 import java.util.UUID;
@@ -13,6 +11,7 @@ import ci.univ.soutenances.model.Encadreur;
 import ci.univ.soutenances.model.Etudiant;
 import ci.univ.soutenances.model.SessionUser;
 import ci.univ.soutenances.service.CompteService;
+import ci.univ.soutenances.util.FlashMessages;
 import ci.univ.soutenances.service.DepartementService;
 import ci.univ.soutenances.service.EncadreurService;
 import ci.univ.soutenances.service.EtudiantService;
@@ -72,8 +71,7 @@ public class ActeursServlet extends HttpServlet {
                     return;
                 }
                 request.setAttribute("accounts", compteService.findAll());
-                request.setAttribute("message", request.getParameter("message"));
-                request.setAttribute("erreur", request.getParameter("erreur"));
+                FlashMessages.exposer(request);
                 request.getRequestDispatcher("/WEB-INF/views/admin/utilisateur-list.jsp").forward(request, response);
                 return;
             }
@@ -86,7 +84,7 @@ public class ActeursServlet extends HttpServlet {
                 }
                 request.setAttribute("element", element);
                 setFormOptions(request, type);
-                request.setAttribute("message", request.getParameter("message"));
+                FlashMessages.exposer(request);
                 if (!setHistoryPage(request, response, type)) {
                     return;
                 }
@@ -101,8 +99,7 @@ public class ActeursServlet extends HttpServlet {
                 } else {
                     request.setAttribute("filieres", filiereService.findAll());
                 }
-                request.setAttribute("message", request.getParameter("message"));
-                request.setAttribute("erreur", request.getParameter("erreur"));
+                FlashMessages.exposer(request);
                 request.getRequestDispatcher(listView(type)).forward(request, response);
                 return;
             }
@@ -177,9 +174,8 @@ public class ActeursServlet extends HttpServlet {
                         "Enregistrement effectué, mais l’historique n’a pas pu être enregistré.");
             } else {
                 if (creation) {
-                    response.sendRedirect(request.getContextPath() + "/admin/" + type + "?vue=form&message="
-                            + URLEncoder.encode(
-                                    "Compte créé et identifiants envoyés par e-mail.", StandardCharsets.UTF_8));
+                    FlashMessages.succes(request, "Compte créé et identifiants envoyés par e-mail.");
+                    response.sendRedirect(request.getContextPath() + "/admin/" + type + "?vue=form");
                 } else {
                     redirect(request, response, type, "message", "Modifications enregistrées.");
                 }
@@ -437,7 +433,11 @@ public class ActeursServlet extends HttpServlet {
 
     private static void redirect(HttpServletRequest request, HttpServletResponse response,
             String type, String parameter, String message) throws IOException {
-        response.sendRedirect(request.getContextPath() + "/admin/" + type + "?"
-                + parameter + "=" + URLEncoder.encode(message, StandardCharsets.UTF_8));
+        if ("erreur".equals(parameter)) {
+            FlashMessages.erreur(request, message);
+        } else {
+            FlashMessages.succes(request, message);
+        }
+        response.sendRedirect(request.getContextPath() + "/admin/" + type);
     }
 }
