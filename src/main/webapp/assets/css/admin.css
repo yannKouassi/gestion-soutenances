@@ -538,6 +538,41 @@
     width: auto;
 }
 
+/* ---- Tableau de bord (indicateurs) -------------------------------------- */
+.dashboard-grid {
+    display: grid;
+    gap: 14px;
+    grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+    margin: 0 0 18px;
+}
+
+.dashboard-card {
+    display: grid;
+    gap: 4px;
+    padding: 16px 18px;
+    border: var(--border-w) solid var(--c-ink);
+    border-radius: var(--radius-md);
+    background: var(--c-surface);
+    box-shadow: var(--shadow-2);
+}
+
+.dashboard-card-alert {
+    border-color: var(--c-danger, #b91c1c);
+}
+
+.dashboard-label {
+    color: var(--c-muted);
+    font-size: 12px;
+    font-weight: 650;
+}
+
+.dashboard-value {
+    color: var(--c-primary);
+    font-size: 28px;
+    font-weight: 800;
+    font-variant-numeric: tabular-nums;
+}
+
 /* ---- Responsive des composants admin -------------------------------------- */
 @media (max-width: 760px) {
     .list-toolbar {

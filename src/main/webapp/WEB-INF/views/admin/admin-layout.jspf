@@ -90,7 +90,7 @@
         <details class="nav-group" name="admin-nav" title="Tableau de Bord &amp; Statistiques" ${type eq 'dashboard' ? 'open' : ''}>
             <summary><span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><path d="M4 19V5m0 14h16"/><path d="m7 15 4-4 3 2 5-6"/><circle cx="7" cy="15" r="1"/><circle cx="11" cy="11" r="1"/><circle cx="14" cy="13" r="1"/><circle cx="19" cy="7" r="1"/></svg></span>Tableau de Bord &amp; Statistiques</summary>
             <div class="nav-submenu">
-                <span class="nav-item-disabled" aria-disabled="true">Indicateurs &amp; Graphiques <small>À venir</small></span>
+                <a class="nav-item" href="${pageContext.request.contextPath}/admin/dashboard">Indicateurs &amp; Graphiques</a>
             </div>
         </details>
         <details class="nav-group" name="admin-nav" title="Historique &amp; Traçabilité" ${type eq 'historique' ? 'open' : ''}>
