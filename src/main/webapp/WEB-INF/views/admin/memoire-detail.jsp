@@ -1,5 +1,6 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <%@ taglib prefix="c" uri="jakarta.tags.core" %>
+<%@ taglib prefix="fmt2" uri="http://ci.univ.soutenances/tags/format" %>
 <!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -40,7 +41,7 @@
                     </div>
                     <div>
                         <dt>Date de dépôt</dt>
-                        <dd><c:out value="${element.dateDepot}" default="Non renseignée"/></dd>
+                        <dd><c:out value="${fmt2:date(element.dateDepot)}" default="Non renseignée"/></dd>
                     </div>
                     <div>
                         <dt>Description</dt>

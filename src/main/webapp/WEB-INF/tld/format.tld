@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<taglib xmlns="https://jakarta.ee/xml/ns/jakartaee"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="https://jakarta.ee/xml/ns/jakartaee https://jakarta.ee/xml/ns/jakartaee/web-jsptaglibrary_3_0.xsd"
+        version="3.0">
+    <tlib-version>1.0</tlib-version>
+    <short-name>fmt2</short-name>
+    <uri>http://ci.univ.soutenances/tags/format</uri>
+
+    <function>
+        <name>date</name>
+        <function-class>ci.univ.soutenances.util.Format</function-class>
+        <function-signature>java.lang.String date(java.time.LocalDate)</function-signature>
+        <description>Formate une date locale au format jj/MM/aaaa.</description>
+    </function>
+
+    <function>
+        <name>dateHeure</name>
+        <function-class>ci.univ.soutenances.util.Format</function-class>
+        <function-signature>java.lang.String dateHeure(java.time.LocalDateTime)</function-signature>
+        <description>Formate un horodatage local au format jj/MM/aaaa HH:mm.</description>
+    </function>
+</taglib>

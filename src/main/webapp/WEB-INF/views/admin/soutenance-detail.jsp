@@ -1,5 +1,6 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <%@ taglib prefix="c" uri="jakarta.tags.core" %>
+<%@ taglib prefix="fmt2" uri="http://ci.univ.soutenances/tags/format" %>
 <!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -51,7 +52,7 @@
                     </span>
                 </div>
                 <dl class="info-list">
-                    <div><dt>Date de dépôt</dt><dd><c:out value="${vueSoutenance.soutenance.memoire.dateDepot}" default="Non renseignée"/></dd></div>
+                    <div><dt>Date de dépôt</dt><dd><c:out value="${fmt2:date(vueSoutenance.soutenance.memoire.dateDepot)}" default="Non renseignée"/></dd></div>
                     <div><dt>Encadreur principal</dt><dd><c:out value="${vueSoutenance.soutenance.memoire.encadreur.prenom}"/> <c:out value="${vueSoutenance.soutenance.memoire.encadreur.nom}"/></dd></div>
                     <div><dt>Grade</dt><dd><c:out value="${vueSoutenance.soutenance.memoire.encadreur.grade.libelle}"/></dd></div>
                     <div><dt>Département de l’encadreur</dt><dd><c:out value="${vueSoutenance.soutenance.memoire.encadreur.departement.nom}"/></dd></div>

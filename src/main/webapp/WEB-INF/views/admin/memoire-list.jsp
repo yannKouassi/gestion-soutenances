@@ -1,5 +1,6 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <%@ taglib prefix="c" uri="jakarta.tags.core" %>
+<%@ taglib prefix="fmt2" uri="http://ci.univ.soutenances/tags/format" %>
 <!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -51,7 +52,7 @@
                         <tr data-list-row data-filter-encadreur="<c:out value='${memoire.encadreur.id}'/>">
                             <td data-searchable class="primary-cell"><c:out value="${memoire.titre}"/></td>
                             <td data-searchable><c:out value="${memoire.encadreur.prenom}"/> <c:out value="${memoire.encadreur.nom}"/></td>
-                            <td data-searchable><c:out value="${memoire.dateDepot}" default="—"/></td>
+                            <td data-searchable><c:out value="${fmt2:date(memoire.dateDepot)}" default="—"/></td>
                             <td><div class="actions">
                                 <a class="row-action row-action-edit" href="${pageContext.request.contextPath}/admin/memoires?vue=detail&amp;id=${memoire.id}">Détails</a>
                                 <a class="row-action row-action-edit" href="${pageContext.request.contextPath}/admin/memoires?vue=form&amp;id=${memoire.id}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m14 5 5 5M4 20l4.5-1 10-10a2.1 2.1 0 0 0-3-3l-10 10L4 20Z"/></svg>Modifier</a>

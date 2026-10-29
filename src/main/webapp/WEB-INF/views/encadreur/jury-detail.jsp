@@ -1,5 +1,6 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <%@ taglib prefix="c" uri="jakarta.tags.core" %>
+<%@ taglib prefix="fmt2" uri="http://ci.univ.soutenances/tags/format" %>
 <!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -54,7 +55,7 @@
                 <dl class="info-list">
                     <div><dt>Titre</dt><dd><c:out value="${soutenance.memoire.titre}"/></dd></div>
                     <div><dt>Description</dt><dd><c:choose><c:when test="${not empty soutenance.memoire.description}"><c:out value="${soutenance.memoire.description}"/></c:when><c:otherwise>Aucune description renseignée.</c:otherwise></c:choose></dd></div>
-                    <div><dt>Date de dépôt</dt><dd><c:out value="${soutenance.memoire.dateDepot}" default="Non déposé"/></dd></div>
+                    <div><dt>Date de dépôt</dt><dd><c:out value="${fmt2:date(soutenance.memoire.dateDepot)}" default="Non déposé"/></dd></div>
                     <div><dt>Encadreur principal</dt><dd><c:out value="${soutenance.memoire.encadreur.prenom}"/> <c:out value="${soutenance.memoire.encadreur.nom}"/></dd></div>
                     <div><dt>Grade</dt><dd><c:out value="${soutenance.memoire.encadreur.grade.libelle}"/></dd></div>
                     <div><dt>Département</dt><dd><c:out value="${soutenance.memoire.encadreur.departement.nom}"/></dd></div>
