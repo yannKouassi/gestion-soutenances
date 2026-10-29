@@ -83,6 +83,18 @@
         }
     };
 
+    // En-tête figé : dès que le menu défile sous la marque, on lui pose une
+    // ombre discrète pour marquer la séparation. Deux conteneurs défilent
+    // selon le format : la colonne elle-même en desktop, le rail en tiroir.
+    const rail = shell.querySelector(".admin-rail");
+    const scrollBoxes = [sidebar, rail].filter(Boolean);
+    const syncScrolled = () => {
+        const scrolled = scrollBoxes.some((box) => box.scrollTop > 0);
+        shell.classList.toggle("sidebar-scrolled", scrolled);
+    };
+    scrollBoxes.forEach((box) => box.addEventListener("scroll", syncScrolled, { passive: true }));
+    syncScrolled();
+
     updateButton();
 
     toggle.addEventListener("click", () => {

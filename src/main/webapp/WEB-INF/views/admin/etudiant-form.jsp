@@ -2,8 +2,8 @@
 <%@ taglib prefix="c" uri="jakarta.tags.core" %>
 <!DOCTYPE html>
 <html lang="fr">
-<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Ajout / Édition Étudiant | PGS-PFE</title><link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/theme.css?v=20261031">
-    <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/admin.css?v=20261031">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Ajout / Édition Étudiant | PGS-PFE</title><link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/theme.css?v=20261032">
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/admin.css?v=20261032">
     </head>
 <body><div class="admin-shell">
     <%@ include file="admin-layout.jspf" %>

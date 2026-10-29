@@ -99,7 +99,7 @@
             <div class="nav-submenu">
                 <a class="${type eq 'historique' ? 'active' : ''}" href="${pageContext.request.contextPath}/admin/historique">Journal d'Audit</a>
             </div>
-            <script src="${pageContext.request.contextPath}/assets/js/sidebar-toggle.js?v=20261031" defer></script>
+            <script src="${pageContext.request.contextPath}/assets/js/sidebar-toggle.js?v=20261032" defer></script>
         </details>
     </nav>
     <form class="sidebar-logout" method="post" action="${pageContext.request.contextPath}/logout">

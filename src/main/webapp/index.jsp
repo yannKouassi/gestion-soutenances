@@ -7,9 +7,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Gestion des soutenances | PGS-PFE</title>
     <!-- Socle commun de tokens et primitives -->
-    <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/theme.css?v=20261031">
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/theme.css?v=20261032">
     <!-- Feuille de styles dédiée à la page d'accueil plein écran -->
-    <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/index.css?v=20261031">
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/index.css?v=20261032">
 </head>
 <body>
 

@@ -1097,15 +1097,29 @@ hr {
   background: transparent;
 }
 
-/* Marque : au trait, sans aplat ni ombre, pour rester dans le registre minimal. */
+/* Marque : au trait, sans aplat ni ombre, pour rester dans le registre minimal.
+   En-tête figé : la sidebar défile quand le menu dépasse la hauteur de la
+   fenêtre, mais la marque reste collée en haut du conteneur défilant.
+   Le fond opaque évite que les items passent sous le texte pendant le défilement. */
 .brand {
+  position: sticky;
+  top: 0;
+  z-index: 4;
   display: flex;
+  flex: 0 0 auto;
   align-items: center;
   gap: 10px;
   min-height: var(--topbar-height);
   padding: 14px 18px;
   border-bottom: var(--border-w) solid var(--c-line);
   color: var(--c-primary);
+  background: var(--c-surface);
+  transition: box-shadow 160ms ease;
+}
+
+/* Filet d'ombre uniquement quand le menu est effectivement défilé sous la marque. */
+.admin-shell.sidebar-scrolled .brand {
+  box-shadow: 0 7px 12px -10px rgb(15 23 42 / 55%);
 }
 
 .brand:hover {
@@ -2211,6 +2225,13 @@ button:focus-visible,
 
   .brand {
     min-height: 60px;
+  }
+
+  /* Sans JS, la colonne reste dans le flux de la page : une marque collante
+     flotterait au-dessus du contenu au défilement. On la fige seulement
+     lorsque la colonne est devenue un tiroir défilant. */
+  .admin-shell:not(.js-nav) .brand {
+    position: static;
   }
 
   .nav-heading {
