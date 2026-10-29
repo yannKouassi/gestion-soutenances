@@ -1,5 +1,6 @@
 package ci.univ.soutenances.repository;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -24,7 +25,9 @@ public interface SoutenanceRepository {
 
     Optional<Soutenance> findById(UUID id);
 
-    boolean existsSalleConflit(UUID salleId, LocalDateTime dateHeure, UUID excludedSoutenanceId);
+    List<LocalDateTime> findCreneauxBySalle(UUID salleId, LocalDate jour, UUID excludedSoutenanceId);
+
+    List<LocalDateTime> findCreneauxByEncadreur(UUID encadreurId, LocalDate jour, UUID excludedSoutenanceId);
 
     boolean existsBySalleId(UUID salleId);
 

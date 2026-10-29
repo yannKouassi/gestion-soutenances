@@ -1,5 +1,6 @@
 package ci.univ.soutenances.repository.impl;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -141,16 +142,34 @@ public class SoutenanceRepositoryImpl implements SoutenanceRepository {
     }
 
     @Override
-    public boolean existsSalleConflit(UUID salleId, LocalDateTime dateHeure, UUID excludedSoutenanceId) {
+    public List<LocalDateTime> findCreneauxBySalle(UUID salleId, LocalDate jour, UUID excludedSoutenanceId) {
         CriteriaBuilder builder = entityManager.getCriteriaBuilder();
-        CriteriaQuery<Long> query = builder.createQuery(Long.class);
+        CriteriaQuery<LocalDateTime> query = builder.createQuery(LocalDateTime.class);
         Root<Soutenance> soutenance = query.from(Soutenance.class);
-        query.select(builder.count(soutenance)).where(
+        query.select(soutenance.get("dateHeure")).where(
                 builder.equal(soutenance.get("salle").get("id"), salleId),
-                builder.equal(soutenance.get("dateHeure"), dateHeure),
+                builder.greaterThanOrEqualTo(soutenance.get("dateHeure"), jour.atStartOfDay()),
+                builder.lessThan(soutenance.get("dateHeure"), jour.plusDays(1).atStartOfDay()),
+                builder.notEqual(soutenance.get("statut"), StatutSoutenance.ANNULEE),
                 excludedSoutenanceId == null ? builder.conjunction()
                         : builder.notEqual(soutenance.get("id"), excludedSoutenanceId));
-        return entityManager.createQuery(query).getSingleResult() > 0;
+        return entityManager.createQuery(query).getResultList();
+    }
+
+    @Override
+    public List<LocalDateTime> findCreneauxByEncadreur(UUID encadreurId, LocalDate jour,
+            UUID excludedSoutenanceId) {
+        CriteriaBuilder builder = entityManager.getCriteriaBuilder();
+        CriteriaQuery<LocalDateTime> query = builder.createQuery(LocalDateTime.class);
+        Root<Soutenance> soutenance = query.from(Soutenance.class);
+        query.select(soutenance.get("dateHeure")).where(
+                builder.equal(soutenance.get("memoire").get("encadreur").get("id"), encadreurId),
+                builder.greaterThanOrEqualTo(soutenance.get("dateHeure"), jour.atStartOfDay()),
+                builder.lessThan(soutenance.get("dateHeure"), jour.plusDays(1).atStartOfDay()),
+                builder.notEqual(soutenance.get("statut"), StatutSoutenance.ANNULEE),
+                excludedSoutenanceId == null ? builder.conjunction()
+                        : builder.notEqual(soutenance.get("id"), excludedSoutenanceId));
+        return entityManager.createQuery(query).getResultList();
     }
 
     @Override

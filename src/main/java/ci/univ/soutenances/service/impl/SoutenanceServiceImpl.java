@@ -2,8 +2,10 @@ package ci.univ.soutenances.service.impl;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -32,6 +34,7 @@ import jakarta.ejb.Stateless;
 @Stateless
 public class SoutenanceServiceImpl implements SoutenanceService {
     private static final int JURY_MINIMUM = 2;
+    private static final Duration DUREE_SOUTENANCE = Duration.ofMinutes(60);
 
     @EJB
     private SoutenanceRepository soutenanceRepository;
@@ -111,8 +114,13 @@ public class SoutenanceServiceImpl implements SoutenanceService {
         if (dejaPlanifiee.isPresent() && !dejaPlanifiee.get().getId().equals(soutenance.getId())) {
             throw new IllegalArgumentException("Ce mémoire est déjà rattaché à une soutenance.");
         }
-        if (soutenanceRepository.existsSalleConflit(salle.getId(), dateHeure, soutenance.getId())) {
-            throw new IllegalArgumentException("Cette salle est déjà occupée sur ce créneau.");
+        if (chevauche(dateHeure, soutenanceRepository.findCreneauxBySalle(salle.getId(),
+                dateHeure.toLocalDate(), soutenance.getId()))) {
+            throw new IllegalArgumentException(
+                    "Cette salle est déjà occupée sur un créneau qui chevauche cette heure.");
+        }
+        if (memoire.getEncadreur() != null) {
+            requireEncadreurDisponible(memoire.getEncadreur().getId(), dateHeure, soutenance.getId());
         }
         soutenance.setMemoire(memoire);
         soutenance.setSalle(salle);
@@ -139,6 +147,7 @@ public class SoutenanceServiceImpl implements SoutenanceService {
             throw new IllegalArgumentException(
                     "Cet encadreur encadre déjà ce mémoire : il ne peut pas être ajouté au jury.");
         }
+        requireEncadreurDisponible(encadreur.getId(), soutenance.getDateHeure(), soutenance.getId());
         Evaluation evaluation = Evaluation.create();
         evaluation.setSoutenance(soutenance);
         evaluation.setEncadreur(encadreur);
@@ -222,6 +231,28 @@ public class SoutenanceServiceImpl implements SoutenanceService {
         }
         soutenance.setStatut(StatutSoutenance.ANNULEE);
         return soutenanceRepository.save(soutenance);
+    }
+
+    private void requireEncadreurDisponible(UUID encadreurId, LocalDateTime dateHeure,
+            UUID excludedSoutenanceId) {
+        if (dateHeure == null) {
+            return;
+        }
+        LocalDate jour = dateHeure.toLocalDate();
+        List<LocalDateTime> engagements = new ArrayList<>(
+                evaluationRepository.findCreneauxByEncadreur(encadreurId, jour, excludedSoutenanceId));
+        engagements.addAll(
+                soutenanceRepository.findCreneauxByEncadreur(encadreurId, jour, excludedSoutenanceId));
+        if (chevauche(dateHeure, engagements)) {
+            throw new IllegalArgumentException(
+                    "Cet encadreur est déjà mobilisé sur un créneau qui chevauche cette heure.");
+        }
+    }
+
+    private static boolean chevauche(LocalDateTime dateHeure, List<LocalDateTime> creneaux) {
+        LocalDateTime fin = dateHeure.plus(DUREE_SOUTENANCE);
+        return creneaux.stream().anyMatch(creneau -> creneau != null
+                && creneau.isBefore(fin) && dateHeure.isBefore(creneau.plus(DUREE_SOUTENANCE)));
     }
 
     private static void requirePlanifiee(Soutenance soutenance) {

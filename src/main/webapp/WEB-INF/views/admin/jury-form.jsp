@@ -65,7 +65,7 @@
             <div class="form-card-heading">
                 <span class="form-mode">Ajout</span>
                 <h2>Ajouter un membre</h2>
-                <p>Seuls les encadreurs qui ne sont pas encore membres sont proposés ; l’encadreur du mémoire est exclu puisqu’il est déjà rattaché à cette soutenance.</p>
+                <p>Seuls les encadreurs qui ne sont pas encore membres et qui ne sont pas déjà mobilisés sur ce créneau sont proposés ; l’encadreur du mémoire est exclu puisqu’il est déjà rattaché à cette soutenance.</p>
             </div>
             <c:choose><c:when test="${soutenance.statut ne 'PLANIFIEE'}">
                 <p class="form-history-empty">La soutenance n’est plus au statut PLANIFIEE : le jury ne peut plus être modifié.</p>

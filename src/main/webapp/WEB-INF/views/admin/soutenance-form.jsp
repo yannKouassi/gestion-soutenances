@@ -26,7 +26,7 @@
             <div class="form-card-heading">
                 <c:choose><c:when test="${empty element.id}"><span class="form-mode">Création</span></c:when><c:otherwise><span class="form-mode">Modification</span></c:otherwise></c:choose>
                 <h2>Informations de la soutenance</h2>
-                <p>Un mémoire ne peut être soutenu qu’une seule fois ; la soutenance ne peut pas être planifiée avant la date de dépôt du mémoire, et une salle ne peut pas accueillir deux soutenances sur le même créneau.</p>
+                <p>Un mémoire ne peut être soutenu qu’une seule fois ; la soutenance ne peut pas être planifiée avant la date de dépôt du mémoire. Une soutenance occupe un créneau d’une heure : ni la salle ni l’encadreur du mémoire ne peuvent être mobilisés sur deux créneaux qui se chevauchent.</p>
             </div>
             <form class="form-grid" method="post" action="${pageContext.request.contextPath}/admin/planification/enregistrer">
                 <input type="hidden" name="csrfToken" value="<c:out value='${csrfToken}'/>">

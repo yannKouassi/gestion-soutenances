@@ -1,5 +1,7 @@
 package ci.univ.soutenances.repository.impl;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -7,6 +9,7 @@ import java.util.UUID;
 import ci.univ.soutenances.model.Encadreur;
 import ci.univ.soutenances.model.Evaluation;
 import ci.univ.soutenances.model.Soutenance;
+import ci.univ.soutenances.model.StatutSoutenance;
 import ci.univ.soutenances.repository.EvaluationRepository;
 import jakarta.ejb.Stateless;
 import jakarta.persistence.EntityManager;
@@ -46,6 +49,23 @@ public class EvaluationRepositoryImpl implements EvaluationRepository {
                 Evaluation.class)
                 .setParameter("soutenanceIds", soutenanceIds)
                 .getResultList();
+    }
+
+    @Override
+    public List<LocalDateTime> findCreneauxByEncadreur(UUID encadreurId, LocalDate jour,
+            UUID excludedSoutenanceId) {
+        CriteriaBuilder builder = entityManager.getCriteriaBuilder();
+        CriteriaQuery<LocalDateTime> query = builder.createQuery(LocalDateTime.class);
+        Root<Evaluation> evaluation = query.from(Evaluation.class);
+        Join<Evaluation, Soutenance> soutenance = evaluation.join("soutenance");
+        query.select(soutenance.get("dateHeure")).where(
+                builder.equal(evaluation.get("encadreur").get("id"), encadreurId),
+                builder.greaterThanOrEqualTo(soutenance.get("dateHeure"), jour.atStartOfDay()),
+                builder.lessThan(soutenance.get("dateHeure"), jour.plusDays(1).atStartOfDay()),
+                builder.notEqual(soutenance.get("statut"), StatutSoutenance.ANNULEE),
+                excludedSoutenanceId == null ? builder.conjunction()
+                        : builder.notEqual(soutenance.get("id"), excludedSoutenanceId));
+        return entityManager.createQuery(query).getResultList();
     }
 
     @Override
