@@ -16,7 +16,9 @@
     display: grid;
     gap: 14px;
     grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
-    margin: 0 clamp(20px, 3vw, 42px) 18px;
+    width: calc(100% - 2 * clamp(20px, 3vw, 42px));
+    max-width: var(--page-max-width, 1040px);
+    margin: 0 auto 18px;
 }
 
 .stat-card {
@@ -37,7 +39,7 @@
 
 .stat-value {
     color: var(--c-primary);
-    font-size: 28px;
+    font-size: 24px;
     font-weight: 800;
     font-variant-numeric: tabular-nums;
 }
