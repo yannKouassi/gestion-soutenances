@@ -20,4 +20,11 @@
         <function-signature>java.lang.String dateHeure(java.time.LocalDateTime)</function-signature>
         <description>Formate un horodatage local au format jj/MM/aaaa HH:mm.</description>
     </function>
+
+    <function>
+        <name>note</name>
+        <function-class>ci.univ.soutenances.util.Format</function-class>
+        <function-signature>java.lang.String note(java.math.BigDecimal)</function-signature>
+        <description>Formate une note sur 20 avec deux decimales et la virgule francaise.</description>
+    </function>
 </taglib>

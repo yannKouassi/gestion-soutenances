@@ -1,5 +1,6 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <%@ taglib prefix="c" uri="jakarta.tags.core" %>
+<%@ taglib prefix="fmt2" uri="http://ci.univ.soutenances/tags/format" %>
 <!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -34,7 +35,7 @@
                             <td><c:out value="${ligne.convocation.soutenance.salle.nomSalle}"/></td>
                             <td><span class="status-badge status-${ligne.convocation.soutenance.statut}"><c:out value="${ligne.convocation.soutenance.statut}"/></span></td>
                             <td><c:out value="${ligne.jury.taille}"/> membres <span class="history-total"><c:out value="${ligne.jury.notesSoumises}"/>/<c:out value="${ligne.jury.taille}"/> notes</span></td>
-                            <td><c:choose><c:when test="${empty ligne.convocation.note}">—</c:when><c:otherwise><c:out value="${ligne.convocation.note}"/>/20</c:otherwise></c:choose></td>
+                            <td><c:choose><c:when test="${empty ligne.convocation.note}">—</c:when><c:otherwise><c:out value="${fmt2:note(ligne.convocation.note)}"/>/20</c:otherwise></c:choose></td>
                             <td><c:choose><c:when test="${empty ligne.jury.moyenne}">—</c:when><c:otherwise><c:out value="${ligne.jury.moyenne}"/>/20</c:otherwise></c:choose></td>
                             <td class="actions">
                                 <a class="row-action" href="${pageContext.request.contextPath}/encadreur/mes-jurys?vue=detail&amp;id=${ligne.convocation.soutenance.id}">Détails</a>

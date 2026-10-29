@@ -1,5 +1,6 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <%@ taglib prefix="c" uri="jakarta.tags.core" %>
+<%@ taglib prefix="fmt2" uri="http://ci.univ.soutenances/tags/format" %>
 <!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -47,7 +48,7 @@
                 <p class="form-history-empty">Aucun membre pour le moment. Ajoute au moins deux encadreurs.</p>
             </c:when><c:otherwise>
                 <ul class="member-list"><c:forEach var="membre" items="${membres}">
-                    <li><c:out value="${membre.encadreur.prenom}"/> <c:out value="${membre.encadreur.nom}"/> — <c:choose><c:when test="${not empty membre.note}">note <c:out value="${membre.note}"/>/20</c:when><c:otherwise>note en attente</c:otherwise></c:choose>
+                    <li><c:out value="${membre.encadreur.prenom}"/> <c:out value="${membre.encadreur.nom}"/> — <c:choose><c:when test="${not empty membre.note}">note <c:out value="${fmt2:note(membre.note)}"/>/20</c:when><c:otherwise>note en attente</c:otherwise></c:choose>
                         <c:if test="${soutenance.statut eq 'PLANIFIEE'}">
                         <form class="inline-form" method="post" action="${pageContext.request.contextPath}/admin/jury/retirer" onsubmit="return confirm('Retirer ce membre du jury ?');">
                             <input type="hidden" name="csrfToken" value="<c:out value='${csrfToken}'/>">

@@ -118,7 +118,7 @@
                                     <tr>
                                         <td class="primary-cell"><c:out value="${membre.encadreur.prenom}"/> <c:out value="${membre.encadreur.nom}"/></td>
                                         <td><c:out value="${membre.encadreur.grade.libelle}" default="—"/></td>
-                                        <td><c:choose><c:when test="${empty membre.note}">En attente</c:when><c:otherwise><c:out value="${membre.note}"/> / 20</c:otherwise></c:choose></td>
+                                        <td><c:choose><c:when test="${empty membre.note}">En attente</c:when><c:otherwise><c:out value="${fmt2:note(membre.note)}"/> / 20</c:otherwise></c:choose></td>
                                         <td><c:out value="${membre.avis}" default="Aucun avis renseigné"/></td>
                                     </tr>
                                 </c:forEach>

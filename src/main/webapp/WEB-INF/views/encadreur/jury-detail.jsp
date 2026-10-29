@@ -107,7 +107,7 @@
                                                 <c:if test="${membre.encadreur.id eq encadreur.id}"><span class="history-total">(moi)</span></c:if>
                                             </td>
                                             <td><c:out value="${membre.encadreur.grade.libelle}" default="—"/></td>
-                                            <td><c:choose><c:when test="${not empty membre.note}"><c:out value="${membre.note}"/> / 20</c:when><c:otherwise>En attente</c:otherwise></c:choose></td>
+                                            <td><c:choose><c:when test="${not empty membre.note}"><c:out value="${fmt2:note(membre.note)}"/> / 20</c:when><c:otherwise>En attente</c:otherwise></c:choose></td>
                                             <td><c:out value="${membre.avis}" default="—"/></td>
                                         </tr>
                                     </c:forEach>
@@ -117,7 +117,7 @@
                     </c:otherwise>
                 </c:choose>
                 <dl class="info-list">
-                    <div><dt>Ma note</dt><dd><c:choose><c:when test="${not empty maConvocation.note}"><c:out value="${maConvocation.note}"/> / 20</c:when><c:otherwise>En attente</c:otherwise></c:choose></dd></div>
+                    <div><dt>Ma note</dt><dd><c:choose><c:when test="${not empty maConvocation.note}"><c:out value="${fmt2:note(maConvocation.note)}"/> / 20</c:when><c:otherwise>En attente</c:otherwise></c:choose></dd></div>
                     <div><dt>Moyenne des notes soumises</dt><dd><c:choose><c:when test="${not empty moyenne}"><c:out value="${moyenne}"/> / 20</c:when><c:otherwise>En attente des évaluations</c:otherwise></c:choose></dd></div>
                 </dl>
             </div>

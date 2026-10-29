@@ -1,7 +1,6 @@
 package ci.univ.soutenances.controller;
 
 import java.io.IOException;
-import java.math.BigDecimal;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
@@ -24,6 +23,7 @@ import ci.univ.soutenances.repository.EtudiantRepository;
 import ci.univ.soutenances.repository.FiliereRepository;
 import ci.univ.soutenances.service.HistoriqueActionService;
 import ci.univ.soutenances.service.SoutenanceService;
+import ci.univ.soutenances.util.Format;
 import jakarta.ejb.EJB;
 import jakarta.ejb.EJBException;
 import jakarta.servlet.ServletException;
@@ -153,7 +153,7 @@ public class SoutenanceServlet extends HttpServlet {
         request.setAttribute("erreur", request.getParameter("erreur"));
         request.setAttribute("membres", soutenanceService.findMembres(soutenanceId));
         request.setAttribute("noteFinale", soutenanceService.calculerMoyenne(soutenanceId)
-                .map(SoutenanceServlet::formatNote)
+                .map(Format::note)
                 .orElse(null));
         request.setAttribute("dateAffichee", vue.getSoutenance().getDateHeure() == null
                 ? null
@@ -172,7 +172,7 @@ public class SoutenanceServlet extends HttpServlet {
             int tailleJury = resume == null ? 0 : resume.getNombreMembres();
             String noteAffichee = resume == null || resume.getMoyenne() == null
                     ? null
-                    : formatNote(resume.getMoyenne());
+                    : Format.note(resume.getMoyenne());
             entries.add(new SoutenanceListeEntry(vue, formatDate(vue), tailleJury, noteAffichee));
         }
         return entries;
@@ -182,10 +182,6 @@ public class SoutenanceServlet extends HttpServlet {
         return vue.getSoutenance().getDateHeure() == null
                 ? null
                 : vue.getSoutenance().getDateHeure().format(DATE_FORMAT);
-    }
-
-    private static String formatNote(BigDecimal note) {
-        return String.format(Locale.FRANCE, "%.2f", note);
     }
 
     private boolean recordAction(HttpServletRequest request, String action, String label) {

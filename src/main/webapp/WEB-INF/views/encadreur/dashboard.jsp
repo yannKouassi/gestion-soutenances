@@ -1,5 +1,6 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <%@ taglib prefix="c" uri="jakarta.tags.core" %>
+<%@ taglib prefix="fmt2" uri="http://ci.univ.soutenances/tags/format" %>
 <!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -62,7 +63,7 @@
                             <td class="history-date"><c:out value="${ligne.dateAffichee}"/></td>
                             <td class="primary-cell"><c:out value="${ligne.convocation.soutenance.memoire.titre}"/></td>
                             <td><c:out value="${ligne.jury.notesSoumises}"/>/<c:out value="${ligne.jury.taille}"/> notes</td>
-                            <td><c:choose><c:when test="${empty ligne.convocation.note}">—</c:when><c:otherwise><c:out value="${ligne.convocation.note}"/>/20</c:otherwise></c:choose></td>
+                            <td><c:choose><c:when test="${empty ligne.convocation.note}">—</c:when><c:otherwise><c:out value="${fmt2:note(ligne.convocation.note)}"/>/20</c:otherwise></c:choose></td>
                             <td><c:choose><c:when test="${empty ligne.jury.moyenne}">—</c:when><c:otherwise><c:out value="${ligne.jury.moyenne}"/>/20</c:otherwise></c:choose></td>
                         </tr>
                     </c:forEach></tbody>
