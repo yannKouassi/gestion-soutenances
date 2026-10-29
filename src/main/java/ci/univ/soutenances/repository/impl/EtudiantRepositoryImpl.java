@@ -66,11 +66,11 @@ public class EtudiantRepositoryImpl implements EtudiantRepository {
     public Optional<Etudiant> findByUtilisateurId(UUID utilisateurId) {
         return entityManager.createQuery(
                 "SELECT e FROM Etudiant e "
-                        + "JOIN FETCH e.filiere f "
-                        + "JOIN FETCH f.departement "
+                        + "JOIN FETCH e.filiere "
+                        + "JOIN FETCH e.filiere.departement "
                         + "JOIN FETCH e.utilisateur "
-                        + "LEFT JOIN FETCH e.memoire m "
-                        + "LEFT JOIN FETCH m.encadreur "
+                        + "LEFT JOIN FETCH e.memoire "
+                        + "LEFT JOIN FETCH e.memoire.encadreur "
                         + "WHERE e.utilisateur.id = :utilisateurId",
                 Etudiant.class)
                 .setParameter("utilisateurId", utilisateurId)
