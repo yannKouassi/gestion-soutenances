@@ -4,13 +4,13 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Liste des Étudiants | PGS-PFE</title><link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/theme.css?v=20261021-shell-light">
-    <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/admin.css?v=20261021-shell-light">
-    <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/sidebar-toggle.css?v=20261027-3">
+    <title>Liste des Étudiants | PGS-PFE</title><link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/theme.css?v=20261029">
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/admin.css?v=20261029">
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/sidebar-toggle.css?v=20261029">
 </head>
 <body><div class="admin-shell">
     <%@ include file="admin-layout.jspf" %>
-    <main class="admin-main"><%@ include file="admin-topbar.jspf" %>
+    <main id="main-content" class="admin-main"><%@ include file="admin-topbar.jspf" %>
         <header class="page-heading"><div class="page-heading-copy"><span class="page-eyebrow">Acteurs &amp; Comptes / Étudiants</span><div><h1>Liste des Étudiants</h1><p>Recherche par nom ou matricule et consulte les inscriptions par filière.</p></div></div>
             <a class="btn btn-primary" href="${pageContext.request.contextPath}/admin/etudiants?vue=form"><span class="button-icon" aria-hidden="true">+</span> Ajouter un étudiant</a>
         </header>

@@ -2,12 +2,12 @@
 <%@ taglib prefix="c" uri="jakarta.tags.core" %>
 <!DOCTYPE html>
 <html lang="fr">
-<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Liste des Comptes | PGS-PFE</title><link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/theme.css?v=20261021-shell-light">
-    <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/admin.css?v=20261021-shell-light">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Liste des Comptes | PGS-PFE</title><link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/theme.css?v=20261029">
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/admin.css?v=20261029">
     </head>
 <body><div class="admin-shell">
     <%@ include file="admin-layout.jspf" %>
-    <main class="admin-main"><%@ include file="admin-topbar.jspf" %>
+    <main id="main-content" class="admin-main"><%@ include file="admin-topbar.jspf" %>
         <header class="page-heading"><div class="page-heading-copy"><span class="page-eyebrow">Acteurs &amp; Comptes / Comptes Utilisateurs</span><div><h1>Liste des Comptes</h1><p>Active ou désactive les accès et envoie un nouveau mot de passe temporaire.</p></div></div></header>
         <c:if test="${not empty message}"><div class="alert alert-success" role="status"><c:out value="${message}"/></div></c:if><c:if test="${not empty erreur}"><div class="alert alert-error" role="alert"><c:out value="${erreur}"/></div></c:if>
         <section class="card" aria-label="Comptes utilisateurs"><div class="list-toolbar"><label class="search-field"><span class="search-icon" aria-hidden="true"></span><span class="visually-hidden">Rechercher un compte</span><input type="search" data-list-search placeholder="Login, rôle ou e-mail…" autocomplete="off"><button class="search-clear" type="button" data-search-clear aria-label="Effacer la recherche" hidden>&times;</button></label><span class="list-count" data-list-count aria-live="polite"></span></div>

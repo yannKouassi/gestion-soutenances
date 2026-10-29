@@ -6,14 +6,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Tableau de bord | PGS-PFE</title>
-    <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/theme.css?v=20261021-shell-light">
-    <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/encadreur.css?v=20261021-shell-light">
-    <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/sidebar-toggle.css?v=20261027-3">
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/theme.css?v=20261029">
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/encadreur.css?v=20261029">
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/sidebar-toggle.css?v=20261029">
 </head>
 <body>
 <div class="admin-shell">
     <%@ include file="encadreur-layout.jspf" %>
-    <main class="admin-main">
+    <main id="main-content" class="admin-main">
         <%@ include file="encadreur-topbar.jspf" %>
         <header class="page-heading">
             <div class="page-heading-copy"><span class="page-eyebrow">Espace encadreur / Tableau de bord</span>
