@@ -6,8 +6,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Créer l’administrateur initial | PGS-PFE</title>
-    <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/theme.css?v=20261030">
-    <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/auth.css?v=20261030">
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/theme.css?v=20261031">
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/auth.css?v=20261031">
 </head>
 <body class="auth-page">
 <main class="auth-card">

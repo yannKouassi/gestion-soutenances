@@ -14,28 +14,28 @@
         <details class="nav-group" name="admin-nav" title="Gestion des Grades" ${type eq 'grades' ? 'open' : ''}>
             <summary><span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><path d="m12 3 2.7 5.5 6.1.9-4.4 4.3 1 6.1-5.4-2.9-5.4 2.9 1-6.1-4.4-4.3 6.1-.9L12 3Z"/></svg></span>Gestion des Grades</summary>
             <div class="nav-submenu">
-                <a class="${(empty pageContext.request.pathInfo or pageContext.request.pathInfo eq '/') and empty param.vue ? 'active' : ''}" href="${pageContext.request.contextPath}/admin/grades">Liste des Grades</a>
+                <a class="${type eq 'grades' and empty param.vue ? 'active' : ''}" href="${pageContext.request.contextPath}/admin/grades">Liste des Grades</a>
                 <a class="${param.vue eq 'form' ? 'active' : ''}" href="${pageContext.request.contextPath}/admin/grades?vue=form">Ajout / Édition Grade</a>
             </div>
         </details>
         <details class="nav-group" name="admin-nav" title="Gestion des Départements" ${type eq 'departements' ? 'open' : ''}>
             <summary><span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><path d="M4 21V5l8-3 8 3v16M2 21h20M8 8h1m6 0h1M8 12h1m6 0h1M10 21v-5h4v5"/></svg></span>Gestion des Départements</summary>
             <div class="nav-submenu">
-                <a class="${(empty pageContext.request.pathInfo or pageContext.request.pathInfo eq '/') and empty param.vue ? 'active' : ''}" href="${pageContext.request.contextPath}/admin/departements">Liste des Départements</a>
+                <a class="${type eq 'departements' and empty param.vue ? 'active' : ''}" href="${pageContext.request.contextPath}/admin/departements">Liste des Départements</a>
                 <a class="${param.vue eq 'form' ? 'active' : ''}" href="${pageContext.request.contextPath}/admin/departements?vue=form">Ajout / Édition Département</a>
             </div>
         </details>
         <details class="nav-group" name="admin-nav" title="Gestion des Filières" ${type eq 'filieres' ? 'open' : ''}>
             <summary><span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><circle cx="5" cy="5" r="2"/><circle cx="19" cy="5" r="2"/><circle cx="12" cy="19" r="2"/><path d="M7 5h10M6 7l5 10m7-10-5 10"/></svg></span>Gestion des Filières</summary>
             <div class="nav-submenu">
-                <a class="${(empty pageContext.request.pathInfo or pageContext.request.pathInfo eq '/') and empty param.vue ? 'active' : ''}" href="${pageContext.request.contextPath}/admin/filieres">Liste des Filières</a>
+                <a class="${type eq 'filieres' and empty param.vue ? 'active' : ''}" href="${pageContext.request.contextPath}/admin/filieres">Liste des Filières</a>
                 <a class="${param.vue eq 'form' ? 'active' : ''}" href="${pageContext.request.contextPath}/admin/filieres?vue=form">Ajout / Édition Filière</a>
             </div>
         </details>
         <details class="nav-group" name="admin-nav" title="Gestion des Salles" ${type eq 'salles' ? 'open' : ''}>
             <summary><span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><path d="M4 21V3h16v18M2 21h20M9 21v-5h6v5M8 7h.01M12 7h.01M16 7h.01M8 11h.01M16 11h.01"/></svg></span>Gestion des Salles</summary>
             <div class="nav-submenu">
-                <a class="${(empty pageContext.request.pathInfo or pageContext.request.pathInfo eq '/') and empty param.vue ? 'active' : ''}" href="${pageContext.request.contextPath}/admin/salles">Liste des Salles</a>
+                <a class="${type eq 'salles' and empty param.vue ? 'active' : ''}" href="${pageContext.request.contextPath}/admin/salles">Liste des Salles</a>
                 <a class="${param.vue eq 'form' ? 'active' : ''}" href="${pageContext.request.contextPath}/admin/salles?vue=form">Ajout / Édition Salle</a>
             </div>
         </details>
@@ -99,7 +99,7 @@
             <div class="nav-submenu">
                 <a class="${type eq 'historique' ? 'active' : ''}" href="${pageContext.request.contextPath}/admin/historique">Journal d'Audit</a>
             </div>
-            <script src="${pageContext.request.contextPath}/assets/js/sidebar-toggle.js?v=20261030" defer></script>
+            <script src="${pageContext.request.contextPath}/assets/js/sidebar-toggle.js?v=20261031" defer></script>
         </details>
     </nav>
     <form class="sidebar-logout" method="post" action="${pageContext.request.contextPath}/logout">

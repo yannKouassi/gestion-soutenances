@@ -16,23 +16,6 @@
    Ordre de chargement : theme.css puis admin.css.
    ========================================================================== */
 
-.nav-item-disabled {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 8px;
-    padding: 7px 9px;
-    border-radius: var(--radius-sm);
-    color: rgb(255 255 255 / 50%);
-    font-size: 12px;
-    cursor: not-allowed;
-}
-
-.nav-item-disabled small {
-    color: rgb(255 255 255 / 55%);
-    font-size: 10px;
-}
-
 .list-count {
     padding: 6px 10px;
     border: var(--border-w) solid var(--c-line);

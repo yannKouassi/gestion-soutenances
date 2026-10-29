@@ -1026,13 +1026,13 @@ hr {
    4. COQUILLE APPLICATIVE PARTAGÉE
    Utilisée à l'identique par les espaces admin, encadreur et étudiant.
    Un SEUL défilement : celui de la page. La sidebar est collante
-   (position: sticky) et ne défile jamais elle-même ; le panneau marine est
+   (position: sticky) et ne défile jamais elle-même ; le panneau clair est
    peint par le ::before de la coquille pour couvrir toute la hauteur de
    colonne, quel que soit le contenu de la page.
    --sidebar-width accompagne .admin-shell : il alimente grid-template-columns.
    ========================================================================== */
 :root {
-  --sidebar-width: 272px; /* métrique de layout, pas un token de couleur */
+  --sidebar-width: 264px; /* métrique de layout, pas un token de couleur */
   --topbar-height: 64px;
 }
 
@@ -1050,8 +1050,8 @@ hr {
   bottom: 0;
   left: 0;
   width: var(--sidebar-width);
-  background: var(--c-primary);
-  border-right: var(--border-w) solid var(--c-ink);
+  background: var(--c-surface);
+  border-right: var(--border-w) solid var(--c-line);
   z-index: 0;
 }
 
@@ -1069,18 +1069,19 @@ hr {
   position: sticky;
   top: 0;
   height: max-content;
+  min-height: 100vh;
   max-height: 100vh;
   display: flex;
   flex-direction: column;
-  color: rgb(255 255 255 / 78%);
-  background: var(--c-primary);
+  color: var(--c-text);
+  background: var(--c-surface);
   /* Filet de secours sur les écrans bas : une barre ultra-fine n'apparaît
      que si le contenu dépasse réellement la hauteur de la fenêtre ; en
      situation normale la sidebar tient sous 100 vh et il n'existe qu'un
      seul scroll, celui de la page. */
   overflow-y: auto;
   scrollbar-width: thin;
-  scrollbar-color: rgb(255 255 255 / 26%) transparent;
+  scrollbar-color: var(--c-line-strong) transparent;
 }
 
 .admin-sidebar::-webkit-scrollbar {
@@ -1089,25 +1090,26 @@ hr {
 
 .admin-sidebar::-webkit-scrollbar-thumb {
   border-radius: 999px;
-  background: rgb(255 255 255 / 26%);
+  background: var(--c-line-strong);
 }
 
 .admin-sidebar::-webkit-scrollbar-track {
   background: transparent;
 }
 
+/* Marque : au trait, sans aplat ni ombre, pour rester dans le registre minimal. */
 .brand {
   display: flex;
   align-items: center;
   gap: 10px;
-  min-height: 64px;
-  padding: 12px 16px;
-  border-bottom: var(--border-w) solid rgb(255 255 255 / 14%);
-  color: var(--c-surface);
+  min-height: var(--topbar-height);
+  padding: 14px 18px;
+  border-bottom: var(--border-w) solid var(--c-line);
+  color: var(--c-primary);
 }
 
 .brand:hover {
-  color: var(--c-surface);
+  color: var(--c-primary);
   text-decoration: none;
 }
 
@@ -1116,75 +1118,60 @@ hr {
   display: grid;
   flex: 0 0 auto;
   place-items: center;
-  border: var(--border-w) solid var(--c-ink);
   border-radius: var(--radius-sm);
-  color: var(--c-surface);
-  background: var(--c-accent);
   font-weight: 800;
   letter-spacing: -0.04em;
 }
 
 .brand-mark {
-  width: 34px;
-  height: 34px;
-  border-color: rgb(255 255 255 / 28%);
-  background: var(--c-accent);
-  box-shadow: 2px 2px 0 0 rgb(0 0 0 / 28%);
+  color: var(--c-primary);
+  background: transparent;
 }
 
 .brand-mark svg {
-  width: 20px;
-  height: 20px;
+  width: 25px;
+  height: 25px;
   fill: none;
   stroke: currentColor;
   stroke-linecap: round;
   stroke-linejoin: round;
-  stroke-width: 1.7;
+  stroke-width: 1.5;
 }
 
 .brand-copy {
   display: grid;
-  gap: 1px;
+  gap: 2px;
   min-width: 0;
 }
 
 .brand-copy strong {
-  color: var(--c-surface);
+  color: var(--c-primary);
   font-size: 14px;
-  letter-spacing: 0.005em;
+  letter-spacing: -0.005em;
 }
 
 .brand-copy small {
-  color: rgb(255 255 255 / 58%);
-  font-size: 10px;
-  font-weight: 600;
-  letter-spacing: 0.08em;
+  color: var(--c-muted);
+  font-size: 9.5px;
+  font-weight: 650;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
 }
 
+/* Intitulés de section : simples repères typographiques, sans filet. */
 .nav-heading {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin: 16px 16px 6px;
-  color: rgb(255 255 255 / 46%);
-  font-size: 10px;
+  margin: 20px 18px 5px;
+  color: var(--c-muted);
+  font-size: 9.5px;
   font-weight: 700;
-  letter-spacing: 0.11em;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
-}
-
-.nav-heading::after {
-  content: "";
-  flex: 1;
-  height: 1px;
-  background: rgb(255 255 255 / 12%);
 }
 
 .admin-nav {
   display: grid;
   align-content: start;
-  gap: 2px;
+  gap: 1px;
   padding: 0 10px 10px;
 }
 
@@ -1195,102 +1182,114 @@ hr {
 .nav-group summary {
   display: flex;
   align-items: center;
-  gap: 10px;
-  min-height: 36px;
-  padding: 6px 8px;
+  gap: 11px;
+  min-height: 34px;
+  padding: 7px 8px;
   border-radius: var(--radius-sm);
-  color: rgb(255 255 255 / 80%);
+  color: var(--c-text);
   cursor: pointer;
   list-style: none;
   font-size: 12.5px;
-  font-weight: 600;
-  transition: background-color 120ms ease, color 120ms ease, box-shadow 120ms ease;
+  font-weight: 500;
+  transition: background-color 120ms ease, color 120ms ease;
 }
 
 .nav-group summary::-webkit-details-marker {
   display: none;
 }
 
+/* Chevron discret : deux traits, jamais d'aplat. */
 .nav-group summary::after {
-  width: 6px;
-  height: 6px;
+  width: 5px;
+  height: 5px;
   margin-left: auto;
   flex: 0 0 auto;
-  border-right: 1.5px solid currentColor;
-  border-bottom: 1.5px solid currentColor;
+  border-right: 1.3px solid currentColor;
+  border-bottom: 1.3px solid currentColor;
   content: "";
-  opacity: 0.65;
+  opacity: 0.4;
   transform: rotate(45deg) translateY(-2px);
-  transition: transform 140ms ease;
+  transition: transform 140ms ease, opacity 120ms ease;
 }
 
 .nav-group[open] > summary::after {
-  opacity: 1;
+  opacity: 0.85;
   transform: rotate(225deg) translateY(-2px);
 }
 
 .nav-group summary:hover {
-  color: var(--c-surface);
-  background: rgb(255 255 255 / 8%);
+  color: var(--c-primary);
+  background: var(--c-bg);
   text-decoration: none;
 }
 
 .nav-group[open] > summary {
-  color: var(--c-surface);
-  background: rgb(255 255 255 / 10%);
-  box-shadow: inset 3px 0 0 var(--c-accent);
+  color: var(--c-primary);
+  font-weight: 600;
 }
 
 .nav-submenu {
   display: grid;
-  gap: 1px;
-  margin: 2px 0 6px 21px;
-  padding-left: 9px;
-  border-left: var(--border-w) solid rgb(255 255 255 / 16%);
+  gap: 0;
+  margin: 0 0 8px 18px;
+  padding-left: 13px;
+  border-left: var(--border-w) solid var(--c-line);
 }
 
 .nav-submenu a {
+  position: relative;
   padding: 6px 8px;
   border-radius: var(--radius-xs);
-  color: rgb(255 255 255 / 64%);
+  color: var(--c-muted);
   font-size: 12px;
   font-weight: 500;
   transition: background-color 120ms ease, color 120ms ease;
 }
 
 .nav-submenu a:hover {
-  color: var(--c-surface);
-  background: rgb(255 255 255 / 8%);
+  color: var(--c-primary);
+  background: var(--c-bg);
   text-decoration: none;
 }
 
+/* Lien courant : texte primaire, pastille cyan posée sur le filet. */
 .nav-submenu a.active {
-  color: var(--c-surface);
-  background: rgb(255 255 255 / 12%);
-  font-weight: 700;
-  box-shadow: inset 2px 0 0 var(--c-accent);
+  color: var(--c-primary);
+  font-weight: 650;
 }
 
+.nav-submenu a.active::before {
+  position: absolute;
+  top: 50%;
+  left: -16px;
+  width: 5px;
+  height: 5px;
+  margin-top: -2.5px;
+  border-radius: 50%;
+  background: var(--c-accent);
+  content: "";
+}
+
+/* Icônes au trait, sans tuile ni fond. */
 .nav-icon {
   display: grid;
-  width: 26px;
-  height: 26px;
+  width: 18px;
+  height: 18px;
   flex: 0 0 auto;
   place-items: center;
-  border: var(--border-w) solid transparent;
-  border-radius: var(--radius-xs);
-  color: var(--c-accent-soft);
-  background: rgb(255 255 255 / 8%);
+  color: var(--c-muted);
+  background: transparent;
+  transition: color 120ms ease;
 }
 
 .nav-icon svg {
-  width: 15px;
-  height: 15px;
+  width: 16px;
+  height: 16px;
   fill: none;
   stroke: currentColor;
   stroke-linecap: round;
   stroke-linejoin: round;
-  stroke-width: 1.7;
+  stroke-width: 1.6;
 }
 
 .nav-icon svg circle {
@@ -1298,39 +1297,37 @@ hr {
 }
 
 .nav-group summary:hover .nav-icon {
-  border-color: rgb(255 255 255 / 20%);
-  color: var(--c-surface);
+  color: var(--c-primary);
 }
 
-.nav-group[open] > summary .nav-icon {
-  border-color: transparent;
-  color: var(--c-surface);
-  background: var(--c-accent);
+.nav-group[open] > summary .nav-icon,
+.nav-group.has-active > summary .nav-icon {
+  color: var(--c-accent);
 }
 
 .sidebar-logout {
   margin-top: auto;
-  padding: 12px;
-  border-top: var(--border-w) solid rgb(255 255 255 / 14%);
+  padding: 10px;
+  border-top: var(--border-w) solid var(--c-line);
 }
 
 .sidebar-logout button {
   display: flex;
   align-items: center;
-  gap: 9px;
+  gap: 10px;
   width: 100%;
-  min-height: 36px;
-  padding: 8px 10px;
-  border: var(--border-w) solid rgb(255 255 255 / 18%);
+  min-height: 34px;
+  padding: 7px 8px;
+  border: 0;
   border-radius: var(--radius-sm);
-  color: rgb(255 255 255 / 80%);
+  color: var(--c-muted);
   background: transparent;
   font: inherit;
   text-align: left;
   cursor: pointer;
   font-size: 12.5px;
-  font-weight: 600;
-  transition: border-color 120ms ease, background-color 120ms ease, color 120ms ease;
+  font-weight: 500;
+  transition: background-color 120ms ease, color 120ms ease;
 }
 
 .logout-icon {
@@ -1341,13 +1338,12 @@ hr {
   stroke: currentColor;
   stroke-linecap: round;
   stroke-linejoin: round;
-  stroke-width: 1.8;
+  stroke-width: 1.7;
 }
 
 .sidebar-logout button:hover {
-  border-color: rgb(255 255 255 / 40%);
-  color: var(--c-surface);
-  background: rgb(255 255 255 / 10%);
+  color: var(--c-danger);
+  background: var(--c-bg);
 }
 
 .admin-main {
@@ -2210,7 +2206,7 @@ button:focus-visible,
     min-height: 0;
     max-height: none;
     overflow: visible;
-    background: var(--c-primary);
+    background: var(--c-surface);
   }
 
   .brand {

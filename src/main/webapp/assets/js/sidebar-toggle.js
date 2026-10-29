@@ -14,6 +14,16 @@
     // au lieu d'être transformé en tiroir hors écran.
     shell.classList.add("js-nav");
 
+    // Lien courant : aria-current pour les lecteurs d'écran, et repère cyan sur
+    // le groupe parent même lorsque celui-ci est replié.
+    shell.querySelectorAll(".nav-submenu a.active").forEach((link) => {
+        link.setAttribute("aria-current", "page");
+        const group = link.closest(".nav-group");
+        if (group) {
+            group.classList.add("has-active");
+        }
+    });
+
     let backdrop = shell.querySelector(".admin-sidebar-backdrop");
     if (!backdrop) {
         backdrop = document.createElement("button");
@@ -52,12 +62,25 @@
         shell.classList.add("sidebar-open");
         document.body.classList.add("sidebar-lock");
         updateButton();
+        // Lien courant d'abord ; sinon le premier groupe visible, car un lien
+        // actif peut être caché dans un groupe replié.
+        const visible = (selector) => sidebar
+            ? [...sidebar.querySelectorAll(selector)].find((element) => element.offsetParent !== null)
+            : null;
+        const target = visible(".nav-submenu a.active") || visible(".nav-group summary");
+        if (target) {
+            target.focus({ preventScroll: true });
+        }
     };
 
     const closeDrawer = () => {
+        const wasOpen = isDrawerOpen();
         shell.classList.remove("sidebar-open");
         document.body.classList.remove("sidebar-lock");
         updateButton();
+        if (wasOpen && sidebar && sidebar.contains(document.activeElement)) {
+            toggle.focus({ preventScroll: true });
+        }
     };
 
     updateButton();
