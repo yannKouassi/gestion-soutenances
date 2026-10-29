@@ -1,12 +1,10 @@
 package ci.univ.soutenances.controller;
 
 import java.io.IOException;
-import java.time.format.DateTimeFormatter;
 import java.util.Map;
 import java.util.UUID;
 
 import ci.univ.soutenances.config.AdminAuthorizationFilter;
-import ci.univ.soutenances.model.ActionHistoryEntry;
 import ci.univ.soutenances.model.Encadreur;
 import ci.univ.soutenances.model.Etudiant;
 import ci.univ.soutenances.model.SessionUser;
@@ -33,8 +31,6 @@ import jakarta.servlet.http.HttpServletResponse;
         "/admin/utilisateurs/*"
 })
 public class ActeursServlet extends HttpServlet {
-    private static final int HISTORY_PAGE_SIZE = 4;
-    private static final DateTimeFormatter HISTORY_DATE_FORMAT = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
     private static final Map<String, String> TITLES = Map.of(
             "encadreurs", "Encadreurs",
             "etudiants", "Étudiants",
@@ -294,29 +290,8 @@ public class ActeursServlet extends HttpServlet {
 
     private boolean setHistoryPage(HttpServletRequest request, HttpServletResponse response, String type)
             throws IOException {
-        int requestedPage = parsePage(request.getParameter("page"));
-        String screen = screenCode(type);
-        long total = historiqueActionService.countByScreen(screen);
-        int pages = (int) ((total + HISTORY_PAGE_SIZE - 1) / HISTORY_PAGE_SIZE);
-        int current = pages == 0 ? 1 : Math.min(requestedPage, pages);
-        long offset = (long) (current - 1) * HISTORY_PAGE_SIZE;
-        if (offset > Integer.MAX_VALUE) {
-            response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Numéro de page trop grand.");
-            return false;
-        }
-        request.setAttribute("historyActions",
-                historiqueActionService.findPage(screen, (int) offset, HISTORY_PAGE_SIZE).stream()
-                        .map(action -> new ActionHistoryEntry(
-                                action.getDateAction().format(HISTORY_DATE_FORMAT),
-                                action.getDescription(), actionLabel(action.getTypeAction()),
-                                action.getUtilisateur().getLogin(), TITLES.get(type)))
-                        .toList());
-        request.setAttribute("historyPage", current);
-        request.setAttribute("historyTotalPages", pages);
-        request.setAttribute("historyTotalActions", total);
-        request.setAttribute("historyFirstPage", Math.max(1, current - 2));
-        request.setAttribute("historyLastPage", Math.min(pages, current + 2));
-        return true;
+        return HistoryPagination.expose(request, response, historiqueActionService, screenCode(type),
+                TITLES.get(type), null);
     }
 
     private void showActorFormError(HttpServletRequest request, HttpServletResponse response,
@@ -400,30 +375,8 @@ public class ActeursServlet extends HttpServlet {
         }
     }
 
-    private static int parsePage(String raw) {
-        if (raw == null || raw.isBlank()) {
-            return 1;
-        }
-        try {
-            int page = Integer.parseInt(raw);
-            if (page < 1) {
-                throw new IllegalArgumentException("Le numéro de page doit être positif.");
-            }
-            return page;
-        } catch (NumberFormatException exception) {
-            throw new IllegalArgumentException("Numéro de page invalide.");
-        }
-    }
-
     private static String clean(String value) {
         return value == null ? "" : value.trim();
-    }
-
-    private static String actionLabel(String typeAction) {
-        if (typeAction.endsWith("_CREATION")) return "Création";
-        if (typeAction.endsWith("_MODIFICATION")) return "Modification";
-        if (typeAction.endsWith("_SUPPRESSION")) return "Suppression";
-        return typeAction;
     }
 
     private static void forwardForm(HttpServletRequest request, HttpServletResponse response, String type)

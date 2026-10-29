@@ -10,7 +10,6 @@ import java.util.List;
 import java.util.UUID;
 
 import ci.univ.soutenances.config.AdminAuthorizationFilter;
-import ci.univ.soutenances.model.ActionHistoryEntry;
 import ci.univ.soutenances.model.Memoire;
 import ci.univ.soutenances.model.SessionUser;
 import ci.univ.soutenances.model.Soutenance;
@@ -33,7 +32,6 @@ public class PlanificationServlet extends HttpServlet {
     private static final String TITLE = "Planification des soutenances";
     private static final String SCREEN = "SOUTENANCE";
     private static final String FORM_VIEW = "/WEB-INF/views/admin/soutenance-form.jsp";
-    private static final int HISTORY_PAGE_SIZE = 4;
     private static final DateTimeFormatter HISTORY_DATE_FORMAT = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
     private static final DateTimeFormatter INPUT_FORMAT = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm");
 
@@ -206,32 +204,10 @@ public class PlanificationServlet extends HttpServlet {
 
     private boolean setHistoryPage(HttpServletRequest request, HttpServletResponse response)
             throws IOException {
-        int requestedPage = parsePage(request.getParameter("page"));
-        long total = historiqueActionService.countByScreen(SCREEN);
-        int pages = (int) ((total + HISTORY_PAGE_SIZE - 1) / HISTORY_PAGE_SIZE);
-        int current = pages == 0 ? 1 : Math.min(requestedPage, pages);
-        long offset = (long) (current - 1) * HISTORY_PAGE_SIZE;
-        if (offset > Integer.MAX_VALUE) {
-            response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Numéro de page trop grand.");
-            return false;
-        }
-        request.setAttribute("historyActions",
-                historiqueActionService.findPage(SCREEN, (int) offset, HISTORY_PAGE_SIZE).stream()
-                        .map(action -> new ActionHistoryEntry(
-                                action.getDateAction().format(HISTORY_DATE_FORMAT),
-                                action.getDescription(), actionLabel(action.getTypeAction()),
-                                action.getUtilisateur().getLogin(), TITLE))
-                        .toList());
-        request.setAttribute("historyPage", current);
-        request.setAttribute("historyTotalPages", pages);
-        request.setAttribute("historyTotalActions", total);
-        request.setAttribute("historyFirstPage", Math.max(1, current - 2));
-        request.setAttribute("historyLastPage", Math.min(pages, current + 2));
         Soutenance element = (Soutenance) request.getAttribute("element");
         String elementId = element == null || element.getId() == null ? "" : element.getId().toString();
-        request.setAttribute("historyEditBase",
+        return HistoryPagination.expose(request, response, historiqueActionService, SCREEN, TITLE,
                 request.getContextPath() + "/admin/planification?id=" + elementId);
-        return true;
     }
 
     private boolean recordAction(HttpServletRequest request, String action, String label) {
@@ -256,19 +232,6 @@ public class PlanificationServlet extends HttpServlet {
 
     private static String clean(String value) {
         return value == null ? "" : value.trim();
-    }
-
-    private static String actionLabel(String typeAction) {
-        if (typeAction.endsWith("_CREATION")) {
-            return "Création";
-        }
-        if (typeAction.endsWith("_MODIFICATION")) {
-            return "Modification";
-        }
-        if (typeAction.endsWith("_SUPPRESSION")) {
-            return "Suppression";
-        }
-        return typeAction;
     }
 
     private static String[] pathParts(HttpServletRequest request) {
@@ -313,21 +276,6 @@ public class PlanificationServlet extends HttpServlet {
             return LocalDateTime.parse(raw, INPUT_FORMAT);
         } catch (DateTimeParseException exception) {
             throw new IllegalArgumentException("La date et l’heure de la soutenance sont invalides.");
-        }
-    }
-
-    private static int parsePage(String raw) {
-        if (raw == null || raw.isBlank()) {
-            return 1;
-        }
-        try {
-            int page = Integer.parseInt(raw);
-            if (page < 1) {
-                throw new IllegalArgumentException("Le numéro de page doit être positif.");
-            }
-            return page;
-        } catch (NumberFormatException exception) {
-            throw new IllegalArgumentException("Numéro de page invalide.");
         }
     }
 

@@ -8,7 +8,6 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 import ci.univ.soutenances.config.AdminAuthorizationFilter;
-import ci.univ.soutenances.model.ActionHistoryEntry;
 import ci.univ.soutenances.model.Encadreur;
 import ci.univ.soutenances.model.Etudiant;
 import ci.univ.soutenances.model.Evaluation;
@@ -33,7 +32,6 @@ public class JuryServlet extends HttpServlet {
     private static final String TITLE = "Composition du jury";
     private static final String SCREEN = "JURY";
     private static final String FORM_VIEW = "/WEB-INF/views/admin/jury-form.jsp";
-    private static final int HISTORY_PAGE_SIZE = 4;
     private static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
 
     @EJB
@@ -194,30 +192,8 @@ public class JuryServlet extends HttpServlet {
 
     private boolean setHistoryPage(HttpServletRequest request, HttpServletResponse response)
             throws IOException {
-        int requestedPage = parsePage(request.getParameter("page"));
-        long total = historiqueActionService.countByScreen(SCREEN);
-        int pages = (int) ((total + HISTORY_PAGE_SIZE - 1) / HISTORY_PAGE_SIZE);
-        int current = pages == 0 ? 1 : Math.min(requestedPage, pages);
-        long offset = (long) (current - 1) * HISTORY_PAGE_SIZE;
-        if (offset > Integer.MAX_VALUE) {
-            response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Numéro de page trop grand.");
-            return false;
-        }
-        request.setAttribute("historyActions",
-                historiqueActionService.findPage(SCREEN, (int) offset, HISTORY_PAGE_SIZE).stream()
-                        .map(action -> new ActionHistoryEntry(
-                                action.getDateAction().format(DATE_FORMAT),
-                                action.getDescription(), actionLabel(action.getTypeAction()),
-                                action.getUtilisateur().getLogin(), TITLE))
-                        .toList());
-        request.setAttribute("historyPage", current);
-        request.setAttribute("historyTotalPages", pages);
-        request.setAttribute("historyTotalActions", total);
-        request.setAttribute("historyFirstPage", Math.max(1, current - 2));
-        request.setAttribute("historyLastPage", Math.min(pages, current + 2));
-        request.setAttribute("historyEditBase",
+        return HistoryPagination.expose(request, response, historiqueActionService, SCREEN, TITLE,
                 request.getContextPath() + "/admin/jury?soutenance=" + request.getParameter("soutenance"));
-        return true;
     }
 
     private boolean recordAction(HttpServletRequest request, String action, String label) {
@@ -246,19 +222,6 @@ public class JuryServlet extends HttpServlet {
         return value == null ? "" : value.trim();
     }
 
-    private static String actionLabel(String typeAction) {
-        if (typeAction.endsWith("_CREATION")) {
-            return "Création";
-        }
-        if (typeAction.endsWith("_MODIFICATION")) {
-            return "Modification";
-        }
-        if (typeAction.endsWith("_SUPPRESSION")) {
-            return "Suppression";
-        }
-        return typeAction;
-    }
-
     private static String[] pathParts(HttpServletRequest request) {
         String path = request.getPathInfo();
         return path == null || path.equals("/") ? new String[0] : path.substring(1).split("/");
@@ -280,21 +243,6 @@ public class JuryServlet extends HttpServlet {
             return parseId(rawId);
         } catch (IllegalArgumentException exception) {
             return null;
-        }
-    }
-
-    private static int parsePage(String raw) {
-        if (raw == null || raw.isBlank()) {
-            return 1;
-        }
-        try {
-            int page = Integer.parseInt(raw);
-            if (page < 1) {
-                throw new IllegalArgumentException("Le numéro de page doit être positif.");
-            }
-            return page;
-        } catch (NumberFormatException exception) {
-            throw new IllegalArgumentException("Numéro de page invalide.");
         }
     }
 
