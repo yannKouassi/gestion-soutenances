@@ -79,10 +79,11 @@ public class SoutenanceServiceImpl implements SoutenanceService {
         if (dateHeure == null) {
             throw new IllegalArgumentException("La date et l'heure de la soutenance sont obligatoires.");
         }
+        Soutenance existante = null;
         if (soutenance.getId() == null) {
             requireFutur(dateHeure);
         } else {
-            Soutenance existante = soutenanceRepository.findById(soutenance.getId())
+            existante = soutenanceRepository.findById(soutenance.getId())
                     .orElseThrow(() -> new IllegalArgumentException("Soutenance introuvable."));
             if (existante.getStatut() == StatutSoutenance.ANNULEE) {
                 throw new IllegalArgumentException(
@@ -94,6 +95,12 @@ public class SoutenanceServiceImpl implements SoutenanceService {
         }
         Memoire memoire = memoireRepository.findById(requireId(memoireId, "du mémoire"))
                 .orElseThrow(() -> new IllegalArgumentException("Mémoire introuvable."));
+        if (existante != null && existante.getMemoire() != null
+                && !existante.getMemoire().getId().equals(memoire.getId())
+                && !evaluationRepository.findBySoutenanceId(soutenance.getId()).isEmpty()) {
+            throw new IllegalArgumentException(
+                    "Le mémoire ne peut plus être changé : un jury est déjà associé à cette soutenance.");
+        }
         if (memoire.getDateDepot() != null && dateHeure.toLocalDate().isBefore(memoire.getDateDepot())) {
             throw new IllegalArgumentException(
                     "La date de la soutenance ne peut pas être antérieure à la date de dépôt du mémoire.");

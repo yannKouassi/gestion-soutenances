@@ -161,6 +161,8 @@ public class PlanificationServlet extends HttpServlet {
                 element == null || element.getSalle() == null ? null : element.getSalle().getId()));
         request.setAttribute("dateHeureValue", dateHeureValue(request.getParameter("dateHeure"), element));
         request.setAttribute("dateHeureMin", dateHeureMin(memoires, selectedMemoireId));
+        request.setAttribute("memoireVerrouille", element != null && element.getId() != null
+                && !soutenanceService.findMembres(element.getId()).isEmpty());
     }
 
     private static String dateHeureMin(List<Memoire> memoires, UUID selectedMemoireId) {

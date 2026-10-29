@@ -33,10 +33,15 @@
                 <input type="hidden" name="id" value="<c:out value='${element.id}'/>">
                 <div class="float-field field-full">
                     <div class="float-field-box">
+                        <c:choose><c:when test="${memoireVerrouille}">
+                            <select id="memoireId" class="float-field-select" disabled aria-disabled="true"><option selected><c:out value="${element.memoire.titre}"/></option></select>
+                            <input type="hidden" name="memoireId" value="<c:out value='${element.memoire.id}'/>">
+                        </c:when><c:otherwise>
                         <select id="memoireId" name="memoireId" required class="float-field-select"><option value=""></option><c:forEach var="memoire" items="${memoires}"><option value="<c:out value='${memoire.id}'/>" data-date-depot="<c:out value='${memoire.dateDepot}'/>" ${memoire.id eq selectedMemoireId ? 'selected' : ''}><c:out value="${memoire.titre}"/> — <c:out value="${memoire.encadreur.prenom}"/> <c:out value="${memoire.encadreur.nom}"/></option></c:forEach></select>
+                        </c:otherwise></c:choose>
                         <label class="float-field-label" for="memoireId">Mémoire à soutenir <span class="required-mark" aria-hidden="true">*</span></label>
                     </div>
-                    <small class="float-field-hint">Seuls les mémoires encore sans soutenance sont proposés.</small>
+                    <small class="float-field-hint"><c:choose><c:when test="${memoireVerrouille}">Le mémoire est verrouillé : un jury est déjà associé à cette soutenance.</c:when><c:otherwise>Seuls les mémoires encore sans soutenance sont proposés.</c:otherwise></c:choose></small>
                 </div>
                 <div class="float-field">
                     <div class="float-field-box">
