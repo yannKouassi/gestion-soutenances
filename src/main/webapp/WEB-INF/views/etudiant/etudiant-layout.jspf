@@ -1,0 +1,32 @@
+<%@ page pageEncoding="UTF-8" %>
+<%@ taglib prefix="c" uri="jakarta.tags.core" %>
+<div class="admin-rail">
+<aside class="admin-sidebar" id="etudiant-sidebar">
+    <a class="brand" href="${pageContext.request.contextPath}/etudiant/ma-soutenance">
+        <span class="brand-mark" aria-hidden="true">
+            <svg viewBox="0 0 24 24" focusable="false"><path d="m2.5 9 9.5-5 9.5 5-9.5 5-9.5-5Z"/><path d="M6.5 11.2v5.3c3.2 2.5 7.8 2.5 11 0v-5.3M21.5 9v6"/></svg>
+        </span>
+        <span class="brand-copy"><strong>Soutenances EE</strong><small>Portail Étudiant</small></span>
+    </a>
+    <p class="nav-heading">Menu Étudiant</p>
+    <nav class="admin-nav" aria-label="Espace étudiant">
+        <details class="nav-group" name="etudiant-nav" title="Ma Soutenance" ${type eq 'ma-soutenance' ? 'open' : ''}>
+            <summary><span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><path d="M4 5h16v15H4z"/><path d="M8 5V3h8v2M8 10h8m-8 4h8m-8 4h5"/></svg></span>Ma Soutenance</summary>
+            <div class="nav-submenu">
+                <a class="${type eq 'ma-soutenance' ? 'active' : ''}" href="${pageContext.request.contextPath}/etudiant/ma-soutenance">Détail de ma soutenance</a>
+            </div>
+        </details>
+        <details class="nav-group" name="etudiant-nav" title="Mon Profil" ${type eq 'profil' ? 'open' : ''}>
+            <summary><span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><circle cx="12" cy="8" r="3.5"/><path d="M5 21v-2a7 7 0 0 1 14 0v2"/></svg></span>Mon Profil</summary>
+            <div class="nav-submenu">
+                <a class="${type eq 'profil' ? 'active' : ''}" href="${pageContext.request.contextPath}/etudiant/profil">Mes informations</a>
+            </div>
+            <script src="${pageContext.request.contextPath}/assets/js/sidebar-toggle.js?v=20261027-2" defer></script>
+        </details>
+    </nav>
+    <form class="sidebar-logout" method="post" action="${pageContext.request.contextPath}/logout">
+        <input type="hidden" name="csrfToken" value="<c:out value='${csrfToken}'/>">
+        <button type="submit"><svg class="logout-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M10 17l5-5-5-5M15 12H3M12 3h6a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-6"/></svg> Se déconnecter</button>
+    </form>
+</aside>
+</div>

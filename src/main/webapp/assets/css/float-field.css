@@ -1,0 +1,284 @@
+/* ==========================================================================
+   CHAMP À LABEL FLOTTANT (float-field.css)
+   ==========================================================================
+   Rôle : composant de champ « bordure basse » pour les formulaires.
+   Importé par theme.css, donc chargé avant le reste du socle. Utilisé par les
+   formulaires des espaces (login, setup-admin et formulaires d'entité
+   admin / encadreur). Exception connue : un champ date NON requis
+   (dateDepot du formulaire mémoire) reste en champ classique, la détection
+   « champ rempli » du composant ne couvre que les dates requises.
+
+   Principe :
+     - pas de cadre : une seule bordure basse ;
+     - le label est posé DANS le champ, à la place du texte ;
+     - au focus, ou dès que le champ a une valeur, le label remonte au-dessus
+       du trait et le placeholder devient visible ;
+     - 100 % CSS, aucun JavaScript :
+         champs texte / textarea : :placeholder-shown ;
+         select                  : :has(option:checked:not([value=""])) ;
+         date / time / month     : :required:valid.
+
+   Markup attendu :
+     <div class="float-field">
+       <div class="float-field-box">
+         <input class="float-field-input" id="nom" type="text" placeholder="Ex. Kouassi">
+         <label class="float-field-label" for="nom">Nom <span class="required-mark">*</span></label>
+       </div>
+       <span class="float-field-hint">…</span>
+     </div>
+
+   Variante : .float-field--error sur le conteneur ; :disabled sur le champ.
+
+   Contrainte : un champ texte ou un textarea doit porter un attribut
+   placeholder (même vide : placeholder=" "), sinon :placeholder-shown ne
+   matche jamais et le label reste flotté en permanence.
+
+   Contrainte : un date/time/month n'a ni placeholder ni :placeholder-shown ;
+   on le déclare required et on s'appuie sur :required:valid. Sans required,
+   le label ne flottera qu'au focus.
+   ========================================================================== */
+
+.float-field {
+    /* Distance parcourue par le label entre sa position repos et sa position
+       flottée : doit rester égale à .float-field-label { top }. */
+    --ff-float: 31px;
+
+    display: grid;
+    gap: 6px;
+    min-width: 0;
+}
+
+/* Réserve la hauteur du label flotté au-dessus du champ. */
+.float-field-box {
+    position: relative;
+    padding-top: 18px;
+}
+
+
+/* ==========================================================================
+   CHAMP NU : BORDURE BASSE UNIQUEMENT
+   ========================================================================== */
+
+.float-field-input,
+.float-field-select,
+.float-field-textarea {
+    display: block;
+    width: 100%;
+    min-height: 42px;
+    padding: 10px 0;
+    border: 0;
+    border-bottom: var(--border-w) solid var(--c-line-strong);
+    border-radius: 0;
+    background: transparent;
+    color: var(--c-text);
+    font-family: var(--font-sans);
+    font-size: var(--fs-base);
+    line-height: 1.4;
+}
+
+.float-field-input:focus,
+.float-field-select:focus,
+.float-field-textarea:focus {
+    outline: none;
+}
+
+/* Trait d'accent qui se déploie au focus. */
+.float-field-box::after {
+    content: "";
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    height: var(--border-w);
+    background: var(--c-accent);
+    transform: scaleX(0);
+    transform-origin: left center;
+    transition: transform .2s ease;
+    pointer-events: none;
+}
+
+.float-field-box:focus-within::after {
+    transform: scaleX(1);
+}
+
+
+/* ==========================================================================
+   LABEL FLOTTANT
+   ========================================================================== */
+
+.float-field-label {
+    position: absolute;
+    top: var(--ff-float);
+    left: 0;
+    color: var(--c-muted);
+    font-size: var(--fs-base);
+    font-weight: 600;
+    line-height: 1;
+    white-space: nowrap;
+    pointer-events: none;   /* le clic traverse le label jusqu'au champ */
+    transform-origin: left top;
+    transition: transform .18s ease, color .18s ease;
+}
+
+/* Label flotté : au focus, ou quand le champ a déjà une valeur.
+   Le select teste l'option réellement sélectionnée ; le date s'appuie sur
+   required + :valid. */
+.float-field:focus-within .float-field-label,
+.float-field-input:is(
+        [type="text"],
+        [type="email"],
+        [type="tel"],
+        [type="password"],
+        [type="search"],
+        [type="url"],
+        [type="number"],
+        :not([type])
+    ):not(:placeholder-shown) + .float-field-label,
+.float-field-textarea:not(:placeholder-shown) + .float-field-label,
+.float-field-select:has(option:checked:not([value=""])) + .float-field-label,
+.float-field-input:is(
+        [type="date"],
+        [type="time"],
+        [type="datetime-local"],
+        [type="month"],
+        [type="week"]
+    ):required:valid + .float-field-label {
+    transform: translateY(calc(-1 * var(--ff-float))) scale(.8);
+}
+
+/* Au focus : label accentué. Rempli sans focus : label neutre. */
+.float-field:focus-within .float-field-label {
+    color: var(--c-accent);
+    font-weight: 700;
+}
+
+
+/* ==========================================================================
+   PLACEHOLDER : invisible au repos, révélé au focus
+   Le label occupe la place du texte tant que le champ est vide ; afficher
+   le placeholder en même temps créerait un doublon.
+   ========================================================================== */
+
+.float-field-input::placeholder,
+.float-field-textarea::placeholder {
+    color: transparent;
+    transition: color .18s ease;
+}
+
+.float-field-input:focus::placeholder,
+.float-field-textarea:focus::placeholder {
+    color: var(--c-placeholder);
+}
+
+
+/* ==========================================================================
+   SELECT
+   ========================================================================== */
+
+.float-field-select {
+    padding-right: 28px;
+    appearance: none;
+    background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1.5l5 5 5-5' fill='none' stroke='%231E293B' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 2px center;
+    cursor: pointer;
+}
+
+
+/* ==========================================================================
+   DATE / TIME / MONTH
+   Un date input vide affiche déjà « jj/mm/aaaa » : on le rend transparent
+   pour que le label fasse office de placeholder, et on réaffiche le format
+   natif au focus (le label est alors flotté).
+   ========================================================================== */
+
+.float-field-input:is(
+    [type="date"],
+    [type="time"],
+    [type="datetime-local"],
+    [type="month"],
+    [type="week"]
+):required:invalid {
+    color: transparent;
+}
+
+.float-field-input:is(
+    [type="date"],
+    [type="time"],
+    [type="datetime-local"],
+    [type="month"],
+    [type="week"]
+):required:invalid:focus {
+    color: var(--c-text);
+}
+
+
+/* ==========================================================================
+   TEXTAREA
+   ========================================================================== */
+
+.float-field-textarea {
+    min-height: 96px;
+    resize: vertical;
+}
+
+
+/* ==========================================================================
+   AIDES
+   ========================================================================== */
+
+.float-field-hint {
+    color: var(--c-muted);
+    font-size: var(--fs-xs);
+    line-height: 1.4;
+}
+
+.float-field-hint code {
+    font-family: ui-monospace, Consolas, "Cascadia Mono", monospace;
+    font-size: .92em;
+}
+
+
+/* ==========================================================================
+   ÉTAT ERREUR
+   ========================================================================== */
+
+.float-field--error .float-field-input,
+.float-field--error .float-field-select,
+.float-field--error .float-field-textarea {
+    border-bottom-color: var(--c-danger);
+}
+
+.float-field--error .float-field-label {
+    color: var(--c-danger);
+}
+
+.float-field--error .float-field-hint {
+    color: var(--c-danger);
+    font-weight: 600;
+}
+
+.float-field--error .float-field-box::after {
+    background: var(--c-danger);
+    transform: scaleX(1);
+}
+
+
+/* ==========================================================================
+   ÉTAT DÉSACTIVÉ
+   ========================================================================== */
+
+.float-field-input:disabled,
+.float-field-select:disabled,
+.float-field-textarea:disabled {
+    border-bottom-style: dashed;
+    border-bottom-color: var(--c-line);
+    color: var(--c-muted);
+    cursor: not-allowed;
+}
+
+.float-field-input:disabled + .float-field-label,
+.float-field-select:disabled + .float-field-label,
+.float-field-textarea:disabled + .float-field-label {
+    color: var(--c-placeholder);
+}

@@ -1,0 +1,2 @@
+ALTER TABLE Evaluation
+    MODIFY COLUMN note DECIMAL(4, 2) NULL;

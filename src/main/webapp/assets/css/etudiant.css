@@ -1,0 +1,16 @@
+/* ==========================================================================
+   GESTION DES SOUTENANCES — ESPACE ÉTUDIANT (etudiant.css)
+   ==========================================================================
+   Rôle : accueillir les styles propres à l'espace étudiant.
+
+   Contient : rien pour l'instant — aucune règle n'est propre à cet espace ;
+   les 2 pages étudiantes n'utilisent que la coquille et les composants
+   partagés de theme.css.
+
+   Ne contient pas : tokens, reset, primitives ui-*, coquille ou composants
+   partagés (theme.css), ni les styles admin, auth ou encadreur.
+
+   Ordre de chargement : theme.css puis etudiant.css.
+   Chaque règle ajoutée ici doit rester spécifique à l'espace étudiant ;
+   un style partagé va dans theme.css.
+   ========================================================================== */

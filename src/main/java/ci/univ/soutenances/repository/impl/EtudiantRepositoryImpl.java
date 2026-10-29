@@ -34,15 +34,20 @@ public class EtudiantRepositoryImpl implements EtudiantRepository {
 
     @Override
     public List<Etudiant> findByEncadreurId(UUID encadreurId) {
-        return entityManager.createQuery(
-                "SELECT e FROM Etudiant e "
-                        + "JOIN FETCH e.memoire "
-                        + "JOIN FETCH e.filiere "
-                        + "WHERE e.memoire.encadreur.id = :encadreurId "
-                        + "ORDER BY e.nom, e.prenom",
-                Etudiant.class)
-                .setParameter("encadreurId", encadreurId)
-                .getResultList();
+        CriteriaBuilder builder = entityManager.getCriteriaBuilder();
+        CriteriaQuery<Etudiant> query = builder.createQuery(Etudiant.class);
+        Root<Etudiant> etudiant = query.from(Etudiant.class);
+        etudiant.fetch("memoire", JoinType.INNER)
+                .fetch("encadreur", JoinType.INNER)
+                .fetch("grade", JoinType.INNER);
+        etudiant.fetch("memoire", JoinType.INNER)
+                .fetch("encadreur", JoinType.INNER)
+                .fetch("departement", JoinType.INNER);
+        etudiant.fetch("filiere", JoinType.INNER).fetch("departement", JoinType.INNER);
+        query.select(etudiant).distinct(true)
+                .where(builder.equal(etudiant.get("memoire").get("encadreur").get("id"), encadreurId))
+                .orderBy(builder.asc(etudiant.get("nom")), builder.asc(etudiant.get("prenom")));
+        return entityManager.createQuery(query).getResultList();
     }
 
     @Override
@@ -55,6 +60,21 @@ public class EtudiantRepositoryImpl implements EtudiantRepository {
         etudiant.fetch("utilisateur", JoinType.INNER);
         query.select(etudiant).distinct(true).where(builder.equal(etudiant.get("id"), id));
         return entityManager.createQuery(query).getResultStream().findFirst();
+    }
+
+    @Override
+    public Optional<Etudiant> findByUtilisateurId(UUID utilisateurId) {
+        return entityManager.createQuery(
+                "SELECT e FROM Etudiant e "
+                        + "JOIN FETCH e.filiere "
+                        + "JOIN FETCH e.filiere.departement "
+                        + "JOIN FETCH e.utilisateur "
+                        + "LEFT JOIN FETCH e.memoire "
+                        + "LEFT JOIN FETCH e.memoire.encadreur "
+                        + "WHERE e.utilisateur.id = :utilisateurId",
+                Etudiant.class)
+                .setParameter("utilisateurId", utilisateurId)
+                .getResultStream().findFirst();
     }
 
     @Override
@@ -73,6 +93,16 @@ public class EtudiantRepositoryImpl implements EtudiantRepository {
         CriteriaQuery<Long> query = builder.createQuery(Long.class);
         Root<Etudiant> etudiant = query.from(Etudiant.class);
         query.select(builder.count(etudiant)).where(builder.equal(etudiant.get("matricule"), matricule),
+                excludedId == null ? builder.conjunction() : builder.notEqual(etudiant.get("id"), excludedId));
+        return entityManager.createQuery(query).getSingleResult() > 0;
+    }
+
+    @Override
+    public boolean existsByMemoireId(UUID memoireId, UUID excludedId) {
+        CriteriaBuilder builder = entityManager.getCriteriaBuilder();
+        CriteriaQuery<Long> query = builder.createQuery(Long.class);
+        Root<Etudiant> etudiant = query.from(Etudiant.class);
+        query.select(builder.count(etudiant)).where(builder.equal(etudiant.get("memoire").get("id"), memoireId),
                 excludedId == null ? builder.conjunction() : builder.notEqual(etudiant.get("id"), excludedId));
         return entityManager.createQuery(query).getSingleResult() > 0;
     }

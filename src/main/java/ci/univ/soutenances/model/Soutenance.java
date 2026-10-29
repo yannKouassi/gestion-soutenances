@@ -38,6 +38,10 @@ public class Soutenance extends BaseEntity {
     protected Soutenance() {
     }
 
+    public static Soutenance create() {
+        return new Soutenance();
+    }
+
     public LocalDateTime getDateHeure() {
         return dateHeure;
     }

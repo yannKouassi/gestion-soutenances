@@ -1,14 +1,10 @@
 package ci.univ.soutenances.controller;
 
 import java.io.IOException;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
-import java.time.format.DateTimeFormatter;
 import java.util.Map;
 import java.util.UUID;
 
 import ci.univ.soutenances.config.AdminAuthorizationFilter;
-import ci.univ.soutenances.model.ActionHistoryEntry;
 import ci.univ.soutenances.model.BaseEntity;
 import ci.univ.soutenances.model.Departement;
 import ci.univ.soutenances.model.Filiere;
@@ -16,6 +12,7 @@ import ci.univ.soutenances.model.Grade;
 import ci.univ.soutenances.model.Salle;
 import ci.univ.soutenances.model.SessionUser;
 import ci.univ.soutenances.service.DepartementService;
+import ci.univ.soutenances.util.FlashMessages;
 import ci.univ.soutenances.service.FiliereService;
 import ci.univ.soutenances.service.GradeService;
 import ci.univ.soutenances.service.HistoriqueActionService;
@@ -35,8 +32,6 @@ import jakarta.servlet.http.HttpServletResponse;
         "/admin/salles/*"
 })
 public class ReferentielServlet extends HttpServlet {
-    private static final int HISTORY_PAGE_SIZE = 4;
-    private static final DateTimeFormatter HISTORY_DATE_FORMAT = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
     private static final Map<String, String> TITLES = Map.of(
             "departements", "Départements",
             "filieres", "Filières",
@@ -90,8 +85,7 @@ public class ReferentielServlet extends HttpServlet {
                 if (!setHistoryPage(request, response, type)) {
                     return;
                 }
-                request.setAttribute("message", request.getParameter("message"));
-                request.setAttribute("erreur", request.getParameter("erreur"));
+                FlashMessages.exposer(request);
                 request.getRequestDispatcher(listView(type)).forward(request, response);
                 return;
             }
@@ -262,32 +256,8 @@ public class ReferentielServlet extends HttpServlet {
 
     private boolean setHistoryPage(HttpServletRequest request, HttpServletResponse response, String type)
             throws IOException {
-        int requestedPage = parsePage(request.getParameter("page"));
-        String code = screenCode(type);
-        long totalActions = historiqueActionService.countByScreen(code);
-        int totalPages = (int) ((totalActions + HISTORY_PAGE_SIZE - 1) / HISTORY_PAGE_SIZE);
-        int currentPage = totalPages == 0 ? 1 : Math.min(requestedPage, totalPages);
-        long offset = (long) (currentPage - 1) * HISTORY_PAGE_SIZE;
-        if (offset > Integer.MAX_VALUE) {
-            response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Numéro de page trop grand.");
-            return false;
-        }
-
-        request.setAttribute("historyActions",
-                historiqueActionService.findPage(code, (int) offset, HISTORY_PAGE_SIZE).stream()
-                        .map(action -> new ActionHistoryEntry(
-                                action.getDateAction().format(HISTORY_DATE_FORMAT),
-                                action.getDescription(),
-                                actionLabel(action.getTypeAction()),
-                                action.getUtilisateur().getLogin(),
-                                TITLES.get(type)))
-                        .toList());
-        request.setAttribute("historyPage", currentPage);
-        request.setAttribute("historyTotalPages", totalPages);
-        request.setAttribute("historyTotalActions", totalActions);
-        request.setAttribute("historyFirstPage", Math.max(1, currentPage - 2));
-        request.setAttribute("historyLastPage", Math.min(totalPages, currentPage + 2));
-        return true;
+        return HistoryPagination.expose(request, response, historiqueActionService, screenCode(type),
+                TITLES.get(type), null);
     }
 
     private boolean recordAction(HttpServletRequest request, String type, String action, String label) {
@@ -313,19 +283,6 @@ public class ReferentielServlet extends HttpServlet {
             case "salles" -> "SALLE";
             default -> throw new IllegalArgumentException("Type de référentiel inconnu.");
         };
-    }
-
-    private static String actionLabel(String typeAction) {
-        if (typeAction.endsWith("_CREATION")) {
-            return "Création";
-        }
-        if (typeAction.endsWith("_MODIFICATION")) {
-            return "Modification";
-        }
-        if (typeAction.endsWith("_SUPPRESSION")) {
-            return "Suppression";
-        }
-        return typeAction;
     }
 
     private static boolean isCreation(HttpServletRequest request) {
@@ -371,21 +328,6 @@ public class ReferentielServlet extends HttpServlet {
 
     private static String clean(String value) {
         return value == null ? "" : value.trim();
-    }
-
-    private static int parsePage(String value) {
-        if (value == null || value.isBlank()) {
-            return 1;
-        }
-        try {
-            int page = Integer.parseInt(value);
-            if (page < 1) {
-                throw new IllegalArgumentException("Le numéro de page doit être positif.");
-            }
-            return page;
-        } catch (NumberFormatException exception) {
-            throw new IllegalArgumentException("Numéro de page invalide.");
-        }
     }
 
     private void showFormError(HttpServletRequest request, HttpServletResponse response,
@@ -493,7 +435,11 @@ public class ReferentielServlet extends HttpServlet {
 
     private static void redirect(HttpServletRequest request, HttpServletResponse response,
             String type, String parameter, String message) throws IOException {
-        response.sendRedirect(request.getContextPath() + "/admin/" + type + "?"
-                + parameter + "=" + URLEncoder.encode(message, StandardCharsets.UTF_8));
+        if ("erreur".equals(parameter)) {
+            FlashMessages.erreur(request, message);
+        } else {
+            FlashMessages.succes(request, message);
+        }
+        response.sendRedirect(request.getContextPath() + "/admin/" + type);
     }
 }

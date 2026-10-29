@@ -1,10 +1,35 @@
 package ci.univ.soutenances.repository;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
 import ci.univ.soutenances.model.Soutenance;
+import ci.univ.soutenances.model.SoutenanceVue;
+import ci.univ.soutenances.model.StatutSoutenance;
 
 public interface SoutenanceRepository {
+    List<SoutenanceVue> findAll();
+
+    List<SoutenanceVue> findByStatut(StatutSoutenance statut);
+
+    List<SoutenanceVue> findByEtudiantAndFiliere(UUID etudiantId, UUID filiereId);
+
+    List<SoutenanceVue> findByFiltres(StatutSoutenance statut, UUID etudiantId, UUID filiereId);
+
+    Optional<SoutenanceVue> findVueById(UUID id);
+
+    Optional<Soutenance> findByMemoireId(UUID memoireId);
+
     Optional<Soutenance> findById(UUID id);
+
+    List<LocalDateTime> findCreneauxBySalle(UUID salleId, LocalDate jour, UUID excludedSoutenanceId);
+
+    List<LocalDateTime> findCreneauxByEncadreur(UUID encadreurId, LocalDate jour, UUID excludedSoutenanceId);
+
+    boolean existsBySalleId(UUID salleId);
+
+    Soutenance save(Soutenance soutenance);
 }

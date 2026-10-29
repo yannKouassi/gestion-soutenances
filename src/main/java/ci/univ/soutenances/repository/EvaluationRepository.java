@@ -1,5 +1,7 @@
 package ci.univ.soutenances.repository;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -9,9 +11,17 @@ import ci.univ.soutenances.model.Evaluation;
 public interface EvaluationRepository {
     List<Evaluation> findBySoutenanceId(UUID soutenanceId);
 
+    List<Evaluation> findBySoutenanceIds(List<UUID> soutenanceIds);
+
+    List<LocalDateTime> findCreneauxByEncadreur(UUID encadreurId, LocalDate jour, UUID excludedSoutenanceId);
+
+    List<Evaluation> findJuryBySoutenanceId(UUID soutenanceId);
+
     List<Evaluation> findByEncadreurId(UUID encadreurId);
 
     Optional<Evaluation> findBySoutenanceAndEncadreur(UUID soutenanceId, UUID encadreurId);
 
     Evaluation save(Evaluation evaluation);
+
+    void delete(Evaluation evaluation);
 }

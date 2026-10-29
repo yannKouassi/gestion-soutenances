@@ -2,8 +2,7 @@ package ci.univ.soutenances.controller;
 
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
@@ -15,12 +14,14 @@ import ci.univ.soutenances.model.ConvocationVue;
 import ci.univ.soutenances.model.Encadreur;
 import ci.univ.soutenances.model.Evaluation;
 import ci.univ.soutenances.model.Etudiant;
+import ci.univ.soutenances.model.EtudiantSoutenanceVue;
 import ci.univ.soutenances.model.JuryVue;
 import ci.univ.soutenances.model.MembreJuryVue;
 import ci.univ.soutenances.model.SessionUser;
 import ci.univ.soutenances.model.Soutenance;
 import ci.univ.soutenances.model.StatutSoutenance;
 import ci.univ.soutenances.service.EncadreurService;
+import ci.univ.soutenances.util.FlashMessages;
 import ci.univ.soutenances.service.HistoriqueActionService;
 import jakarta.ejb.EJB;
 import jakarta.ejb.EJBException;
@@ -148,12 +149,42 @@ public class EncadreurServlet extends HttpServlet {
             return;
         }
         List<Evaluation> convocations = encadreurService.findEvaluationsByEncadreur(encadreur.getId());
+        if ("mes-jurys".equals(section) && "detail".equals(request.getParameter("vue"))) {
+            UUID soutenanceId = parseId(request.getParameter("id"));
+            if (convocations.stream().noneMatch(
+                    convocation -> convocation.getSoutenance().getId().equals(soutenanceId))) {
+                response.sendError(HttpServletResponse.SC_NOT_FOUND);
+                return;
+            }
+            Soutenance soutenance = encadreurService.findSoutenanceById(soutenanceId).orElse(null);
+            if (soutenance == null) {
+                response.sendError(HttpServletResponse.SC_NOT_FOUND);
+                return;
+            }
+            List<Evaluation> jury = encadreurService.findEvaluationsBySoutenance(soutenanceId);
+            Evaluation maConvocation = findMine(jury, encadreur.getId());
+            if (maConvocation == null) {
+                response.sendError(HttpServletResponse.SC_NOT_FOUND);
+                return;
+            }
+            request.setAttribute("type", section);
+            request.setAttribute("titre", TITLES.get(section));
+            request.setAttribute("encadreur", encadreur);
+            request.setAttribute("soutenance", soutenance);
+            request.setAttribute("jury", jury);
+            request.setAttribute("juryResume", buildJury(jury, encadreur.getId(), soutenanceId));
+            request.setAttribute("maConvocation", maConvocation);
+            request.setAttribute("moyenne", encadreurService.calculerMoyenne(soutenanceId).orElse(null));
+            request.setAttribute("dateAffichee", formatDate(soutenance));
+            setLogoutToken(request);
+            request.getRequestDispatcher("/WEB-INF/views/encadreur/jury-detail.jsp").forward(request, response);
+            return;
+        }
         request.setAttribute("type", section);
         request.setAttribute("titre", TITLES.get(section));
         request.setAttribute("encadreur", encadreur);
         request.setAttribute("lignes", buildLignes(convocations, encadreur.getId()));
-        request.setAttribute("message", request.getParameter("message"));
-        request.setAttribute("erreur", request.getParameter("erreur"));
+        FlashMessages.exposer(request);
         setLogoutToken(request);
         request.getRequestDispatcher("/WEB-INF/views/encadreur/mes-jurys.jsp").forward(request, response);
     }
@@ -165,12 +196,48 @@ public class EncadreurServlet extends HttpServlet {
             return;
         }
         List<Etudiant> etudiants = encadreurService.findEtudiantsEncadres(encadreur.getId());
+        if ("detail".equals(request.getParameter("vue"))) {
+            UUID etudiantId = parseId(request.getParameter("id"));
+            Etudiant etudiant = etudiants.stream()
+                    .filter(value -> value.getId().equals(etudiantId))
+                    .findFirst()
+                    .orElse(null);
+            if (etudiant == null) {
+                response.sendError(HttpServletResponse.SC_NOT_FOUND);
+                return;
+            }
+            request.setAttribute("type", "mes-etudiants");
+            request.setAttribute("titre", TITLES.get("mes-etudiants"));
+            request.setAttribute("encadreur", encadreur);
+            request.setAttribute("ligne", buildEtudiantSoutenanceVue(etudiant));
+            setLogoutToken(request);
+            request.getRequestDispatcher("/WEB-INF/views/encadreur/etudiant-detail.jsp").forward(request, response);
+            return;
+        }
+        List<EtudiantSoutenanceVue> encadrements = new ArrayList<>(etudiants.size());
+        for (Etudiant etudiant : etudiants) {
+            encadrements.add(buildEtudiantSoutenanceVue(etudiant));
+        }
         request.setAttribute("type", "mes-etudiants");
         request.setAttribute("titre", TITLES.get("mes-etudiants"));
         request.setAttribute("encadreur", encadreur);
-        request.setAttribute("etudiants", etudiants);
+        request.setAttribute("encadrements", encadrements);
         setLogoutToken(request);
         request.getRequestDispatcher("/WEB-INF/views/encadreur/mes-etudiants.jsp").forward(request, response);
+    }
+
+    private EtudiantSoutenanceVue buildEtudiantSoutenanceVue(Etudiant etudiant) {
+        Soutenance soutenance = etudiant.getMemoire() == null
+                ? null
+                : encadreurService.findSoutenanceByMemoireId(etudiant.getMemoire().getId()).orElse(null);
+        List<Evaluation> membresJury = soutenance == null
+                ? List.of()
+                : encadreurService.findEvaluationsBySoutenance(soutenance.getId());
+        BigDecimal noteFinale = soutenance == null
+                ? null
+                : encadreurService.calculerMoyenne(soutenance.getId()).orElse(null);
+        return new EtudiantSoutenanceVue(etudiant, soutenance, membresJury, noteFinale,
+                soutenance == null ? null : formatDate(soutenance));
     }
 
     private void showNoteForm(HttpServletRequest request, HttpServletResponse response)
@@ -201,8 +268,8 @@ public class EncadreurServlet extends HttpServlet {
         request.setAttribute("moyenne", encadreurService.calculerMoyenne(soutenanceId).orElse(null));
         request.setAttribute("dejaNote", maConvocation.getNote() != null);
         request.setAttribute("dateAffichee", formatDate(soutenance));
-        request.setAttribute("message", request.getParameter("message"));
-        request.setAttribute("erreur", request.getParameter("erreur"));
+        setSaisieAuthorization(request, soutenance, jury.size());
+        FlashMessages.exposer(request);
         setLogoutToken(request);
         request.getRequestDispatcher("/WEB-INF/views/encadreur/evaluation-form.jsp").forward(request, response);
     }
@@ -236,6 +303,7 @@ public class EncadreurServlet extends HttpServlet {
             request.setAttribute("moyenne", encadreurService.calculerMoyenne(soutenanceId).orElse(null));
             request.setAttribute("dejaNote", maConvocation.getNote() != null);
             request.setAttribute("dateAffichee", formatDate(soutenance));
+            setSaisieAuthorization(request, soutenance, jury.size());
             request.setAttribute("erreur", error);
             setLogoutToken(request);
             request.getRequestDispatcher("/WEB-INF/views/encadreur/evaluation-form.jsp").forward(request, response);
@@ -388,13 +456,42 @@ public class EncadreurServlet extends HttpServlet {
         return soutenance.getDateHeure().format(DATE_FORMAT);
     }
 
+    private static void setSaisieAuthorization(HttpServletRequest request, Soutenance soutenance, int tailleJury) {
+        boolean autorisee = soutenance.getStatut() == StatutSoutenance.PLANIFIEE
+                && soutenance.getDateHeure() != null
+                && !soutenance.getDateHeure().isAfter(LocalDateTime.now())
+                && tailleJury >= 2;
+        request.setAttribute("saisieAutorisee", autorisee);
+        request.setAttribute("raisonSaisieBloquee", autorisee ? null : raisonBlocageSaisie(soutenance, tailleJury));
+    }
+
+    private static String raisonBlocageSaisie(Soutenance soutenance, int tailleJury) {
+        if (soutenance.getStatut() == StatutSoutenance.ANNULEE) {
+            return "Cette soutenance est annulée.";
+        }
+        if (soutenance.getStatut() == StatutSoutenance.EVALUEE) {
+            return "Cette soutenance est déjà évaluée ; les notes sont closes.";
+        }
+        if (soutenance.getDateHeure() != null && soutenance.getDateHeure().isAfter(LocalDateTime.now())) {
+            return "La soutenance n’a pas encore eu lieu ; la note ne peut pas être saisie.";
+        }
+        if (tailleJury < 2) {
+            return "Un jury doit comporter au moins deux membres avant la saisie des notes.";
+        }
+        return null;
+    }
+
     private static String clean(String value) {
         return value == null ? "" : value.trim();
     }
 
     private static void redirectJurys(HttpServletRequest request, HttpServletResponse response,
             String parameter, String message) throws IOException {
-        response.sendRedirect(request.getContextPath() + "/encadreur/mes-jurys?"
-                + parameter + "=" + URLEncoder.encode(message, StandardCharsets.UTF_8));
+        if ("erreur".equals(parameter)) {
+            FlashMessages.erreur(request, message);
+        } else {
+            FlashMessages.succes(request, message);
+        }
+        response.sendRedirect(request.getContextPath() + "/encadreur/mes-jurys");
     }
 }

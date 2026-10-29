@@ -1,7 +1,7 @@
 package ci.univ.soutenances.service.impl;
 
 import java.math.BigDecimal;
-import java.math.RoundingMode;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -22,6 +22,7 @@ import ci.univ.soutenances.repository.GradeRepository;
 import ci.univ.soutenances.repository.SoutenanceRepository;
 import ci.univ.soutenances.service.CompteService;
 import ci.univ.soutenances.service.EncadreurService;
+import ci.univ.soutenances.service.SoutenanceService;
 import jakarta.ejb.EJB;
 import jakarta.ejb.Stateless;
 
@@ -47,6 +48,9 @@ public class EncadreurServiceImpl implements EncadreurService {
 
     @EJB
     private SoutenanceRepository soutenanceRepository;
+
+    @EJB
+    private SoutenanceService soutenanceService;
 
     @Override
     public List<Encadreur> findAll() {
@@ -110,19 +114,13 @@ public class EncadreurServiceImpl implements EncadreurService {
     }
 
     @Override
+    public Optional<Soutenance> findSoutenanceByMemoireId(UUID memoireId) {
+        return soutenanceRepository.findByMemoireId(requireId(memoireId, "mémoire"));
+    }
+
+    @Override
     public Optional<BigDecimal> calculerMoyenne(UUID soutenanceId) {
-        List<Evaluation> jury = evaluationRepository.findBySoutenanceId(requireId(soutenanceId, "soutenance"));
-        if (jury.isEmpty()) {
-            return Optional.empty();
-        }
-        BigDecimal total = BigDecimal.ZERO;
-        for (Evaluation evaluation : jury) {
-            if (evaluation.getNote() == null) {
-                return Optional.empty();
-            }
-            total = total.add(evaluation.getNote());
-        }
-        return Optional.of(total.divide(BigDecimal.valueOf(jury.size()), 2, RoundingMode.HALF_UP));
+        return soutenanceService.calculerMoyenne(requireId(soutenanceId, "soutenance"));
     }
 
     @Override
@@ -138,20 +136,29 @@ public class EncadreurServiceImpl implements EncadreurService {
         Evaluation evaluation = evaluationRepository.findBySoutenanceAndEncadreur(soutenanceId, encadreurId)
                 .orElseThrow(() -> new IllegalArgumentException(
                         "Cet encadreur n’est pas membre du jury de cette soutenance."));
+        Soutenance soutenance = soutenanceRepository.findById(soutenanceId)
+                .orElseThrow(() -> new IllegalArgumentException("Soutenance introuvable."));
+        if (soutenance.getStatut() == StatutSoutenance.EVALUEE) {
+            throw new IllegalArgumentException("Cette soutenance est déjà évaluée ; les notes sont closes.");
+        }
+        if (soutenance.getStatut() == StatutSoutenance.ANNULEE) {
+            throw new IllegalArgumentException("Cette soutenance est annulée.");
+        }
+        if (soutenance.getDateHeure() != null && soutenance.getDateHeure().isAfter(LocalDateTime.now())) {
+            throw new IllegalArgumentException(
+                    "La soutenance n’a pas encore eu lieu ; la note ne peut pas être saisie.");
+        }
+        if (evaluationRepository.findBySoutenanceId(soutenanceId).size() < 2) {
+            throw new IllegalArgumentException(
+                    "Un jury doit comporter au moins deux membres avant la saisie des notes.");
+        }
         if (evaluation.getNote() != null) {
             throw new IllegalArgumentException("Une note a déjà été soumise pour ce membre du jury.");
         }
         evaluation.setNote(note);
         evaluation.setAvis(avis == null || avis.isBlank() ? null : avis.trim());
         Evaluation soumise = evaluationRepository.save(evaluation);
-        List<Evaluation> jury = evaluationRepository.findBySoutenanceId(soutenanceId);
-        if (jury.size() >= 2 && jury.stream().allMatch(membre -> membre.getNote() != null)) {
-            soutenanceRepository.findById(soutenanceId).ifPresent(soutenance -> {
-                if (soutenance.getStatut() == StatutSoutenance.PLANIFIEE) {
-                    soutenance.setStatut(StatutSoutenance.EVALUEE);
-                }
-            });
-        }
+        soutenanceService.mettreAJourStatutApresEvaluation(soutenanceId);
         return soumise;
     }
 

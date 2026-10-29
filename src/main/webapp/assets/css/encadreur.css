@@ -1,0 +1,45 @@
+/* ==========================================================================
+   GESTION DES SOUTENANCES — ESPACE ENCADREUR (encadreur.css)
+   ==========================================================================
+   Rôle : styles propres à l'espace encadreur.
+
+   Contient : la grille de statistiques du tableau de bord (stat-grid,
+   stat-card, stat-label, stat-value).
+
+   Ne contient pas : tokens, reset, primitives ui-*, coquille partagée ni
+   composants partagés (theme.css), ni les styles admin, auth ou étudiant.
+
+   Ordre de chargement : theme.css puis encadreur.css.
+   ========================================================================== */
+
+.stat-grid {
+    display: grid;
+    gap: 14px;
+    grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+    width: calc(100% - 2 * clamp(20px, 3vw, 42px));
+    max-width: var(--page-max-width, 1040px);
+    margin: 0 auto 18px;
+}
+
+.stat-card {
+    display: grid;
+    gap: 4px;
+    padding: 16px 18px;
+    border: var(--border-w) solid var(--c-ink);
+    border-radius: var(--radius-md);
+    background: var(--c-surface);
+    box-shadow: var(--shadow-2);
+}
+
+.stat-label {
+    color: var(--c-muted);
+    font-size: 12px;
+    font-weight: 650;
+}
+
+.stat-value {
+    color: var(--c-primary);
+    font-size: 24px;
+    font-weight: 800;
+    font-variant-numeric: tabular-nums;
+}

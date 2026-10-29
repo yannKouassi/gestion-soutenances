@@ -1,5 +1,7 @@
 package ci.univ.soutenances.repository.impl;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -7,6 +9,7 @@ import java.util.UUID;
 import ci.univ.soutenances.model.Encadreur;
 import ci.univ.soutenances.model.Evaluation;
 import ci.univ.soutenances.model.Soutenance;
+import ci.univ.soutenances.model.StatutSoutenance;
 import ci.univ.soutenances.repository.EvaluationRepository;
 import jakarta.ejb.Stateless;
 import jakarta.persistence.EntityManager;
@@ -27,11 +30,54 @@ public class EvaluationRepositoryImpl implements EvaluationRepository {
         CriteriaBuilder builder = entityManager.getCriteriaBuilder();
         CriteriaQuery<Evaluation> query = builder.createQuery(Evaluation.class);
         Root<Evaluation> evaluation = query.from(Evaluation.class);
-        Join<Evaluation, Encadreur> membre = evaluation.join("encadreur", JoinType.INNER);
+        Join<Evaluation, Encadreur> membre = (Join<Evaluation, Encadreur>) evaluation
+                .<Evaluation, Encadreur>fetch("encadreur", JoinType.INNER);
+        membre.fetch("grade", JoinType.INNER);
         query.select(evaluation)
                 .where(builder.equal(evaluation.get("soutenance").get("id"), soutenanceId))
                 .orderBy(builder.asc(membre.get("nom")), builder.asc(membre.get("prenom")));
         return entityManager.createQuery(query).getResultList();
+    }
+
+    @Override
+    public List<Evaluation> findBySoutenanceIds(List<UUID> soutenanceIds) {
+        if (soutenanceIds == null || soutenanceIds.isEmpty()) {
+            return List.of();
+        }
+        return entityManager.createQuery(
+                "SELECT e FROM Evaluation e WHERE e.soutenance.id IN :soutenanceIds",
+                Evaluation.class)
+                .setParameter("soutenanceIds", soutenanceIds)
+                .getResultList();
+    }
+
+    @Override
+    public List<LocalDateTime> findCreneauxByEncadreur(UUID encadreurId, LocalDate jour,
+            UUID excludedSoutenanceId) {
+        CriteriaBuilder builder = entityManager.getCriteriaBuilder();
+        CriteriaQuery<LocalDateTime> query = builder.createQuery(LocalDateTime.class);
+        Root<Evaluation> evaluation = query.from(Evaluation.class);
+        Join<Evaluation, Soutenance> soutenance = evaluation.join("soutenance");
+        query.select(soutenance.get("dateHeure")).where(
+                builder.equal(evaluation.get("encadreur").get("id"), encadreurId),
+                builder.greaterThanOrEqualTo(soutenance.get("dateHeure"), jour.atStartOfDay()),
+                builder.lessThan(soutenance.get("dateHeure"), jour.plusDays(1).atStartOfDay()),
+                builder.notEqual(soutenance.get("statut"), StatutSoutenance.ANNULEE),
+                excludedSoutenanceId == null ? builder.conjunction()
+                        : builder.notEqual(soutenance.get("id"), excludedSoutenanceId));
+        return entityManager.createQuery(query).getResultList();
+    }
+
+    @Override
+    public List<Evaluation> findJuryBySoutenanceId(UUID soutenanceId) {
+        return entityManager.createQuery(
+                "SELECT e FROM Evaluation e "
+                        + "JOIN FETCH e.encadreur "
+                        + "WHERE e.soutenance.id = :soutenanceId "
+                        + "ORDER BY e.encadreur.nom, e.encadreur.prenom",
+                Evaluation.class)
+                .setParameter("soutenanceId", soutenanceId)
+                .getResultList();
     }
 
     @Override
@@ -64,7 +110,7 @@ public class EvaluationRepositoryImpl implements EvaluationRepository {
         CriteriaBuilder builder = entityManager.getCriteriaBuilder();
         CriteriaQuery<Evaluation> query = builder.createQuery(Evaluation.class);
         Root<Evaluation> evaluation = query.from(Evaluation.class);
-        evaluation.fetch("soutenance", JoinType.INNER);
+        evaluation.fetch("soutenance", JoinType.INNER).fetch("memoire", JoinType.INNER);
         evaluation.fetch("encadreur", JoinType.INNER);
         query.select(evaluation).distinct(true).where(
                 builder.equal(evaluation.get("soutenance").get("id"), soutenanceId),
@@ -79,5 +125,12 @@ public class EvaluationRepositoryImpl implements EvaluationRepository {
             return evaluation;
         }
         return entityManager.merge(evaluation);
+    }
+
+    @Override
+    public void delete(Evaluation evaluation) {
+        entityManager.remove(entityManager.contains(evaluation)
+                ? evaluation
+                : entityManager.merge(evaluation));
     }
 }

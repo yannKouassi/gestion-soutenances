@@ -6,7 +6,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Ajout / Édition Département | PGS-PFE</title>
-    <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/admin.css?v=20261015-admin-menu">
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/theme.css?v=20261021-shell-light">
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/admin.css?v=20261021-shell-light">
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/sidebar-toggle.css?v=20261027-3">
 </head>
 <body>
 <div class="admin-shell">
@@ -28,8 +30,19 @@
             <form class="form-grid" method="post" action="${pageContext.request.contextPath}/admin/departements/enregistrer">
                 <input type="hidden" name="csrfToken" value="<c:out value='${csrfToken}'/>">
                 <input type="hidden" name="id" value="<c:out value='${element.id}'/>">
-                <div class="field"><label for="code">Code <span class="required-mark" aria-hidden="true">*</span></label><input id="code" name="code" maxlength="30" required autocomplete="off" placeholder="Ex. GI" value="<c:out value='${not empty param.code ? param.code : element.code}'/>"><small class="field-hint">Code court utilisé pour identifier le département.</small></div>
-                <div class="field"><label for="nom">Nom <span class="required-mark" aria-hidden="true">*</span></label><input id="nom" name="nom" maxlength="120" required placeholder="Ex. Génie informatique" value="<c:out value='${not empty param.nom ? param.nom : element.nom}'/>"></div>
+                <div class="float-field">
+                    <div class="float-field-box">
+                        <input class="float-field-input" id="code" name="code" maxlength="30" required autocomplete="off" placeholder="Ex. GI" value="<c:out value='${not empty param.code ? param.code : element.code}'/>">
+                        <label class="float-field-label" for="code">Code <span class="required-mark" aria-hidden="true">*</span></label>
+                    </div>
+                    <small class="float-field-hint">Code court utilisé pour identifier le département.</small>
+                </div>
+                <div class="float-field">
+                    <div class="float-field-box">
+                        <input class="float-field-input" id="nom" name="nom" maxlength="120" required placeholder="Ex. Génie informatique" value="<c:out value='${not empty param.nom ? param.nom : element.nom}'/>">
+                        <label class="float-field-label" for="nom">Nom <span class="required-mark" aria-hidden="true">*</span></label>
+                    </div>
+                </div>
                 <div class="form-actions">
                     <button class="btn btn-primary" type="submit">Enregistrer</button>
                     <a class="btn btn-secondary" href="${pageContext.request.contextPath}/admin/departements">Annuler</a>

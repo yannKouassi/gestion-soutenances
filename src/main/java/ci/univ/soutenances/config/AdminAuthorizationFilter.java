@@ -29,13 +29,13 @@ public class AdminAuthorizationFilter implements Filter {
         HttpSession session = httpRequest.getSession(false);
 
         if (session == null) {
-            httpResponse.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Connexion requise.");
+            httpResponse.sendRedirect(httpRequest.getContextPath() + "/login");
             return;
         }
 
         Object sessionUser = session.getAttribute(SESSION_USER_ATTRIBUTE);
         if (!(sessionUser instanceof SessionUser utilisateur)) {
-            httpResponse.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Connexion requise.");
+            httpResponse.sendRedirect(httpRequest.getContextPath() + "/login");
             return;
         }
 

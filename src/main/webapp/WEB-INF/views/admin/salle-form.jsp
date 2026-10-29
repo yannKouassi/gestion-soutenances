@@ -6,7 +6,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Ajout / Édition Salle | PGS-PFE</title>
-    <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/admin.css?v=20261015-admin-menu">
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/theme.css?v=20261021-shell-light">
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/admin.css?v=20261021-shell-light">
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/sidebar-toggle.css?v=20261027-3">
 </head>
 <body>
 <div class="admin-shell">
@@ -28,16 +30,30 @@
             <form class="form-grid" method="post" action="${pageContext.request.contextPath}/admin/salles/enregistrer">
                 <input type="hidden" name="csrfToken" value="<c:out value='${csrfToken}'/>">
                 <input type="hidden" name="id" value="<c:out value='${element.id}'/>">
-                <div class="field"><label for="nomSalle">Nom de la salle <span class="required-mark" aria-hidden="true">*</span></label><input id="nomSalle" name="nomSalle" maxlength="100" required placeholder="Ex. Amphi A" value="<c:out value='${not empty param.nomSalle ? param.nomSalle : element.nomSalle}'/>"></div>
-                <div class="field"><label for="capacite">Capacité <span class="required-mark" aria-hidden="true">*</span></label><input id="capacite" name="capacite" type="number" min="1" step="1" required placeholder="Ex. 100" value="<c:out value='${not empty param.capacite ? param.capacite : element.capacite}'/>"><small class="field-hint">Nombre maximal de personnes pouvant être accueillies.</small></div>
-                <div class="field"><label for="departementId">Département <span class="required-mark" aria-hidden="true">*</span></label>
-                    <select id="departementId" name="departementId" required>
-                        <option value="">Choisir un département</option>
-                        <c:forEach var="departement" items="${departements}">
-                            <option value="${departement.id}" ${selectedDepartementId eq departement.id ? 'selected' : ''}><c:out value="${departement.code} — ${departement.nom}"/></option>
-                        </c:forEach>
-                    </select>
-                    <small class="field-hint"><c:choose><c:when test="${empty departements}">Crée d’abord un département pour pouvoir rattacher cette salle.</c:when><c:otherwise>Le département qui gère cette salle.</c:otherwise></c:choose></small>
+                <div class="float-field">
+                    <div class="float-field-box">
+                        <input class="float-field-input" id="nomSalle" name="nomSalle" maxlength="100" required placeholder="Ex. Amphi A" value="<c:out value='${not empty param.nomSalle ? param.nomSalle : element.nomSalle}'/>">
+                        <label class="float-field-label" for="nomSalle">Nom de la salle <span class="required-mark" aria-hidden="true">*</span></label>
+                    </div>
+                </div>
+                <div class="float-field">
+                    <div class="float-field-box">
+                        <input class="float-field-input" id="capacite" name="capacite" type="number" min="1" step="1" required placeholder="Ex. 100" value="<c:out value='${not empty param.capacite ? param.capacite : element.capacite}'/>">
+                        <label class="float-field-label" for="capacite">Capacité <span class="required-mark" aria-hidden="true">*</span></label>
+                    </div>
+                    <small class="float-field-hint">Nombre maximal de personnes pouvant être accueillies.</small>
+                </div>
+                <div class="float-field">
+                    <div class="float-field-box">
+                        <select id="departementId" name="departementId" required class="float-field-select">
+                            <option value=""></option>
+                            <c:forEach var="departement" items="${departements}">
+                                <option value="${departement.id}" ${selectedDepartementId eq departement.id ? 'selected' : ''}><c:out value="${departement.code} — ${departement.nom}"/></option>
+                            </c:forEach>
+                        </select>
+                        <label class="float-field-label" for="departementId">Département <span class="required-mark" aria-hidden="true">*</span></label>
+                    </div>
+                    <small class="float-field-hint"><c:choose><c:when test="${empty departements}">Crée d’abord un département pour pouvoir rattacher cette salle.</c:when><c:otherwise>Le département qui gère cette salle.</c:otherwise></c:choose></small>
                 </div>
                 <div class="form-actions">
                     <button class="btn btn-primary" type="submit" ${empty departements ? 'disabled' : ''}>Enregistrer</button>

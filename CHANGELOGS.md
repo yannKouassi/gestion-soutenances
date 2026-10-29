@@ -12,6 +12,155 @@ commande opencode `/nouvelle-changelog` rédige ensuite la partie « Détail » 
 partir du diff, des corps de commit et de l'intention de la feature.
 
 ---
+
+feature: Audit module C — Académique & Soutenances
+branche: fix/module-c-audit-suite
+base: main
+date: 2026-10-29
+auteurs:
+  - Yannick Kouassi
+  - thangrace15
+  - xxvByMe
+commits: 8
+
+## Audit module C — Académique & Soutenances
+
+### Détail
+
+Cette section décrit la suite du plan d'audit du module C (Académique &
+Soutenances) sur la branche `fix/module-c-audit-suite` : la résolution des points
+2.1 à 2.13 du rapport d'audit du 28 octobre 2026, en garde-fous métier côté
+service, formats de vue unifiés, messages en flash et tableau de bord.
+
+#### Planification et jury
+
+- Interdiction du changement de mémoire dès qu'une évaluation existe pour la
+  soutenance déjà planifiée ; le sélecteur de mémoire du formulaire est verrouillé
+  et l'identifiant est transmis en champ caché.
+- Durée de créneau fixe d'une heure appliquée aux contrôles de chevauchement :
+  la salle et l'encadré (membre du jury ou responsable du mémoire) ne peuvent plus
+  être mobilisés deux fois sur des créneaux qui se chevauchent ; les soutenances
+  annulées ne bloquent plus.
+
+#### Affichage
+
+- Formatage des dates de dépôt en français (`dd/MM/yyyy`) via un TLD EL dédié
+  (`fmt2:date`) et des notes en deux décimales avec virgule (`15,50`) via
+  `fmt2:note`.
+
+#### Flux et architecture
+
+- Les messages de succès / d'erreur passent en flash de session
+  (`FlashMessages`), plus en query-string.
+- La pagination de l'historique est centralisée (`HistoryPagination`), un seul
+  code pour les attributs de pagination.
+
+#### Pilotage
+
+- Création du `/admin/dashboard` avec compteurs de soutenances, jurys incomplets
+  et liste des prochaines soutenances planifiées.
+
+### Commits
+
+| Commit | Sujet |
+|---|---|
+| `d6296f4` | feat(admin) : creation du tableau de bord administrateur |
+| `51452aa` | fix(planification) : controler les chevauchements de salle et d'encadreur |
+| `0c0b364` | refactor(admin) : centraliser la pagination de l'historique |
+| `64c6a49` | refactor(web) : passer les messages de succes et d'erreur en flash de session |
+| `9ade38a` | feat(ui) : uniformiser l'affichage des notes avec deux decimales |
+| `1cf0b60` | feat(ui) : formater les dates de depot au format francais |
+| `642208b` | fix(soutenance) : interdire le changement de memoire sous un jury existant |
+| `914d214` | fix(session) : rediriger vers la page de connexion lors de l'expiration |
+
+---
+feature: Espace étudiant
+branche: feature/etudiant
+base: main
+date: 2026-10-19
+auteurs:
+  - xxvByMe
+commits: 2
+---
+
+## Espace étudiant
+
+### Détail
+
+Cette section décrit l'espace étudiant intégré dans `feature/etudiant` depuis
+`main` : l'accès en lecture seule pour les comptes de rôle `ETUDIANT`, la
+résolution de la soutenance depuis le compte de session, les deux écrans
+`/etudiant/ma-soutenance` et `/etudiant/profil`, et le nettoyage des vues
+étudiantes provisoires.
+
+#### Accès et sécurité
+
+- `EtudiantAuthorizationFilter` sur `/etudiant/*`, symétrique du filtre
+  encadreur : session requise, rôle `ETUDIANT` exigé, jeton généré en session et
+  comparé en temps constant sur les requêtes POST.
+- La soutenance affichée est résolue depuis le compte de session : le servlet lit
+  le `SessionUser` de la `HttpSession`, charge l'`Etudiant` par identifiant
+  d'utilisateur, puis remonte à sa soutenance par son mémoire. Aucun identifiant
+  reçu en paramètre d'URL n'est utilisé.
+- `DashboardServlet` renvoie un étudiant connecté vers `/etudiant/ma-soutenance` ;
+  la page d'attente `dashboard-placeholder.jsp` disparaît, les trois rôles ayant
+  désormais une destination.
+
+#### Couche de données
+
+- `EtudiantRepository.findByUtilisateurId` charge l'étudiant par son compte lié,
+  avec `filiere`, `departement`, `utilisateur`, `memoire` et `encadreur` en
+  `JOIN FETCH`.
+- `SoutenanceRepository.findByMemoireId` renvoie l'unique soutenance d'un
+  mémoire, mémoire et salle chargés.
+- `EvaluationRepository.findJuryBySoutenanceId` charge le jury d'une soutenance
+  avec un `JOIN FETCH` de l'encadreur : le `join` de tri de
+  `findBySoutenanceId` n'initialise pas l'association, donc la nouvelle méthode
+  s'en distingue explicitement.
+- `EtudiantService` expose ces lectures et le calcul de la moyenne du jury,
+  arrondie à deux décimales.
+
+#### Écran `/etudiant/ma-soutenance`
+
+- `EtudiantServlet`, servlet multi-URL des deux écrans, met en attribut tout ce
+  que la vue affiche : mémoire, planning, composition du jury, note finale et
+  états vides.
+- La note finale (moyenne du jury) n'est calculée et exposée que si le statut de
+  la soutenance est `EVALUEE`.
+- Trois états vides sont traités : étudiant sans mémoire, mémoire sans soutenance
+  planifiée, soutenance dont le jury compte moins de deux membres.
+- `/etudiant/menu` redirige vers `/etudiant/ma-soutenance` : ce n'est pas un
+  écran distinct.
+
+#### Écran `/etudiant/profil`
+
+- Profil en lecture seule, symétrique de l'espace encadreur : informations du
+  compte (login, rôle, état) et identité (nom, prénom, matricule, e-mail,
+  filière, mémoire).
+
+#### Vues et styles
+
+- `ma-soutenance.jsp` et `profil.jsp` réécrites en EL et JSTL, sans scriptlet,
+  avec les fragments `etudiant-layout.jspf` et `etudiant-topbar.jspf`, sur la
+  feuille de style partagée `admin.css`.
+- Suppression des vues étudiantes vides dupliquées sous `auth/etudiant`, de
+  l'ancienne feuille de style et du script `etudiant.css`/`etudiant.js`, et de
+  l'ancien `EtudiantController`.
+
+#### Documentation
+
+- `README.md` gagne une section « Espace étudiant » et précise la redirection des
+  rôles à la connexion.
+
+### Commits
+
+| Commit | Sujet |
+|---|---|
+| `d45d8ee` | Ajout du menu étudiant |
+| `(commit courant)` | feat(etudiant) : implémenter l'espace étudiant et la connexion étudiant |
+
+---
+
 feature: Espace encadreur
 branche: feat/encadreur-espace
 base: origin/main

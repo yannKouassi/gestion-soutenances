@@ -6,7 +6,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Mes étudiants encadrés | PGS-PFE</title>
-    <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/admin.css?v=20261015-admin-menu">
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/theme.css?v=20261021-shell-light">
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/encadreur.css?v=20261021-shell-light">
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/sidebar-toggle.css?v=20261027-3">
 </head>
 <body>
 <div class="admin-shell">
@@ -21,21 +23,40 @@
         </header>
         <section class="card" aria-label="Liste des étudiants encadrés">
             <c:choose>
-                <c:when test="${empty etudiants}">
-                    <div class="empty-state"><h2>Aucun étudiant encadré</h2><p>Les étudiants associés à tes mémoires apparaîtront ici.</p></div>
+                <c:when test="${empty encadrements}">
+                    <div class="card-body empty-state"><h2>Aucun étudiant encadré</h2><p>Les étudiants associés à tes mémoires apparaîtront ici.</p></div>
                 </c:when>
                 <c:otherwise>
                     <div class="table-wrap">
                         <table>
-                            <thead><tr><th>Étudiant</th><th>Matricule</th><th>Filière</th><th>Mémoire</th><th>État d’avancement</th></tr></thead>
+                            <thead>
+                                <tr><th>Étudiant</th><th>Matricule</th><th>Filière</th><th>Mémoire</th><th>État d’avancement</th><th>Actions</th></tr>
+                            </thead>
                             <tbody>
-                                <c:forEach var="etudiant" items="${etudiants}">
+                                <c:forEach var="ligne" items="${encadrements}">
                                     <tr>
-                                        <td class="primary-cell"><c:out value="${etudiant.prenom}"/> <c:out value="${etudiant.nom}"/></td>
-                                        <td><c:out value="${etudiant.matricule}"/></td>
-                                        <td><c:out value="${etudiant.filiere.libelle}"/></td>
-                                        <td><c:out value="${etudiant.memoire.titre}"/></td>
-                                        <td><c:choose><c:when test="${empty etudiant.memoire.dateDepot}"><span class="status-badge">En cours</span></c:when><c:otherwise><span class="status-badge">Déposé le <c:out value="${etudiant.memoire.dateDepot}"/></span></c:otherwise></c:choose></td>
+                                        <td class="primary-cell"><c:out value="${ligne.etudiant.prenom}"/> <c:out value="${ligne.etudiant.nom}"/></td>
+                                        <td><c:out value="${ligne.etudiant.matricule}"/></td>
+                                        <td><c:out value="${ligne.etudiant.filiere.libelle}"/></td>
+                                        <td>
+                                            <c:choose>
+                                                <c:when test="${empty ligne.etudiant.memoire}">Aucun mémoire associé</c:when>
+                                                <c:otherwise><c:out value="${ligne.etudiant.memoire.titre}"/></c:otherwise>
+                                            </c:choose>
+                                        </td>
+                                        <td>
+                                            <c:choose>
+                                                <c:when test="${empty ligne.soutenance}">
+                                                    <span class="status-badge">Pas de soutenance</span>
+                                                </c:when>
+                                                <c:otherwise>
+                                                    <span class="status-badge status-${ligne.soutenance.statut}"><c:out value="${ligne.soutenance.statut}"/></span>
+                                                </c:otherwise>
+                                            </c:choose>
+                                        </td>
+                                        <td>
+                                            <a class="row-action row-action-edit" href="${pageContext.request.contextPath}/encadreur/mes-etudiants?vue=detail&amp;id=${ligne.etudiant.id}">Détails</a>
+                                        </td>
                                     </tr>
                                 </c:forEach>
                             </tbody>
